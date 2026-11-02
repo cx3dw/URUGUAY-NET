@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola DX Atómica - Radioafición</title>
+    <title>Consola DX Global V1.5</title>
     <style>
         :root {
-            --bg-main: #05070f; --bg-card: #0c101f; --border: #1e293b;
+            --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
             --cyan: #00f0ff; --amber: #f59e0b; --red: #ef4444; --green: #10b981; --text: #f1f5f9;
         }
         body { font-family: 'Courier New', Courier, monospace; background-color: var(--bg-main); color: var(--text); margin: 0; padding: 20px; }
         .dashboard { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
-        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 15px; margin-bottom: 15px; }
+        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
         
-        /* Relojes del Sistema Real */
-        .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 10px; font-weight: bold; font-size: 1.2rem; }
+        .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
         .clock { color: var(--green); }
         .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
         
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #010206; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
         .btn-green { background: var(--green); color: #000; }
 
-        .feed-container { height: 220px; background: #010206; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; line-height: 1.4; }
+        .feed-container { height: 200px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; line-height: 1.4; }
         .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; }
         .feed-title { color: var(--cyan); font-weight: bold; }
         
@@ -36,10 +35,9 @@
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
-        .weather-display-box { background: #010206; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; }
-        .weather-main { font-size: 1.2rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
-        .eq-item { border-bottom: 1px solid #111827; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; }
-        .eq-mag { font-weight: bold; padding: 2px 6px; border-radius: 3px; color: #000; font-family: sans-serif; }
+        .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
+        .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
     </style>
 </head>
 <body>
@@ -47,32 +45,32 @@
     <div class="header">
         <h1>CONSOLA DE CONTROL OPERATIVO DX</h1>
         <div class="clocks-container">
-            <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
-            <div>HORA UTC: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
+            <div>LOCAL: <span id="clock-local" class="clock">--:--:--</span></div>
+            <div>HORA UTC: <span id="clock-utc" class="clock-utc">--:--:-- UTC</span></div>
         </div>
     </div>
 
     <div class="dashboard">
 
-        <!-- PANEL DE NOTICIAS DE VERDAD -->
+        <!-- BOLETINES EN VIVO DESDE LA NOAA (JSON SEGURO) -->
         <div class="card" style="grid-column: 1 / -1;">
-            <h2>Boletines y Avisos de Clima Espacial Real (NOAA Data)</h2>
-            <div class="feed-container" id="news-contents" style="height: 140px;">
-                <p style="color:var(--cyan);">Conectando con el servidor meteorológico espacial...</p>
+            <h2>Boletines y Avisos de Clima Espacial Real (NOAA Space Weather)</h2>
+            <div class="feed-container" id="news-contents" style="height: 120px;">
+                <p style="color:var(--cyan);">Conectando con el centro de predicciones meteorológicas solares...</p>
             </div>
         </div>
 
-        <!-- PANEL DE CHAT -->
+        <!-- CHAT INTERACTIVO -->
         <div class="card">
             <h2>Chat Interno / Clúster de Reportes</h2>
             <div class="feed-container" id="chat-contents"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia..." style="margin:0;">
+                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia...">
                 <button onclick="enviarMensajeEstacion()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
             </div>
         </div>
 
-        <!-- PANEL DE LOGGER -->
+        <!-- LOGGER (LIBRO DE GUARDIA) -->
         <div class="card">
             <h2>Radio Logbook (Libro de Guardia)</h2>
             <div class="logger-grid">
@@ -112,11 +110,11 @@
             </div>
         </div>
 
-        <!-- PANEL DE METEOROLOGÍA REAL -->
+        <!-- METEOROLOGÍA DE SATÉLITE -->
         <div class="card">
-            <h2>Meteorología Operativa por Coordenadas</h2>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <select id="weather-coords" style="margin:0;">
+            <h2>Meteorología de Estación (Satélite Abierto)</h2>
+            <div class="weather-search-box">
+                <select id="weather-coords">
                     <option value="40.41,-3.70">Madrid, España</option>
                     <option value="19.43,-99.13">Ciudad de México, México</option>
                     <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
@@ -127,18 +125,18 @@
                     <option value="-34.90,-56.16">Montevideo, Uruguay</option>
                     <option value="-33.45,-70.66">Santiago, Chile</option>
                 </select>
-                <button onclick="cargarClimaAbierto()" class="btn btn-green" style="width:auto; padding:0 15px;">Sincronizar</button>
+                <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
             </div>
-            <div class="weather-display-box" id="weather-result">
-                <p style="color:#64748b; margin:0;">Selecciona una zona para descargar datos atmosféricos reales...</p>
+            <div class="weather-display" id="weather-result">
+                <p style="color:#64748b; margin:0;">Establece zona geográfica para telemetría...</p>
             </div>
         </div>
 
-        <!-- PANEL DE SISMOS REAL DEL USGS -->
+        <!-- ALERTAS SÍSMICAS MUNDIALES REALES -->
         <div class="card">
-            <h2>Alertas de Terremotos Globales (USGS Real)</h2>
+            <h2>Alertas de Terremotos Mundiales Recientes (USGS)</h2>
             <div class="feed-container" id="eq-contents">
-                <p style="color:var(--cyan); margin:0;">Conectando con la red sismológica mundial...</p>
+                <p style="color:var(--cyan); margin:0;">Estableciendo enlace de telemetría...</p>
             </div>
         </div>
 
@@ -146,12 +144,12 @@
 
     <script>
         let listadoMensajes = [
-            { time: "00:01Z", user: "SYSTEM", msg: "Consola de control activa en el servidor de GitHub Pages." }
+            { time: "00:01Z", user: "SYSTEM", msg: "Consola enlazada de forma segura en GitHub Pages." }
         ];
         let listadoContactos = [];
 
         document.addEventListener("DOMContentLoaded", () => {
-            sincronizarRelojes();
+            correrRelojesSistema();
             buscarSismosActivos();
             cargarAlertasSolares();
             pintarChatActual();
@@ -160,8 +158,8 @@
             document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
         });
 
-        // 1. RELOJES DINÁMICOS DE ALTA PRECISIÓN (SISTEMA LOCAL Y UTC REAL)
-        function sincronizarRelojes() {
+        // 1. RELOJES DINÁMICOS EN VIVO CALCULADOS NATIVAMENTE
+        function correrRelojesSistema() {
             setInterval(() => {
                 const ahora = new Date();
                 document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
@@ -173,9 +171,15 @@
             }, 1000);
         }
 
-        // 2. BOLETINES REALES DIRECTOS DEL CENTRO DE PREDICCIÓN SOLAR (NOAA)
+        // 2. ALERTAS DEL CENTRO DE PREDICCIÓN SOLAR NOAA (JSON REAL)
         async function cargarAlertasSolares() {
             const contenedor = document.getElementById("news-contents");
             try {
                 const res = await fetch("https://noaa.gov");
                 const data = await res.json();
+                contenedor.innerHTML = "";
+                
+                if(data && data.length > 0) {
+                    data.slice(0, 3).forEach(item => {
+                        contenedor.innerHTML += `
+                            <div class="feed-item">

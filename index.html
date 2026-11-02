@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola de Control DX - Estación Abierta</title>
+    <title>Consola de Control DX - Consola Directa</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -14,7 +14,6 @@
         .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
         
-        /* Relojes de la Estación */
         .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
         .clock { color: var(--green); }
         .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
@@ -28,7 +27,6 @@
         .btn:hover { background-color: #00c8d6; }
         .btn-green { background: var(--green); color: #000; }
 
-        /* Módulos Internos */
         .chat-box { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; margin-bottom: 10px; font-size: 0.85rem; }
         .chat-msg { margin-bottom: 8px; border-bottom: 1px solid #111827; padding-bottom: 4px; }
         .chat-msg .user { color: var(--cyan); font-weight: bold; }
@@ -39,14 +37,12 @@
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
-        /* Selector de Clima */
         .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
         .weather-search-box select { margin: 0; }
         .weather-search-box button { width: auto; padding: 0 15px; }
         .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem;}
         .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
 
-        /* Alertas de Terremotos */
         .eq-display { height: 160px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
         .eq-item { border-bottom: 1px solid #111827; padding: 4px 0; display: flex; justify-content: space-between; }
         .eq-mag { font-weight: bold; padding: 0 4px; border-radius: 2px; }
@@ -56,7 +52,6 @@
 
     <div class="header">
         <h1>CONSOLA DE CONTROL OPERATIVO DX</h1>
-        
         <div class="clocks-container">
             <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
             <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
@@ -65,17 +60,17 @@
 
     <div class="dashboard">
 
-        <!-- MODULO 1: CLÚSTER / CHAT EN CALIENTE -->
+        <!-- MODULO 1: CHAT -->
         <div class="card">
             <h2>Chat / Clúster de Reportes DX</h2>
             <div class="chat-box" id="chat-contents"></div>
             <div style="display:flex; gap:5px;">
                 <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia..." style="margin:0;">
-                <button onclick="enviarMensajeChat()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
+                <button onclick="enviarMensajeEstacion()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
             </div>
         </div>
 
-        <!-- MODULO 2: LIBRO DE GUARDIA (LOGGER) -->
+        <!-- MODULO 2: LOGGER -->
         <div class="card">
             <h2>Radio Logbook (Libro de Guardia)</h2>
             <div class="logger-grid">
@@ -102,7 +97,7 @@
                         <option>CW (Morse)</option><option>FM</option>
                     </select>
                 </div>
-                <button onclick="registrarQSO()" class="btn" style="grid-column: 1/-1; margin-top:5px;">Registrar Contacto</button>
+                <button onclick="guardarRegistroNuevo()" class="btn" style="grid-column: 1/-1; margin-top:5px;">Registrar Contacto</button>
             </div>
             
             <div class="table-container">
@@ -115,7 +110,7 @@
             </div>
         </div>
 
-        <!-- MODULO 3: METEOROLOGÍA SATÉLITE HTTPS -->
+        <!-- MODULO 3: METEOROLOGÍA -->
         <div class="card">
             <h2>Meteorología Local de la Estación</h2>
             <div class="weather-search-box">
@@ -129,14 +124,14 @@
                     <option value="25.76,-80.19">Miami, USA</option>
                     <option value="-34.90,-56.16">Montevideo, Uruguay</option>
                 </select>
-                <button onclick="consultarMeteoGitHub()" class="btn btn-green">Sincronizar</button>
+                <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
             </div>
             <div class="weather-display" id="weather-result">
                 <p style="color:#64748b; margin:0;">Selecciona una zona de operación de antenas para descargar telemetría...</p>
             </div>
         </div>
 
-        <!-- MODULO 4: ALERTAS SÍSMICAS REALES -->
+        <!-- MODULO 4: ALERTAS SÍSMICAS -->
         <div class="card">
             <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
             <div class="eq-display" id="eq-contents">
@@ -147,36 +142,39 @@
     </div>
 
     <script>
-        // Memoria volátil interna
-        let listaChats = [
-            { time: "20:05Z", user: "EA1ABC", msg: "Consola de control operativa en GitHub Pages." },
-            { time: "20:12Z", user: "LU9FCE", msg: "Monitoreando reportes y condiciones de propagación." }
+        let listadoMensajes = [
+            { time: "22:10Z", user: "ESTACION_BASE", msg: "Consola de monitoreo directa inicializada en GitHub." },
+            { time: "22:15Z", user: "LU9FCE", msg: "Reportando frecuencias de escucha estables." }
         ];
-        let listaLogs = [];
+        let listadoContactos = [];
 
         document.addEventListener("DOMContentLoaded", () => {
-            inicializarRelojes();
-            cargarTerremotosReales();
-            cargarChat();
-            cargarLogbook();
+            correrRelojesSistema();
+            buscarSismosActivos();
+            pintarChatActual();
+            pintarTablaContactos();
 
-            document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeChat(); });
+            document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
         });
 
-        // RELOJES SÍNCRONOS
-        function inicializarRelojes() {
+        function correrRelojesSistema() {
             setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
+                const f = new Date();
+                document.getElementById('clock-local').innerText = f.toLocaleTimeString();
                 
-                const horasUTC = String(ahora.getUTCHours()).padStart(2, '0');
-                const minUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
-                const segUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
-                document.getElementById('clock-utc').innerText = `${horasUTC}:${minUTC}:${segUTC} UTC`;
+                const h = String(f.getUTCHours()).padStart(2, '0');
+                const m = String(f.getUTCMinutes()).padStart(2, '0');
+                const s = String(f.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('clock-utc').innerText = `${h}:${m}:${s} UTC`;
             }, 1000);
         }
 
-        // METEOROLOGÍA VIA HTTPS NATIVA
-        async function consultarMeteoGitHub() {
-            const lista = document.getElementById("weather-coords");
-            const coordenadas = lista.value.split(",");
+        async function cargarClimaAbierto() {
+            const dropdown = document.getElementById("weather-coords");
+            const geo = dropdown.value.split(",");
+            const txtCiudad = dropdown.options[dropdown.selectedIndex].text;
+            const caja = document.getElementById("weather-result");
+
+            caja.innerHTML = "<p style='color:var(--cyan)'>Descargando telemetría climática...</p>";
+
+            try {

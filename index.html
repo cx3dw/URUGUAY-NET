@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola Operativa de Radioafición - Integrada</title>
+    <title>Consola Central de Control DX - Radioafición</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -13,6 +13,12 @@
         .dashboard { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
         .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; position: relative; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
+        
+        /* Relojes en Cabecera */
+        .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
+        .clock { color: var(--green); }
+        .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
+        
         .logout-btn { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: 1px solid var(--red); padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: monospace; }
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
@@ -26,38 +32,56 @@
         /* Estructuras Internas */
         .chat-box { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; margin-bottom: 10px; font-size: 0.85rem; }
         .chat-msg { margin-bottom: 8px; border-bottom: 1px solid #111827; padding-bottom: 4px; }
-        .chat-msg .user { color: var(--amber); font-weight: bold; }
+        .chat-msg .user { color: var(--cyan); font-weight: bold; }
         .chat-msg .time { color: #64748b; }
         .logger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .table-container { margin-top: 15px; max-height: 140px; overflow-y: auto; font-size: 0.8rem; }
         table { width: 100%; border-collapse: collapse; }
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
-        .alert-box { background-color: #1e1b4b; border-left: 4px solid var(--amber); padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
+        
+        /* Clima Nivel Estación */
+        .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .weather-search-box input { margin: 0; }
+        .weather-search-box button { width: auto; padding: 0 15px; }
+        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem;}
+        .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
+
+        /* Alertas de Terremotos */
+        .eq-display { height: 160px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
+        .eq-item { border-bottom: 1px solid #111827; padding: 4px 0; display: flex; justify-content: space-between; }
+        .eq-mag { font-weight: bold; padding: 0 4px; border-radius: 2px; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: LOGIN (OCULTA POR DEFECTO MEDIANTE SCRIPT) -->
-    <div id="login-screen" style="display: none;">
+    <!-- PANTALLA 1: LOGIN -->
+    <div id="login-screen">
         <h2 style="border:none; color: var(--cyan);">CONEXIÓN DE ESTACIÓN</h2>
         <p style="font-size:0.8rem; color:#64748b;">Panel Privado para Operadores de Radioafición.</p>
         <input type="text" id="user-callsign" placeholder="INDICATIVO (Ej: EA1ABC)" style="text-transform: uppercase; text-align:center; font-size:1.2rem; letter-spacing:2px;">
         <button onclick="loginEstacion()" class="btn">Autenticar Estación</button>
     </div>
 
-    <!-- PANTALLA 2: ENTORNO INTEGRADO CENTRAL -->
+    <!-- PANTALLA 2: ENTORNO PRINCIPAL -->
     <div id="dashboard-screen" style="display: none;">
         <div class="header">
-            <h1>CONSOLA OPERATIVA DX - OPERADOR: <span id="display-callsign" style="color:var(--amber)"></span></h1>
+            <h1>CONSOLA DE CONTROL OPERATIVO - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span></h1>
+            
+            <!-- SISTEMA DE RELOJES REQUERIDO -->
+            <div class="clocks-container">
+                <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
+                <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
+            </div>
+
             <button onclick="logoutEstacion()" class="logout-btn">DESCONECTAR</button>
         </div>
 
         <div class="dashboard">
 
-            <!-- MODULO A: CHAT INTERACTIVO (PERSISTENTE EN NAVEGADOR) -->
+            <!-- INTERACTIVO A: CHAT / CLÚSTER -->
             <div class="card">
-                <h2>Chat Global / Clúster de Reportes</h2>
+                <h2>Chat / Clúster de Reportes DX</h2>
                 <div class="chat-box" id="chat-contents"></div>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="chat-message" placeholder="Escribe reporte de frecuencia o condiciones..." style="margin:0;">
@@ -65,9 +89,9 @@
                 </div>
             </div>
 
-            <!-- MODULO B: LOGGER INTEGRADO (LIBRO DE GUARDIA AUTOMÁTICO) -->
+            <!-- INTERACTIVO B: LOGGER NATIVO -->
             <div class="card">
-                <h2>Radio Logbook (Tus QSOs)</h2>
+                <h2>Radio Logbook (Libro de Guardia)</h2>
                 <div class="logger-grid">
                     <div>
                         <label style="font-size:0.75rem; color:#64748b;">Indicativo DX:</label>
@@ -98,64 +122,49 @@
                 <div class="table-container">
                     <table>
                         <thead>
-                            <tr><th>Fecha/UTC</th><th>Operador</th><th>Contacto DX</th><th>Banda</th><th>Modo</th><th>RST</th></tr>
+                            <tr><th>Fecha (UTC)</th><th>Operador</th><th>Contacto DX</th><th>Banda</th><th>Modo</th><th>RST</th></tr>
                         </thead>
                         <tbody id="log-table-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- MODULO C: SECCIÓN INFORMATIVA DE ALERTAS SÍSMICAS Y METEOROLOGÍA -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h2 style="color:var(--amber);">Alertas Críticas & Servicio Meteorológico Troposférico</h2>
-                <div class="alert-box">
-                    <strong>[ALERTA DE PROPAGACIÓN]</strong> Flujo solar óptimo reportado en bandas altas (10m y 15m) debido a baja actividad de ruido geomagnético actual. Ideal para comunicados a larga distancia (DX).
+            <!-- INTERACTIVO C: SELECCIÓN DE CLIMA POR UBICACIÓN DE ESTACIÓN -->
+            <div class="card">
+                <h2>Servicio Meteorológico de Estación</h2>
+                <div class="weather-search-box">
+                    <input type="text" id="weather-city" placeholder="Ingresa tu Ciudad o País (Ej: Madrid, ES)" style="margin:0;">
+                    <button onclick="buscarClima()" class="btn btn-green">Buscar</button>
                 </div>
-                <div class="alert-box" style="border-left-color: var(--red); background-color: #451a03;">
-                    <strong>[ALERTA CLIMÁTICA]</strong> Monitoreo activo de frentes de tormentas eléctricas locales. Se recomienda a los operadores desconectar las líneas de transmisiones de antenas exteriores si el sistema de rayos se aproxima a sus coordenadas.
+                <div class="weather-display" id="weather-result">
+                    <p style="color:#64748b; margin:0;">Busca tu ubicación para sincronizar barómetro y condiciones troposféricas...</p>
                 </div>
-                <!-- Mapa Dinámico Integrado Inmune a bloqueos -->
-                <iframe style="width:100%; height:280px; border:none; background:#05070c;" src="https://windy.com"></iframe>
+            </div>
+
+            <!-- INTERACTIVO D: ALERTAS REALES SÍSMICAS NATIVAS -->
+            <div class="card">
+                <h2>Alertas de Terremotos Globales Recientes</h2>
+                <div class="eq-display" id="eq-contents">
+                    <p style="color:#64748b; margin:0;">Conectando con el catálogo sismológico mundial...</p>
+                </div>
             </div>
 
         </div>
     </div>
 
-    <!-- LOGICA SCRIPT AUTOMÁTICA -->
     <script>
-        // Al arrancar el archivo HTML revisamos las variables guardadas en el navegador
         document.addEventListener("DOMContentLoaded", () => {
+            inicializarRelojes();
             inicializarDatosPorDefecto();
             verificarSesion();
+            cargarTerremotosReales();
         });
 
-        function verificarSesion() {
-            const activeCallsign = localStorage.getItem("active_callsign");
-            if (activeCallsign) {
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("dashboard-screen").style.display = "block";
-                document.getElementById("display-callsign").innerText = activeCallsign;
-                cargarChat();
-                cargarLogbook();
-            } else {
-                document.getElementById("dashboard-screen").style.display = "none";
-                document.getElementById("login-screen").style.display = "block";
-            }
-        }
-
-        function loginEstacion() {
-            const input = document.getElementById("user-callsign").value.trim().toUpperCase();
-            if (!input) return alert("Ingresa un distintivo de llamada válido para operar.");
-            localStorage.setItem("active_callsign", input);
-            verificarSesion();
-        }
-
-        function logoutEstacion() {
-            localStorage.removeItem("active_callsign");
-            verificarSesion();
-        }
-
-        // Cargar Chat Persistente en HTML5
-        function cargarChat() {
-            const chatContainer = document.getElementById("chat-contents");
-            const chats = JSON.parse(localStorage.getItem("local_chats")) || [];
+        // 1. SISTEMA INTEGRADO DE RELOJES (LOCAL Y UTC)
+        function inicializarRelojes() {
+            setInterval(() => {
+                const ahora = new Date();
+                
+                // Reloj Local
+                document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
+                

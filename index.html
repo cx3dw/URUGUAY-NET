@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola Central de Control DX - Radioafición</title>
+    <title>Consola de Control DX - Radioafición Profesional</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -14,7 +14,7 @@
         .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; position: relative; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
         
-        /* Relojes en Cabecera */
+        /* Relojes de la Estación */
         .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
         .clock { color: var(--green); }
         .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
@@ -23,13 +23,13 @@
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
-        /* Sistema de Autenticación / Login */
+        /* Sistema de Acceso / Login */
         #login-screen { max-width: 400px; margin: 100px auto; text-align: center; background: var(--bg-card); border: 1px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); }
         input, select { width: 100%; padding: 10px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; }
         .btn { width: 100%; padding: 10px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; }
         .btn-green { background: var(--green); color: #000; }
 
-        /* Estructuras Internas */
+        /* Módulos Internos */
         .chat-box { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; margin-bottom: 10px; font-size: 0.85rem; }
         .chat-msg { margin-bottom: 8px; border-bottom: 1px solid #111827; padding-bottom: 4px; }
         .chat-msg .user { color: var(--cyan); font-weight: bold; }
@@ -40,7 +40,7 @@
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
-        /* Clima Nivel Estación */
+        /* Módulo de Clima Geográfico */
         .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
         .weather-search-box input { margin: 0; }
         .weather-search-box button { width: auto; padding: 0 15px; }
@@ -55,7 +55,7 @@
 </head>
 <body>
 
-    <!-- PANTALLA 1: LOGIN -->
+    <!-- PANTALLA 1: OPERADORES REGISTRADOS -->
     <div id="login-screen">
         <h2 style="border:none; color: var(--cyan);">CONEXIÓN DE ESTACIÓN</h2>
         <p style="font-size:0.8rem; color:#64748b;">Panel Privado para Operadores de Radioafición.</p>
@@ -63,12 +63,11 @@
         <button onclick="loginEstacion()" class="btn">Autenticar Estación</button>
     </div>
 
-    <!-- PANTALLA 2: ENTORNO PRINCIPAL -->
+    <!-- PANTALLA 2: ENTORNO CENTRAL -->
     <div id="dashboard-screen" style="display: none;">
         <div class="header">
             <h1>CONSOLA DE CONTROL OPERATIVO - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span></h1>
             
-            <!-- SISTEMA DE RELOJES REQUERIDO -->
             <div class="clocks-container">
                 <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
                 <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
@@ -79,17 +78,17 @@
 
         <div class="dashboard">
 
-            <!-- INTERACTIVO A: CHAT / CLÚSTER -->
+            <!-- INTERACTIVO 1: CLÚSTER / CHAT PERSISTENTE -->
             <div class="card">
                 <h2>Chat / Clúster de Reportes DX</h2>
                 <div class="chat-box" id="chat-contents"></div>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-message" placeholder="Escribe reporte de frecuencia o condiciones..." style="margin:0;">
+                    <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia o condiciones..." style="margin:0;">
                     <button onclick="enviarMensajeChat()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
                 </div>
             </div>
 
-            <!-- INTERACTIVO B: LOGGER NATIVO -->
+            <!-- INTERACTIVO 2: LIBRO DE GUARDIA (LOGGER) -->
             <div class="card">
                 <h2>Radio Logbook (Libro de Guardia)</h2>
                 <div class="logger-grid">
@@ -129,23 +128,31 @@
                 </div>
             </div>
 
-            <!-- INTERACTIVO C: SELECCIÓN DE CLIMA POR UBICACIÓN DE ESTACIÓN -->
+            <!-- INTERACTIVO 3: SERVICIO METEOROLÓGICO SEGURO ABIERTO (NUEVO) -->
             <div class="card">
-                <h2>Servicio Meteorológico de Estación</h2>
+                <h2>Meteorología Local de la Estación</h2>
                 <div class="weather-search-box">
-                    <input type="text" id="weather-city" placeholder="Ingresa tu Ciudad o País (Ej: Madrid, ES)" style="margin:0;">
-                    <button onclick="buscarClima()" class="btn btn-green">Buscar</button>
+                    <select id="weather-coords">
+                        <option value="40.41,-3.70">Madrid, España</option>
+                        <option value="19.43,-99.13">Ciudad de México, México</option>
+                        <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
+                        <option value="4.71,-74.07">Bogotá, Colombia</option>
+                        <option value="-12.04,-77.03">Lima, Perú</option>
+                        <option value="9.92,-84.08">San José, Costa Rica</option>
+                        <option value="25.76,-80.19">Miami, USA</option>
+                    </select>
+                    <button onclick="consultarMeteoAbierta()" class="btn btn-green">Sincronizar</button>
                 </div>
                 <div class="weather-display" id="weather-result">
-                    <p style="color:#64748b; margin:0;">Busca tu ubicación para sincronizar barómetro y condiciones troposféricas...</p>
+                    <p style="color:#64748b; margin:0;">Selecciona una zona de operación de antenas para descargar telemetría...</p>
                 </div>
             </div>
 
-            <!-- INTERACTIVO D: ALERTAS REALES SÍSMICAS NATIVAS -->
+            <!-- INTERACTIVO 4: MONITOR DE SISMOS REALES DEL USGS -->
             <div class="card">
-                <h2>Alertas de Terremotos Globales Recientes</h2>
+                <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
                 <div class="eq-display" id="eq-contents">
-                    <p style="color:#64748b; margin:0;">Conectando con el catálogo sismológico mundial...</p>
+                    <p style="color:#64748b; margin:0;">Conectando con la base de datos sismológica internacional...</p>
                 </div>
             </div>
 
@@ -153,18 +160,3 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            inicializarRelojes();
-            inicializarDatosPorDefecto();
-            verificarSesion();
-            cargarTerremotosReales();
-        });
-
-        // 1. SISTEMA INTEGRADO DE RELOJES (LOCAL Y UTC)
-        function inicializarRelojes() {
-            setInterval(() => {
-                const ahora = new Date();
-                
-                // Reloj Local
-                document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
-                

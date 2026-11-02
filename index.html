@@ -23,10 +23,12 @@
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
-        /* Sistema de Acceso / Login */
-        #login-screen { max-width: 400px; margin: 100px auto; text-align: center; background: var(--bg-card); border: 1px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 10px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; }
+        /* Sistema de Registro e Ingreso Forzado Extendido */
+        #login-screen { max-width: 420px; margin: 80px auto; text-align: center; background: var(--bg-card); border: 2px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.2); }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
+        input:focus { border-color: var(--cyan); outline: none; }
+        .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
+        .btn:hover { background-color: #00c8d6; }
         .btn-green { background: var(--green); color: #000; }
 
         /* Módulos Internos */
@@ -55,30 +57,38 @@
 </head>
 <body>
 
-    <!-- PANTALLA 1: OPERADORES REGISTRADOS -->
+    <!-- PANTALLA DE REGISTRO E INGRESO -->
     <div id="login-screen">
-        <h2 style="border:none; color: var(--cyan);">CONEXIÓN DE ESTACIÓN</h2>
-        <p style="font-size:0.8rem; color:#64748b;">Panel Privado para Operadores de Radioafición.</p>
-        <input type="text" id="user-callsign" placeholder="INDICATIVO (Ej: EA1ABC)" style="text-transform: uppercase; text-align:center; font-size:1.2rem; letter-spacing:2px;">
-        <button onclick="loginEstacion()" class="btn">Autenticar Estación</button>
+        <h2 style="border:none; color: var(--cyan); margin-bottom: 5px;">REGISTRO DE ESTACIÓN</h2>
+        <p style="font-size:0.8rem; color:#64748b; margin-bottom: 20px;">Consola de Operaciones para Radioaficionados</p>
+        
+        <div style="text-align: left; margin-bottom: 15px;">
+            <label style="font-size: 0.8rem; color: var(--cyan); font-weight: bold;">1. Tu Indicativo Oficial (Callsign):</label>
+            <input type="text" id="user-callsign" placeholder="Ej: EA1ABC" style="text-transform: uppercase; letter-spacing:2px; font-weight: bold;">
+            
+            <label style="font-size: 0.8rem; color: var(--cyan); font-weight: bold; margin-top: 10px; display: block;">2. Nombre u Operador:</label>
+            <input type="text" id="user-name" placeholder="Ej: Juan / Radio Club Central">
+        </div>
+
+        <button onclick="registrarEIngresar()" class="btn">Guardar y Entrar al Panel</button>
     </div>
 
-    <!-- PANTALLA 2: ENTORNO CENTRAL -->
+    <!-- ENTORNO CENTRAL DEL PANEL DE OPERACIONES -->
     <div id="dashboard-screen" style="display: none;">
         <div class="header">
-            <h1>CONSOLA DE CONTROL OPERATIVO - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span></h1>
+            <h1>CONSOLA DE CONTROL - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span> (<span id="display-name" style="color:var(--amber)"></span>)</h1>
             
             <div class="clocks-container">
                 <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
                 <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
             </div>
 
-            <button onclick="logoutEstacion()" class="logout-btn">DESCONECTAR</button>
+            <button onclick="logoutEstacion()" class="logout-btn">SALIR</button>
         </div>
 
         <div class="dashboard">
 
-            <!-- INTERACTIVO 1: CLÚSTER / CHAT PERSISTENTE -->
+            <!-- MODULO 1: CLÚSTER / CHAT PERSISTENTE -->
             <div class="card">
                 <h2>Chat / Clúster de Reportes DX</h2>
                 <div class="chat-box" id="chat-contents"></div>
@@ -88,7 +98,7 @@
                 </div>
             </div>
 
-            <!-- INTERACTIVO 2: LIBRO DE GUARDIA (LOGGER) -->
+            <!-- MODULO 2: LIBRO DE GUARDIA (LOGGER) -->
             <div class="card">
                 <h2>Radio Logbook (Libro de Guardia)</h2>
                 <div class="logger-grid">
@@ -128,7 +138,7 @@
                 </div>
             </div>
 
-            <!-- INTERACTIVO 3: SERVICIO METEOROLÓGICO SEGURO ABIERTO (NUEVO) -->
+            <!-- MODULO 3: METEOROLOGÍA DE SATÉLITE ABIERTO -->
             <div class="card">
                 <h2>Meteorología Local de la Estación</h2>
                 <div class="weather-search-box">
@@ -140,23 +150,5 @@
                         <option value="-12.04,-77.03">Lima, Perú</option>
                         <option value="9.92,-84.08">San José, Costa Rica</option>
                         <option value="25.76,-80.19">Miami, USA</option>
+                        <option value="-34.90,-56.16">Montevideo, Uruguay</option>
                     </select>
-                    <button onclick="consultarMeteoAbierta()" class="btn btn-green">Sincronizar</button>
-                </div>
-                <div class="weather-display" id="weather-result">
-                    <p style="color:#64748b; margin:0;">Selecciona una zona de operación de antenas para descargar telemetría...</p>
-                </div>
-            </div>
-
-            <!-- INTERACTIVO 4: MONITOR DE SISMOS REALES DEL USGS -->
-            <div class="card">
-                <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
-                <div class="eq-display" id="eq-contents">
-                    <p style="color:#64748b; margin:0;">Conectando con la base de datos sismológica internacional...</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>

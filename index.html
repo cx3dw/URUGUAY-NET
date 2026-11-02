@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola de Control DX - GitHub Station</title>
+    <title>Consola de Control DX - Estación Abierta</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -11,7 +11,7 @@
         }
         body { font-family: 'Courier New', Courier, monospace; background-color: var(--bg-main); color: var(--text); margin: 0; padding: 20px; }
         .dashboard { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
-        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; position: relative; }
+        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
         
         /* Relojes de la Estación */
@@ -19,12 +19,9 @@
         .clock { color: var(--green); }
         .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
         
-        .logout-btn { position: absolute; right: 10px; top: 10px; color: var(--red); background: none; border: 1px solid var(--red); padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: monospace; }
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
-        /* Sistema de Login */
-        #login-screen { max-width: 420px; margin: 80px auto; text-align: center; background: var(--bg-card); border: 2px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.2); }
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
         input:focus { border-color: var(--cyan); outline: none; }
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
@@ -57,100 +54,129 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE REGISTRO E INGRESO -->
-    <div id="login-screen">
-        <h2 style="border:none; color: var(--cyan); margin-bottom: 5px;">REGISTRO DE ESTACIÓN</h2>
-        <p style="font-size:0.8rem; color:#64748b; margin-bottom: 20px;">Acceso Consola (Optimizado para GitHub)</p>
+    <div class="header">
+        <h1>CONSOLA DE CONTROL OPERATIVO DX</h1>
         
-        <div style="text-align: left; margin-bottom: 15px;">
-            <label style="font-size: 0.8rem; color: var(--cyan); font-weight: bold;">1. Tu Indicativo Oficial (Callsign):</label>
-            <input type="text" id="user-callsign" placeholder="Ej: EA1ABC" style="text-transform: uppercase; letter-spacing:2px; font-weight: bold;">
-            
-            <label style="font-size: 0.8rem; color: var(--cyan); font-weight: bold; margin-top: 10px; display: block;">2. Nombre u Operador:</label>
-            <input type="text" id="user-name" placeholder="Ej: Juan / Radio Club">
+        <div class="clocks-container">
+            <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
+            <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
         </div>
-
-        <button onclick="forzarIngresoGitHub()" class="btn">Entrar a la Consola DX</button>
     </div>
 
-    <!-- ENTORNO CENTRAL DEL PANEL (OCULTO AL PRINCIPIO) -->
-    <div id="dashboard-screen" style="display: none;">
-        <div class="header">
-            <h1>CONSOLA DE CONTROL - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span> (<span id="display-name" style="color:var(--amber)"></span>)</h1>
-            
-            <div class="clocks-container">
-                <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
-                <div>HORA U.T.C: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
-            </div>
+    <div class="dashboard">
 
-            <button onclick="logoutEstacionGitHub()" class="logout-btn">SALIR</button>
+        <!-- MODULO 1: CLÚSTER / CHAT EN CALIENTE -->
+        <div class="card">
+            <h2>Chat / Clúster de Reportes DX</h2>
+            <div class="chat-box" id="chat-contents"></div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia..." style="margin:0;">
+                <button onclick="enviarMensajeChat()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
+            </div>
         </div>
 
-        <div class="dashboard">
-
-            <!-- MODULO 1: CLÚSTER / CHAT EN CALIENTE -->
-            <div class="card">
-                <h2>Chat / Clúster de Reportes DX</h2>
-                <div class="chat-box" id="chat-contents"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia..." style="margin:0;">
-                    <button onclick="enviarMensajeChat()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
+        <!-- MODULO 2: LIBRO DE GUARDIA (LOGGER) -->
+        <div class="card">
+            <h2>Radio Logbook (Libro de Guardia)</h2>
+            <div class="logger-grid">
+                <div>
+                    <label style="font-size:0.75rem; color:#64748b;">Indicativo DX:</label>
+                    <input type="text" id="log-dx" placeholder="Ej: LU9FCE" style="text-transform: uppercase; margin:5px 0;">
                 </div>
-            </div>
-
-            <!-- MODULO 2: LIBRO DE GUARDIA (LOGGER) -->
-            <div class="card">
-                <h2>Radio Logbook (Libro de Guardia)</h2>
-                <div class="logger-grid">
-                    <div>
-                        <label style="font-size:0.75rem; color:#64748b;">Indicativo DX:</label>
-                        <input type="text" id="log-dx" placeholder="Ej: LU9FCE" style="text-transform: uppercase; margin:5px 0;">
-                    </div>
-                    <div>
-                        <label style="font-size:0.75rem; color:#64748b;">Reporte RST:</label>
-                        <input type="text" id="log-rst" value="59" style="margin:5px 0;">
-                    </div>
-                    <div>
-                        <label style="font-size:0.75rem; color:#64748b;">Banda:</label>
-                        <select id="log-band" style="margin:5px 0;">
-                            <option>40m (7 MHz)</option><option>20m (14 MHz)</option>
-                            <option>15m (21 MHz)</option><option>10m (28 MHz)</option>
-                            <option>2m (144 MHz)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size:0.75rem; color:#64748b;">Modo:</label>
-                        <select id="log-mode" style="margin:5px 0;">
-                            <option>SSB (Voz)</option><option>FT8</option>
-                            <option>CW (Morse)</option><option>FM</option>
-                        </select>
-                    </div>
-                    <button onclick="registrarQSO()" class="btn" style="grid-column: 1/-1; margin-top:5px;">Registrar Contacto</button>
+                <div>
+                    <label style="font-size:0.75rem; color:#64748b;">Reporte RST:</label>
+                    <input type="text" id="log-rst" value="59" style="margin:5px 0;">
                 </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Fecha (UTC)</th><th>Operador</th><th>Contacto DX</th><th>Banda</th><th>Modo</th><th>RST</th></tr>
-                        </thead>
-                        <tbody id="log-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- MODULO 3: METEOROLOGÍA SATÉLITE HTTPS COMPATIBLE -->
-            <div class="card">
-                <h2>Meteorología Local de la Estación</h2>
-                <div class="weather-search-box">
-                    <select id="weather-coords">
-                        <option value="40.41,-3.70">Madrid, España</option>
-                        <option value="19.43,-99.13">Ciudad de México, México</option>
-                        <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
-                        <option value="4.71,-74.07">Bogotá, Colombia</option>
-                        <option value="-12.04,-77.03">Lima, Perú</option>
-                        <option value="9.92,-84.08">San José, Costa Rica</option>
-                        <option value="25.76,-80.19">Miami, USA</option>
-                        <option value="-34.90,-56.16">Montevideo, Uruguay</option>
+                <div>
+                    <label style="font-size:0.75rem; color:#64748b;">Banda:</label>
+                    <select id="log-band" style="margin:5px 0;">
+                        <option>40m (7 MHz)</option><option>20m (14 MHz)</option>
+                        <option>15m (21 MHz)</option><option>10m (28 MHz)</option>
+                        <option>2m (144 MHz)</option>
                     </select>
-                    <button onclick="consultarMeteoGitHub()" class="btn btn-green">Sincronizar</button>
                 </div>
+                <div>
+                    <label style="font-size:0.75rem; color:#64748b;">Modo:</label>
+                    <select id="log-mode" style="margin:5px 0;">
+                        <option>SSB (Voz)</option><option>FT8</option>
+                        <option>CW (Morse)</option><option>FM</option>
+                    </select>
+                </div>
+                <button onclick="registrarQSO()" class="btn" style="grid-column: 1/-1; margin-top:5px;">Registrar Contacto</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Fecha (UTC)</th><th>Contacto DX</th><th>Banda</th><th>Modo</th><th>RST</th></tr>
+                    </thead>
+                    <tbody id="log-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MODULO 3: METEOROLOGÍA SATÉLITE HTTPS -->
+        <div class="card">
+            <h2>Meteorología Local de la Estación</h2>
+            <div class="weather-search-box">
+                <select id="weather-coords">
+                    <option value="40.41,-3.70">Madrid, España</option>
+                    <option value="19.43,-99.13">Ciudad de México, México</option>
+                    <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
+                    <option value="4.71,-74.07">Bogotá, Colombia</option>
+                    <option value="-12.04,-77.03">Lima, Perú</option>
+                    <option value="9.92,-84.08">San José, Costa Rica</option>
+                    <option value="25.76,-80.19">Miami, USA</option>
+                    <option value="-34.90,-56.16">Montevideo, Uruguay</option>
+                </select>
+                <button onclick="consultarMeteoGitHub()" class="btn btn-green">Sincronizar</button>
+            </div>
+            <div class="weather-display" id="weather-result">
+                <p style="color:#64748b; margin:0;">Selecciona una zona de operación de antenas para descargar telemetría...</p>
+            </div>
+        </div>
+
+        <!-- MODULO 4: ALERTAS SÍSMICAS REALES -->
+        <div class="card">
+            <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
+            <div class="eq-display" id="eq-contents">
+                <p style="color:#64748b; margin:0;">Conectando con la base de datos sismológica internacional...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Memoria volátil interna
+        let listaChats = [
+            { time: "20:05Z", user: "EA1ABC", msg: "Consola de control operativa en GitHub Pages." },
+            { time: "20:12Z", user: "LU9FCE", msg: "Monitoreando reportes y condiciones de propagación." }
+        ];
+        let listaLogs = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarRelojes();
+            cargarTerremotosReales();
+            cargarChat();
+            cargarLogbook();
+
+            document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeChat(); });
+        });
+
+        // RELOJES SÍNCRONOS
+        function inicializarRelojes() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
+                
+                const horasUTC = String(ahora.getUTCHours()).padStart(2, '0');
+                const minUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
+                const segUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('clock-utc').innerText = `${horasUTC}:${minUTC}:${segUTC} UTC`;
+            }, 1000);
+        }
+
+        // METEOROLOGÍA VIA HTTPS NATIVA
+        async function consultarMeteoGitHub() {
+            const lista = document.getElementById("weather-coords");
+            const coordenadas = lista.value.split(",");

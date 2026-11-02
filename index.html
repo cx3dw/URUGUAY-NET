@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola Operativa DX Profesional</title>
+    <title>Consola de Control DX - Reportes Reales</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
             --cyan: #00f0ff; --amber: #f59e0b; --red: #ef4444; --green: #10b981; --text: #f1f5f9;
         }
         body { font-family: 'Courier New', Courier, monospace; background-color: var(--bg-main); color: var(--text); margin: 0; padding: 20px; }
-        .dashboard { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 20px; }
-        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 15px; margin-bottom: 15px; }
-        .header h1 { margin: 0; color: var(--cyan); font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; }
+        .dashboard { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; }
+        .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
         
-        .clocks-container { display: flex; justify-content: center; gap: 40px; margin-top: 12px; font-weight: bold; font-size: 1.2rem; }
-        .clock { color: var(--green); text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
-        .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 3px 10px; border-radius: 4px; box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+        .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
+        .clock { color: var(--green); }
+        .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
         
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
+        input:focus { border-color: var(--cyan); outline: none; }
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
+        .btn:hover { background-color: #00c8d6; }
         .btn-green { background: var(--green); color: #000; }
 
         .feed-container { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
-        .feed-item { border-bottom: 1px solid #111827; padding: 8px 0; line-height: 1.4; }
+        .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; line-height: 1.4; }
         .feed-title { color: var(--cyan); font-weight: bold; text-decoration: none; display: block; margin-bottom: 2px; }
         .feed-title:hover { text-decoration: underline; }
         .feed-date { color: #64748b; font-size: 0.75rem; }
@@ -37,6 +39,13 @@
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
+        .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .weather-search-box select { margin: 0; }
+        .weather-search-box button { width: auto; padding: 0 15px; }
+        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
+        .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
+
+        .eq-display { height: 160px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
         .eq-item { border-bottom: 1px solid #111827; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; }
         .eq-mag { font-weight: bold; padding: 2px 6px; border-radius: 3px; color: #000; font-family: sans-serif; font-size: 0.8rem; }
     </style>
@@ -44,7 +53,7 @@
 <body>
 
     <div class="header">
-        <h1>Consola Central de Operaciones de Radioafición</h1>
+        <h1>CONSOLA DE CONTROL OPERATIVO DX</h1>
         <div class="clocks-container">
             <div>LOCAL: <span id="clock-local" class="clock">00:00:00</span></div>
             <div>HORA UTC: <span id="clock-utc" class="clock-utc">00:00:00 UTC</span></div>
@@ -55,9 +64,9 @@
 
         <!-- MODULO RSS: NOTICIAS VIVAS DE LA ARRL -->
         <div class="card" style="grid-column: 1 / -1;">
-            <h2>Noticias y Boletines DX en Tiempo Real (Feed Vivo de la ARRL)</h2>
+            <h2>Noticias y Boletines DX en Tiempo Real (ARRL Feed)</h2>
             <div class="feed-container" id="news-contents" style="height: 180px;">
-                <p style="color:var(--cyan);">Conectando de forma segura con los servidores de la ARRL y descargando boletines...</p>
+                <p style="color:var(--cyan);">Sincronizando con el servidor de la ARRL...</p>
             </div>
         </div>
 
@@ -66,7 +75,7 @@
             <h2>Chat Interno / Clúster de Reportes</h2>
             <div class="feed-container" id="chat-contents"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia o condiciones..." style="margin:0;">
+                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia..." style="margin:0;">
                 <button onclick="enviarMensajeEstacion()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
             </div>
         </div>
@@ -114,8 +123,8 @@
         <!-- MODULO: CLIMA -->
         <div class="card">
             <h2>Meteorología Local de Estación Real</h2>
-            <div class="weather-search-box" style="display:flex; gap:5px; margin-bottom:10px;">
-                <select id="weather-coords" style="margin:0;">
+            <div class="weather-search-box">
+                <select id="weather-coords">
                     <option value="40.41,-3.70">Madrid, España</option>
                     <option value="19.43,-99.13">Ciudad de México, México</option>
                     <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
@@ -126,17 +135,17 @@
                     <option value="-34.90,-56.16">Montevideo, Uruguay</option>
                     <option value="-33.45,-70.66">Santiago, Chile</option>
                 </select>
-                <button onclick="cargarClimaAbierto()" class="btn btn-green" style="width:auto; padding:0 15px;">Sincronizar</button>
+                <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
             </div>
             <div class="feed-container" id="weather-result" style="height: 160px; background: #05070c;">
-                <p style="color:#64748b; margin:0;">Sincroniza la zona geográfica para telemetría atmosférica...</p>
+                <p style="color:#64748b; margin:0;">Sincroniza la zona geográfica para obtener telemetría atmosférica...</p>
             </div>
         </div>
 
         <!-- MODULO: TERREMOTOS -->
         <div class="card">
             <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
-            <div class="feed-container" id="eq-contents">
+            <div class="eq-display" id="eq-contents">
                 <p style="color:var(--cyan); margin:0;">Sincronizando con la red sismológica planetaria...</p>
             </div>
         </div>
@@ -145,7 +154,7 @@
 
     <script>
         let listadoMensajes = [
-            { time: "00:01Z", user: "SYSTEM", msg: "Consola de monitoreo iniciada. Canales síncronos listos." }
+            { time: "00:01Z", user: "SYSTEM", msg: "Consola activa. Sincronización de frentes de datos establecida." }
         ];
         let listadoContactos = [];
 
@@ -159,7 +168,6 @@
             document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
         });
 
-        // 1. RELOJES CON TOTAL PRECISIÓN SÍNCRONA
         function correrRelojesSistema() {
             setInterval(() => {
                 const ahora = new Date();
@@ -167,12 +175,3 @@
                 
                 const hUTC = String(ahora.getUTCHours()).padStart(2, '0');
                 const mUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
-                const sUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
-                document.getElementById('clock-utc').innerText = `${hUTC}:${mUTC}:${sUTC} UTC`;
-            }, 1000);
-        }
-
-        // 2. PARSEO DE XML REAL DE LA ARRL COMPATIBLE CON GITHUB PAGES (A TRAVES DE CORSPROXY.IO)
-        async function cargarNoticiasRealesARRL() {
-            const contenedorNoticias = document.getElementById("news-contents");
-            try {

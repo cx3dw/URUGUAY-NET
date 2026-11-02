@@ -1,139 +1,215 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EA1ABC | Estación de Radioaficionado</title>
-    
-    <!-- Meta etiquetas SEO y Open Graph (Tarjetas de vista previa) -->
-    <meta name="description" content="Página oficial de la estación de radioaficionado EA1ABC. QTH: Madrid, Locator: IN80ln. Detalle de equipos, antenas e información QSL.">
-    <meta property="og:title" content="EA1ABC - Amateur Radio Station">
-    <meta property="og:description" content="QTH: Madrid | Grid: IN80ln | HF & VHF/UHF Operator">
-    <meta property="og:image" content="https://tu-usuario.github.io/tu-repositorio/qsl-preview.jpg">
-    <meta property="og:url" content="https://tu-usuario.github.io/tu-repositorio/">
+:root {
+    --bg-dark: #121820;
+    --card-bg: #1c2430;
+    --accent: #00adb5;
+    --text-main: #e0e6ed;
+    --text-muted: #94a3b8;
+    --green: #22c55e;
+    --border: #2d3748;
+}
 
-    <!-- Estilos locales -->
-    <link rel="stylesheet" href="./style.css">
-    
-    <!-- Iconos SVG (FontAwesome por CDN para carga rápida) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-    <!-- Header con estética industrial/shack -->
-    <header class="hero">
-        <div class="container hero-content">
-            <div class="badge qrv"><i class="fa-solid fa-signal"></i> ESTADO: QRV (En Frecuencia)</div>
-            <h1 class="callsign">EA1ABC</h1>
-            <p class="subtitle">Carlos | Madrid, España — Grid: IN80ln</p>
-            
-            <div class="quick-links">
-                <a href="https://www.qrz.com/db/EA1ABC" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> QRZ.com</a>
-                <a href="https://clublog.org/logsearch/EA1ABC" target="_blank" rel="noopener"><i class="fa-solid fa-list-check"></i> ClubLog</a>
-                <a href="#qsl"><i class="fa-solid fa-envelope"></i> Info QSL</a>
-            </div>
-        </div>
-    </header>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.6;
+}
 
-    <!-- Navegación -->
-    <nav class="navbar">
-        <div class="container nav-flex">
-            <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack</a>
-            <a href="#antennas"><a href="#antennas"><i class="fa-solid fa-tower-cell"></i> Antenas</a>
-            <a href="#logbook"><i class="fa-solid fa-globe"></i> Logbook</a>
-            <a href="#qsl"><i class="fa-solid fa-address-card"></i> QSL Policy</a>
-        </div>
-    </nav>
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
 
-    <!-- Contenido Principal -->
-    <main class="container grid-layout">
+/* Header / Hero */
+.hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    padding: 3rem 0;
+    border-bottom: 3px solid var(--accent);
+    text-align: center;
+}
 
-        <!-- Columna Principal -->
-        <section class="main-content">
-            
-            <!-- Sección Equipos -->
-            <article id="shack" class="card">
-                <h2><i class="fa-solid fa-headset"></i> Equipamiento (The Shack)</h2>
-                <div class="equip-grid">
-                    <div class="equip-item">
-                        <span class="tag hf">HF / 50 MHz</span>
-                        <h3>Icom IC-7300</h3>
-                        <p>100W SDR Transceiver | Mic: Heil Sound PR 40</p>
-                    </div>
-                    <div class="equip-item">
-                        <span class="tag vhf">VHF / UHF</span>
-                        <h3>Yaesu FT-991A</h3>
-                        <p>All-Mode Portable & Shack Transceiver</p>
-                    </div>
-                    <div class="equip-item">
-                        <span class="tag digital">Digital / Sat</span>
-                        <h3>Raspberry Pi 4</h3>
-                        <p>WSJT-X, FT8, JS8Call & Direwolf TNC</p>
-                    </div>
-                </div>
-            </article>
+.callsign {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #ffffff;
+}
 
-            <!-- Sección Antenas -->
-            <article id="antennas" class="card">
-                <h2><i class="fa-solid fa-broadcast-tower"></i> Antenas & Estructura</h2>
-                <ul class="spec-list">
-                    <li><strong>10m / 15m / 20m:</strong> Yagi direccional de 3 elementos a 12 metros de altura.</li>
-                    <li><strong>40m / 80m:</strong> Dipolo en V invertida con balun 1:1.</li>
-                    <li><strong>V/UHF:</strong> Antena colineal Diamond X-510N en cumbre de torre.</li>
-                </ul>
-            </article>
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
 
-            <!-- Búsqueda en Logbook (Widget de ClubLog) -->
-            <article id="logbook" class="card">
-                <h2><i class="fa-solid fa-search"></i> Logbook Online Search</h2>
-                <p>Verifica si nuestro QSO está confirmado en el libro de guardia:</p>
-                
-                <!-- Frame/Formulario integrado para ClubLog -->
-                <div class="clublog-widget">
-                    <form action="https://clublog.org/logsearch.php" method="get" target="_blank">
-                        <input type="hidden" name="call" value="EA1ABC">
-                        <div class="search-box">
-                            <input type="text" name="target" placeholder="Tu indicativo (ej. W1AW)" required>
-                            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar QSO</button>
-                        </div>
-                    </form>
-                </div>
-            </article>
+.badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
 
-        </section>
+.badge.qrv {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: var(--green);
+    border: 1px solid var(--green);
+}
 
-        <!-- Barra Lateral -->
-        <aside class="sidebar">
-            
-            <!-- Tarjeta QSL -->
-            <div id="qsl" class="card sidebar-card">
-                <h3><i class="fa-solid fa-paper-plane"></i> Información QSL</h3>
-                <ul class="qsl-status">
-                    <li><i class="fa-solid fa-check text-green"></i> <strong>LoTW:</strong> Carga automática diaria.</li>
-                    <li><i class="fa-solid fa-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
-                    <li><i class="fa-solid fa-check text-green"></i> <strong>Bureau:</strong> Vía URE (Unión de Radioaficionados Españoles).</li>
-                    <li><i class="fa-solid fa-envelope text-blue"></i> <strong>Directa:</strong> Incluir SAE + 2$ USD / IRC.</li>
-                </ul>
-            </div>
+.quick-links a {
+    color: var(--accent);
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 600;
+}
 
-            <!-- Datos de Ubicación / Solar -->
-            <div class="card sidebar-card">
-                <h3><i class="fa-solid fa-location-dot"></i> Datos de Estación</h3>
-                <p><strong>CQ Zone:</strong> 14</p>
-                <p><strong>ITU Zone:</strong> 37</p>
-                <p><strong>Grid Square:</strong> IN80ln</p>
-            </div>
+.quick-links a:hover {
+    text-decoration: underline;
+}
 
-        </aside>
+/* Navbar */
+.navbar {
+    background-color: #0f172a;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-    </main>
+.nav-flex {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0.8rem 0;
+}
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-content">
-            <p>73 de EA1ABC &copy; 2026 | Alojado gratuitamente en <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></p>
-        </div>
-    </footer>
+.nav-flex a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
 
-</body>
-</html>
+.nav-flex a:hover {
+    color: var(--accent);
+}
+
+/* Layout Grid */
+.grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin: 2rem auto;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card h2, .card h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+
+/* Equipos & Antenas */
+.equip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.equip-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.tag {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.tag.hf { background: #3b82f6; color: #fff; }
+.tag.vhf { background: #8b5cf6; color: #fff; }
+.tag.digital { background: #ec4899; color: #fff; }
+
+.spec-list {
+    list-style: none;
+}
+.spec-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Formulario ClubLog */
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: #0f172a;
+    color: #fff;
+}
+
+.search-box button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.search-box button:hover {
+    opacity: 0.9;
+}
+
+/* Sidebar & QSL */
+.qsl-status {
+    list-style: none;
+}
+.qsl-status li {
+    margin-bottom: 0.8rem;
+}
+.text-green { color: var(--green); }
+.text-blue { color: #3b82f6; }
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+    .callsign {
+        font-size: 2.5rem;
+    }
+}

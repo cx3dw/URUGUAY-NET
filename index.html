@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -51,20 +50,20 @@
 
     <div class="dashboard">
 
-        <!-- METEOROLOGÍA DE ESTACIÓN (100% FUNCIONAL) -->
+        <!-- METEOROLOGÍA DE ESTACIÓN -->
         <div class="card">
             <h2>Meteorología de Estación (Satélite Real)</h2>
             <div style="display: flex; gap: 5px; margin-bottom: 10px;">
                 <select id="weather-coords">
-                    <option value="40.41,-3.70">Madrid, España</option>
-                    <option value="19.43,-99.13">Ciudad de México, México</option>
-                    <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
-                    <option value="4.71,-74.07">Bogotá, Colombia</option>
-                    <option value="-12.04,-77.03">Lima, Perú</option>
-                    <option value="9.92,-84.08">San José, Costa Rica</option>
-                    <option value="25.76,-80.19">Miami, USA</option>
-                    <option value="-34.90,-56.16">Montevideo, Uruguay</option>
-                    <option value="-33.45,-70.66">Santiago, Chile</option>
+                    <option value="40.41&-3.70">Madrid, España</option>
+                    <option value="19.43&-99.13">Ciudad de México, México</option>
+                    <option value="-34.60&-58.38">Buenos Aires, Argentina</option>
+                    <option value="4.71&-74.07">Bogotá, Colombia</option>
+                    <option value="-12.04&-77.03">Lima, Perú</option>
+                    <option value="9.92&-84.08">San José, Costa Rica</option>
+                    <option value="25.76&-80.19">Miami, USA</option>
+                    <option value="-34.90&-56.16">Montevideo, Uruguay</option>
+                    <option value="-33.45&-70.66">Santiago, Chile</option>
                 </select>
                 <button onclick="obtenerClimaGitHub()" class="btn btn-green" style="width:auto; padding:0 15px;">Cargar</button>
             </div>
@@ -73,7 +72,7 @@
             </div>
         </div>
 
-        <!-- ALERTAS SÍSMICAS REALES (USGS ESPEJO PARA GITHUB) -->
+        <!-- ALERTAS SÍSMICAS REALES -->
         <div class="card">
             <h2>Alertas de Terremotos Mundiales (USGS M2.5+)</h2>
             <div class="feed-container" id="eq-contents">
@@ -135,7 +134,7 @@
 
     <script>
         let listadoMensajes = [
-            { time: "00:01Z", user: "SYSTEM", msg: "Consola enlazada de forma segura en GitHub Pages." }
+            { time: "00:01Z", user: "SYSTEM", msg: "Consola operativa blindada en GitHub Pages." }
         ];
         let listadoContactos = [];
 
@@ -148,7 +147,7 @@
             document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
         });
 
-        // RECOLECTOR DE HORA ATÓMICA DE NAVEGADOR
+        // 1. RELOJES NATIVOS DE PRECISIÓN ABSOLUTA
         function relojesMilisegundos() {
             const actualizar = () => {
                 const ahora = new Date();
@@ -163,21 +162,22 @@
             setInterval(actualizar, 1000);
         }
 
-        // METEOROLOGÍA BLINDADA CONTRA ERRORES DE SINTAXIS
+        // 2. METEOROLOGÍA PARSEADA CON URL SEPARADA
         function obtenerClimaGitHub() {
             const selector = document.getElementById("weather-coords");
-            const geo = selector.value.split(",");
+            const geo = selector.value.split("&");
+            const lat = geo[0];
+            const lon = geo[1];
             const txtCiudad = selector.options[selector.selectedIndex].text;
             const caja = document.getElementById("weather-result");
 
             caja.innerHTML = "<p style='color:var(--cyan)'>Sincronizando satélite...</p>";
 
-            // Usamos la URL limpia compatible con CORS sin parámetros deprecados
-            fetch(`https://open-meteo.com{geo[0]}&longitude=${geo[1]}&current_weather=true`)
+            fetch(`https://open-meteo.com{lat}&longitude=${lon}&current_weather=true`)
                 .then(res => res.json())
                 .then(data => {
                     if (!data || !data.current_weather) {
-                        caja.innerHTML = "<p style='color:var(--red)'>⚠️ Datos inválidos recibidos.</p>";
+                        caja.innerHTML = "<p style='color:var(--red)'>⚠️ Datos no válidos.</p>";
                         return;
                     }
                     caja.innerHTML = `

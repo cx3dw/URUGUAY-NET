@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URUGUAY.NET — Estación Avanzada de Control CX</title>
+    <style>
+        /* CONFIGURACIÓN Y COLORES ULTRA PROFESIONALES */
+        :root {
+            --bg-main: #030712;
+            --bg-panel: #0b0f19;
+            --bg-dark: #02050c;
+            --border-color: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --blue-radio: #3b82f6;
+            --yellow-cx: #eab308;
+            --emerald-tx: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .font-mono {
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        /* BARRA SUPERIOR DE TELEMETRÍA */
+        .top-telemetry {
+            background-color: #020617;
+            border-bottom: 1px solid #0f172a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .top-telemetry strong {
+            color: #cbd5e1;
+        }
+
+        /* CABECERA PRINCIPAL */
+        header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--blue-radio);
+            letter-spacing: -0.02em;
+        }
+
+        .logo span {
+            color: var(--yellow-cx);
+        }
+
+        .badge {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* TARJETA DE OPERADOR */
+        .operator-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: #0d1527;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .operator-text {
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .operator-text .callsign {
+            color: var(--yellow-cx);
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* CONTENEDOR GRID GENERAL */
+        .dashboard-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .workspace-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ESTRUCTURA DE PANELES */
+        .card-panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .panel-title h2 {
+            font-size: 14px;
+            font-weight: bold;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* BOTONES DE BANDAS */
+        .band-bar {
+            display: flex;
+            gap: 6px;
+            background-color: var(--bg-dark);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+        }
+
+        .btn-b {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-b.active {
+            background-color: var(--blue-radio);
+            color: white;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        /* ESPACIO DEL MAPA */
+        .map-viewport {
+            height: 380px;
+            background-color: var(--bg-dark);
+            border-radius: 10px;
+            border: 1px solid #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.04;
+            background-size: 32px 32px;
+            background-image: linear-gradient(to right, #3b82f6 1px, transparent 1px),
+                              linear-gradient(to bottom, #3b82f6 1px, transparent 1px);
+        }
+
+        /* ANIMACIÓN RADAR ONDAS DE RADIO */
+        @keyframes pulseAnimation {
+            0% { transform: scale(0.1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .center-node {
+            position: absolute;
+            top: 72%;
+            left: 52%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .radar-circle {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border: 2px solid var(--blue-radio);
+            border-radius: 50%;
+            top: -40px;
+            left: -40px;
+            animation: pulseAnimation 3s linear infinite;
+        }
+
+        .core-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 0 10px var(--blue-radio);
+        }
+
+        .node-tag {
+            background-color: #030712;
+            border: 1px solid var(--blue-radio);
+            color: #60a5fa;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        /* WIDGETS FLOTANTES */
+        .floating-widget {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background-color: rgba(11, 15, 25, 0.95);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            width: 170px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .widget-title {
+            color: #60a5fa;
+            font-weight: bold;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .widget-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        /* ANALIZADOR DE ESPECTRO SIMULADO */
+        .spectrum-box {
+            height: 65px;
+            background-color: var(--bg-dark);
+            border-radius: 10px;
+            border: 1px solid #0f172a;
+            padding: 8px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        @keyframes jumpBar {
+            0%, 100% { height: 15%; }
+            50% { height: 90%; }
+        }
+
+        .bar-element {
+            flex: 1;
+            background: linear-gradient(to top, var(--blue-radio), #60a5fa);
+            border-radius: 3px 3px 0 0;
+            animation: jumpBar 1.5s ease-in-out infinite;
+        }
+
+        /* SECCIÓN LATERAL (CHAT Y FORMULARIO) */
+        .workspace-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chat-output {
+            height: 250px;
+            background-color: var(--bg-dark);
+            border: 1px solid #0f172a;
+            border-radius: 10px;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+        }
+
+        .chat-row {
+            border-left: 3px solid var(--blue-radio);
+            padding-left: 8px;
+            line-height: 1.4;
+        }
+
+        .chat-row.own {
+            border-left-color: var(--emerald-tx);
+        }
+
+        .input-group {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-chat {
+            flex: 1;
+            background-color: var(--bg-dark);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .btn-tx {
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            border: none;
+            color: white;
+            padding: 0 20px;
+            border-radius: 8px;

@@ -23,8 +23,8 @@
         .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
-        /* Sistema de Login optimizado para GitHub Pages */
-        #login-screen { max-width: 420px; margin: 80px auto; text-align: center; background: var(--bg-card); border: 2px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.2); display: block; }
+        /* Sistema de Login */
+        #login-screen { max-width: 420px; margin: 80px auto; text-align: center; background: var(--bg-card); border: 2px solid var(--cyan); padding: 30px; border-radius: 8px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.2); }
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
         input:focus { border-color: var(--cyan); outline: none; }
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
@@ -57,7 +57,7 @@
 </head>
 <body>
 
-    <!-- CONTROL DE REGISTRO E INGRESO -->
+    <!-- PANTALLA DE REGISTRO E INGRESO -->
     <div id="login-screen">
         <h2 style="border:none; color: var(--cyan); margin-bottom: 5px;">REGISTRO DE ESTACIÓN</h2>
         <p style="font-size:0.8rem; color:#64748b; margin-bottom: 20px;">Acceso Consola (Optimizado para GitHub)</p>
@@ -73,7 +73,7 @@
         <button onclick="forzarIngresoGitHub()" class="btn">Entrar a la Consola DX</button>
     </div>
 
-    <!-- ENTORNO CENTRAL DEL PANEL (ESCONDIDO POR CSS AL INICIO) -->
+    <!-- ENTORNO CENTRAL DEL PANEL (OCULTO AL PRINCIPIO) -->
     <div id="dashboard-screen" style="display: none;">
         <div class="header">
             <h1>CONSOLA DE CONTROL - OPERADOR: <span id="display-callsign" style="color:var(--cyan)"></span> (<span id="display-name" style="color:var(--amber)"></span>)</h1>
@@ -152,3 +152,5 @@
                         <option value="25.76,-80.19">Miami, USA</option>
                         <option value="-34.90,-56.16">Montevideo, Uruguay</option>
                     </select>
+                    <button onclick="consultarMeteoGitHub()" class="btn btn-green">Sincronizar</button>
+                </div>

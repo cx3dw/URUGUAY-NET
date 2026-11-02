@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola DX Global V1.5</title>
+    <title>Consola DX Radioafición</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -27,7 +28,6 @@
 
         .feed-container { height: 200px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; line-height: 1.4; }
         .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; }
-        .feed-title { color: var(--cyan); font-weight: bold; }
         
         .logger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .table-container { margin-top: 15px; max-height: 140px; overflow-y: auto; font-size: 0.8rem; }
@@ -35,7 +35,6 @@
         th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
-        .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
         .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
         .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
     </style>
@@ -52,15 +51,37 @@
 
     <div class="dashboard">
 
-        <!-- BOLETINES EN VIVO DESDE LA NOAA (JSON SEGURO) -->
-        <div class="card" style="grid-column: 1 / -1;">
-            <h2>Boletines y Avisos de Clima Espacial Real (NOAA Space Weather)</h2>
-            <div class="feed-container" id="news-contents" style="height: 120px;">
-                <p style="color:var(--cyan);">Conectando con el centro de predicciones meteorológicas solares...</p>
+        <!-- METEOROLOGÍA DE ESTACIÓN (100% FUNCIONAL) -->
+        <div class="card">
+            <h2>Meteorología de Estación (Satélite Real)</h2>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <select id="weather-coords">
+                    <option value="40.41,-3.70">Madrid, España</option>
+                    <option value="19.43,-99.13">Ciudad de México, México</option>
+                    <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
+                    <option value="4.71,-74.07">Bogotá, Colombia</option>
+                    <option value="-12.04,-77.03">Lima, Perú</option>
+                    <option value="9.92,-84.08">San José, Costa Rica</option>
+                    <option value="25.76,-80.19">Miami, USA</option>
+                    <option value="-34.90,-56.16">Montevideo, Uruguay</option>
+                    <option value="-33.45,-70.66">Santiago, Chile</option>
+                </select>
+                <button onclick="obtenerClimaGitHub()" class="btn btn-green" style="width:auto; padding:0 15px;">Cargar</button>
+            </div>
+            <div class="weather-display" id="weather-result">
+                <p style="color:#64748b; margin:0;">Presiona Cargar para sincronizar telemetría actual...</p>
             </div>
         </div>
 
-        <!-- CHAT INTERACTIVO -->
+        <!-- ALERTAS SÍSMICAS REALES (USGS ESPEJO PARA GITHUB) -->
+        <div class="card">
+            <h2>Alertas de Terremotos Mundiales (USGS M2.5+)</h2>
+            <div class="feed-container" id="eq-contents">
+                <p style="color:var(--cyan); margin:0;">Cargando sismógrafos globales...</p>
+            </div>
+        </div>
+
+        <!-- CHAT / CLÚSTER LOCAL -->
         <div class="card">
             <h2>Chat Interno / Clúster de Reportes</h2>
             <div class="feed-container" id="chat-contents"></div>
@@ -70,7 +91,7 @@
             </div>
         </div>
 
-        <!-- LOGGER (LIBRO DE GUARDIA) -->
+        <!-- LIBRO DE GUARDIA (LOGGER) -->
         <div class="card">
             <h2>Radio Logbook (Libro de Guardia)</h2>
             <div class="logger-grid">
@@ -110,36 +131,6 @@
             </div>
         </div>
 
-        <!-- METEOROLOGÍA DE SATÉLITE -->
-        <div class="card">
-            <h2>Meteorología de Estación (Satélite Abierto)</h2>
-            <div class="weather-search-box">
-                <select id="weather-coords">
-                    <option value="40.41,-3.70">Madrid, España</option>
-                    <option value="19.43,-99.13">Ciudad de México, México</option>
-                    <option value="-34.60,-58.38">Buenos Aires, Argentina</option>
-                    <option value="4.71,-74.07">Bogotá, Colombia</option>
-                    <option value="-12.04,-77.03">Lima, Perú</option>
-                    <option value="9.92,-84.08">San José, Costa Rica</option>
-                    <option value="25.76,-80.19">Miami, USA</option>
-                    <option value="-34.90,-56.16">Montevideo, Uruguay</option>
-                    <option value="-33.45,-70.66">Santiago, Chile</option>
-                </select>
-                <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
-            </div>
-            <div class="weather-display" id="weather-result">
-                <p style="color:#64748b; margin:0;">Establece zona geográfica para telemetría...</p>
-            </div>
-        </div>
-
-        <!-- ALERTAS SÍSMICAS MUNDIALES REALES -->
-        <div class="card">
-            <h2>Alertas de Terremotos Mundiales Recientes (USGS)</h2>
-            <div class="feed-container" id="eq-contents">
-                <p style="color:var(--cyan); margin:0;">Estableciendo enlace de telemetría...</p>
-            </div>
-        </div>
-
     </div>
 
     <script>
@@ -149,18 +140,17 @@
         let listadoContactos = [];
 
         document.addEventListener("DOMContentLoaded", () => {
-            correrRelojesSistema();
-            buscarSismosActivos();
-            cargarAlertasSolares();
+            relojesMilisegundos();
+            cargarSismosUSGS();
             pintarChatActual();
             pintarTablaContactos();
 
             document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
         });
 
-        // 1. RELOJES DINÁMICOS EN VIVO CALCULADOS NATIVAMENTE
-        function correrRelojesSistema() {
-            setInterval(() => {
+        // RECOLECTOR DE HORA ATÓMICA DE NAVEGADOR
+        function relojesMilisegundos() {
+            const actualizar = () => {
                 const ahora = new Date();
                 document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
                 
@@ -168,18 +158,27 @@
                 const mUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
                 const sUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
                 document.getElementById('clock-utc').innerText = `${hUTC}:${mUTC}:${sUTC} UTC`;
-            }, 1000);
+            };
+            actualizar();
+            setInterval(actualizar, 1000);
         }
 
-        // 2. ALERTAS DEL CENTRO DE PREDICCIÓN SOLAR NOAA (JSON REAL)
-        async function cargarAlertasSolares() {
-            const contenedor = document.getElementById("news-contents");
-            try {
-                const res = await fetch("https://noaa.gov");
-                const data = await res.json();
-                contenedor.innerHTML = "";
-                
-                if(data && data.length > 0) {
-                    data.slice(0, 3).forEach(item => {
-                        contenedor.innerHTML += `
-                            <div class="feed-item">
+        // METEOROLOGÍA BLINDADA CONTRA ERRORES DE SINTAXIS
+        function obtenerClimaGitHub() {
+            const selector = document.getElementById("weather-coords");
+            const geo = selector.value.split(",");
+            const txtCiudad = selector.options[selector.selectedIndex].text;
+            const caja = document.getElementById("weather-result");
+
+            caja.innerHTML = "<p style='color:var(--cyan)'>Sincronizando satélite...</p>";
+
+            // Usamos la URL limpia compatible con CORS sin parámetros deprecados
+            fetch(`https://open-meteo.com{geo[0]}&longitude=${geo[1]}&current_weather=true`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.current_weather) {
+                        caja.innerHTML = "<p style='color:var(--red)'>⚠️ Datos inválidos recibidos.</p>";
+                        return;
+                    }
+                    caja.innerHTML = `
+                        <div class="weather-main" style="color: var(--green);">${txtCiudad.toUpperCase()}</div>

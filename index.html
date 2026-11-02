@@ -22,16 +22,12 @@
         h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: var(--cyan); outline: none; }
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
-        .btn:hover { background-color: #00c8d6; }
         .btn-green { background: var(--green); color: #000; }
 
         .feed-container { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
         .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; line-height: 1.4; }
         .feed-title { color: var(--cyan); font-weight: bold; text-decoration: none; display: block; margin-bottom: 2px; }
-        .feed-title:hover { text-decoration: underline; }
-        .feed-date { color: #64748b; font-size: 0.75rem; }
         
         .logger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .table-container { margin-top: 15px; max-height: 140px; overflow-y: auto; font-size: 0.8rem; }
@@ -40,12 +36,9 @@
         td { padding: 5px; border-bottom: 1px solid #1e293b; }
         
         .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
-        .weather-search-box select { margin: 0; }
-        .weather-search-box button { width: auto; padding: 0 15px; }
         .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
         .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
 
-        .eq-display { height: 160px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
         .eq-item { border-bottom: 1px solid #111827; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; }
         .eq-mag { font-weight: bold; padding: 2px 6px; border-radius: 3px; color: #000; font-family: sans-serif; font-size: 0.8rem; }
     </style>
@@ -62,11 +55,11 @@
 
     <div class="dashboard">
 
-        <!-- MODULO RSS: NOTICIAS VIVAS DE LA ARRL -->
+        <!-- MODULO RSS: NOTICIAS INFORMATIVAS REALES -->
         <div class="card" style="grid-column: 1 / -1;">
-            <h2>Noticias y Boletines DX en Tiempo Real (ARRL Feed)</h2>
-            <div class="feed-container" id="news-contents" style="height: 180px;">
-                <p style="color:var(--cyan);">Sincronizando con el servidor de la ARRL...</p>
+            <h2>Boletines y Avisos de Radioactividad Solar en Tiempo Real</h2>
+            <div class="feed-container" id="news-contents" style="height: 150px;">
+                <p style="color:var(--cyan);">Conectando con la base de datos de transmisiones...</p>
             </div>
         </div>
 
@@ -120,9 +113,9 @@
             </div>
         </div>
 
-        <!-- MODULO: CLIMA -->
+        <!-- MODULO: CLIMA CON NUEVA SINTAXIS -->
         <div class="card">
-            <h2>Meteorología Local de Estación Real</h2>
+            <h2>Meteorología de la Estación (Satélite Abierto)</h2>
             <div class="weather-search-box">
                 <select id="weather-coords">
                     <option value="40.41,-3.70">Madrid, España</option>
@@ -137,16 +130,16 @@
                 </select>
                 <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
             </div>
-            <div class="feed-container" id="weather-result" style="height: 160px; background: #05070c;">
-                <p style="color:#64748b; margin:0;">Sincroniza la zona geográfica para obtener telemetría atmosférica...</p>
+            <div class="weather-display" id="weather-result" style="background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px;">
+                <p style="color:#64748b; margin:0;">Establece zona geográfica para telemetría...</p>
             </div>
         </div>
 
-        <!-- MODULO: TERREMOTOS -->
+        <!-- MODULO: TERREMOTOS DEL USGS REAL -->
         <div class="card">
-            <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
+            <h2>Alertas de Terremotos Mundiales Recientes (USGS)</h2>
             <div class="eq-display" id="eq-contents">
-                <p style="color:var(--cyan); margin:0;">Sincronizando con la red sismológica planetaria...</p>
+                <p style="color:var(--cyan); margin:0;">Estableciendo enlace de telemetría...</p>
             </div>
         </div>
 
@@ -154,14 +147,14 @@
 
     <script>
         let listadoMensajes = [
-            { time: "00:01Z", user: "SYSTEM", msg: "Consola activa. Sincronización de frentes de datos establecida." }
+            { time: "00:01Z", user: "SYSTEM", msg: "Consola enlazada de forma segura en GitHub Pages." }
         ];
         let listadoContactos = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             correrRelojesSistema();
             buscarSismosActivos();
-            cargarNoticiasRealesARRL();
+            cargarNoticiasLocales();
             pintarChatActual();
             pintarTablaContactos();
 
@@ -175,3 +168,12 @@
                 
                 const hUTC = String(ahora.getUTCHours()).padStart(2, '0');
                 const mUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
+                const sUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('clock-utc').innerText = `${hUTC}:${mUTC}:${sUTC} UTC`;
+            }, 1000);
+        }
+
+        async function cargarNoticiasLocales() {
+            const contenedor = document.getElementById("news-contents");
+            try {
+                // Descarga de alertas reales de la base meteorológica NOAA Space Weather sin bloqueos

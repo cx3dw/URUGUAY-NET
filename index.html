@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola de Control DX - Consola Directa</title>
+    <title>Consola de Control DX - Reportes Reales</title>
     <style>
         :root {
             --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
@@ -40,12 +40,12 @@
         .weather-search-box { display: flex; gap: 5px; margin-bottom: 10px; }
         .weather-search-box select { margin: 0; }
         .weather-search-box button { width: auto; padding: 0 15px; }
-        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem;}
+        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
         .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
 
         .eq-display { height: 160px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
-        .eq-item { border-bottom: 1px solid #111827; padding: 4px 0; display: flex; justify-content: space-between; }
-        .eq-mag { font-weight: bold; padding: 0 4px; border-radius: 2px; }
+        .eq-item { border-bottom: 1px solid #111827; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; }
+        .eq-mag { font-weight: bold; padding: 2px 6px; border-radius: 3px; font-family: sans-serif; }
     </style>
 </head>
 <body>
@@ -110,9 +110,9 @@
             </div>
         </div>
 
-        <!-- MODULO 3: METEOROLOGÍA -->
+        <!-- MODULO 3: METEOROLOGÍA DE VERDAD -->
         <div class="card">
-            <h2>Meteorología Local de la Estación</h2>
+            <h2>Meteorología de Estación en Tiempo Real</h2>
             <div class="weather-search-box">
                 <select id="weather-coords">
                     <option value="40.41,-3.70">Madrid, España</option>
@@ -123,19 +123,20 @@
                     <option value="9.92,-84.08">San José, Costa Rica</option>
                     <option value="25.76,-80.19">Miami, USA</option>
                     <option value="-34.90,-56.16">Montevideo, Uruguay</option>
+                    <option value="-33.45,-70.66">Santiago, Chile</option>
                 </select>
                 <button onclick="cargarClimaAbierto()" class="btn btn-green">Sincronizar</button>
             </div>
             <div class="weather-display" id="weather-result">
-                <p style="color:#64748b; margin:0;">Selecciona una zona de operación de antenas para descargar telemetría...</p>
+                <p style="color:#64748b; margin:0;">Selecciona una zona de operación para descargar datos atmosféricos reales...</p>
             </div>
         </div>
 
-        <!-- MODULO 4: ALERTAS SÍSMICAS -->
+        <!-- MODULO 4: ALERTAS DE TERREMOTOS DE VERDAD -->
         <div class="card">
-            <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
+            <h2>Alertas de Terremotos Mundiales Recientes (USGS)</h2>
             <div class="eq-display" id="eq-contents">
-                <p style="color:#64748b; margin:0;">Conectando con la base de datos sismológica internacional...</p>
+                <p style="color:var(--cyan); margin:0;">Sincronizando con la red sismológica planetaria...</p>
             </div>
         </div>
 
@@ -143,8 +144,8 @@
 
     <script>
         let listadoMensajes = [
-            { time: "22:10Z", user: "ESTACION_BASE", msg: "Consola de monitoreo directa inicializada en GitHub." },
-            { time: "22:15Z", user: "LU9FCE", msg: "Reportando frecuencias de escucha estables." }
+            { time: "00:01Z", user: "SISTEMA", msg: "Consola de monitoreo sintonizada. Conexión de feeds segura." },
+            { time: "00:05Z", user: "LU9FCE", msg: "Reportes DX de sismos y clima sincronizados." }
         ];
         let listadoContactos = [];
 
@@ -169,12 +170,8 @@
             }, 1000);
         }
 
+        // METEOROLOGÍA DE VERDAD MEJORADA Y REDIRECCIONADA (EVITA CAÍDAS)
         async function cargarClimaAbierto() {
             const dropdown = document.getElementById("weather-coords");
             const geo = dropdown.value.split(",");
             const txtCiudad = dropdown.options[dropdown.selectedIndex].text;
-            const caja = document.getElementById("weather-result");
-
-            caja.innerHTML = "<p style='color:var(--cyan)'>Descargando telemetría climática...</p>";
-
-            try {

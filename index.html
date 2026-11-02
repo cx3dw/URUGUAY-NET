@@ -3,182 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola DX Radioafición</title>
-    <style>
-        :root {
-            --bg-main: #060913; --bg-card: #0f1626; --border: #1e293b;
-            --cyan: #00f0ff; --amber: #f59e0b; --red: #ef4444; --green: #10b981; --text: #f1f5f9;
-        }
-        body { font-family: 'Courier New', Courier, monospace; background-color: var(--bg-main); color: var(--text); margin: 0; padding: 20px; }
-        .dashboard { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
-        .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 10px; margin-bottom: 15px; }
-        .header h1 { margin: 0; color: var(--cyan); font-size: 1.6rem; letter-spacing: 2px; }
-        
-        .clocks-container { display: flex; justify-content: center; gap: 30px; margin-top: 8px; font-weight: bold; font-size: 1.1rem; }
-        .clock { color: var(--green); }
-        .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; border-radius: 4px; }
-        
-        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { font-size: 1.1rem; color: var(--cyan); margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 5px; text-transform: uppercase; }
-        
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #05070c; border: 1px solid var(--border); color: #fff; font-family: monospace; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
-        .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
-        .btn-green { background: var(--green); color: #000; }
-
-        .feed-container { height: 200px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; line-height: 1.4; }
-        .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; }
-        
-        .logger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .table-container { margin-top: 15px; max-height: 140px; overflow-y: auto; font-size: 0.8rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th { color: var(--cyan); text-align: left; border-bottom: 1px solid var(--border); padding: 5px; }
-        td { padding: 5px; border-bottom: 1px solid #1e293b; }
-        
-        .weather-display { background: #05070c; padding: 15px; border-radius: 4px; border: 1px solid var(--border); min-height: 100px; font-size: 0.9rem; line-height: 1.4; }
-        .weather-main { font-size: 1.3rem; color: var(--amber); font-weight: bold; margin-bottom: 5px;}
-    </style>
+    <title>EA1ABC - Estación de Radioaficionado</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="header">
-        <h1>CONSOLA DE CONTROL OPERATIVO DX</h1>
-        <div class="clocks-container">
-            <div>LOCAL: <span id="clock-local" class="clock">--:--:--</span></div>
-            <div>HORA UTC: <span id="clock-utc" class="clock-utc">--:--:-- UTC</span></div>
+    <!-- Header / Indicativo Principal -->
+    <header class="shack-header">
+        <div class="container">
+            <h1 class="callsign">EA1ABC</h1>
+            <p class="operator-name">Operator: Carlos | QTH: Madrid (IN80ln)</p>
+            <div class="status-badge">QRV / Listening</div>
         </div>
-    </div>
+    </header>
 
-    <div class="dashboard">
+    <!-- Navegación -->
+    <nav class="shack-nav">
+        <ul>
+            <li><a href="#shack">El Shack</a></li>
+            <li><a href="#antennas">Antenas</a></li>
+            <li><a href="#qsl">QSL Info</a></li>
+            <li><a href="#logbook">Logbook</a></li>
+        </ul>
+    </nav>
 
-        <!-- METEOROLOGÍA DE ESTACIÓN -->
-        <div class="card">
-            <h2>Meteorología de Estación (Satélite Real)</h2>
-            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                <select id="weather-coords">
-                    <option value="40.41&-3.70">Madrid, España</option>
-                    <option value="19.43&-99.13">Ciudad de México, México</option>
-                    <option value="-34.60&-58.38">Buenos Aires, Argentina</option>
-                    <option value="4.71&-74.07">Bogotá, Colombia</option>
-                    <option value="-12.04&-77.03">Lima, Perú</option>
-                    <option value="9.92&-84.08">San José, Costa Rica</option>
-                    <option value="25.76&-80.19">Miami, USA</option>
-                    <option value="-34.90&-56.16">Montevideo, Uruguay</option>
-                    <option value="-33.45&-70.66">Santiago, Chile</option>
-                </select>
-                <button onclick="obtenerClimaGitHub()" class="btn btn-green" style="width:auto; padding:0 15px;">Cargar</button>
+    <!-- Contenido Principal -->
+    <main class="container">
+        <!-- Sección El Shack -->
+        <section id="shack" class="card">
+            <h2>Transceptores y Equipamiento</h2>
+            <ul>
+                <li><strong>HF:</strong> Icom IC-7300 (100W)</li>
+                <li><strong>VHF/UHF:</strong> Yaesu FT-991A</li>
+                <li><strong>Audio/Mic:</strong> Heil Sound PR 40</li>
+            </ul>
+        </section>
+
+        <!-- Sección Antenas -->
+        <section id="antennas" class="card">
+            <h2>Sistema de Antenas</h2>
+            <p>Yagi de 3 elementos para bandas WARC y superiores, dipolo rígido para 40/80m.</p>
+        </section>
+
+        <!-- Sección QSL -->
+        <section id="qsl" class="card">
+            <h2>Información QSL & Bureau</h2>
+            <p>Acepto QSL vía Directa, Bureau URE, y LoTW / eQSL.</p>
+            <div class="qsl-card-preview">
+                <!-- Imagen o vista previa de la tarjeta QSL -->
             </div>
-            <div class="weather-display" id="weather-result">
-                <p style="color:#64748b; margin:0;">Presiona Cargar para sincronizar telemetría actual...</p>
-            </div>
-        </div>
+        </section>
+    </main>
 
-        <!-- ALERTAS SÍSMICAS REALES -->
-        <div class="card">
-            <h2>Alertas de Terremotos Mundiales (USGS M2.5+)</h2>
-            <div class="feed-container" id="eq-contents">
-                <p style="color:var(--cyan); margin:0;">Cargando sismógrafos globales...</p>
-            </div>
-        </div>
-
-        <!-- CHAT / CLÚSTER LOCAL -->
-        <div class="card">
-            <h2>Chat Interno / Clúster de Reportes</h2>
-            <div class="feed-container" id="chat-contents"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="chat-message" placeholder="Escribe un reporte de frecuencia...">
-                <button onclick="enviarMensajeEstacion()" class="btn btn-green" style="width:auto; padding:0 20px;">Enviar</button>
-            </div>
-        </div>
-
-        <!-- LIBRO DE GUARDIA (LOGGER) -->
-        <div class="card">
-            <h2>Radio Logbook (Libro de Guardia)</h2>
-            <div class="logger-grid">
-                <div>
-                    <label style="font-size:0.75rem; color:#64748b;">Indicativo DX:</label>
-                    <input type="text" id="log-dx" placeholder="Ej: LU9FCE" style="text-transform: uppercase; margin:5px 0;">
-                </div>
-                <div>
-                    <label style="font-size:0.75rem; color:#64748b;">Reporte RST:</label>
-                    <input type="text" id="log-rst" value="59" style="margin:5px 0;">
-                </div>
-                <div>
-                    <label style="font-size:0.75rem; color:#64748b;">Banda:</label>
-                    <select id="log-band" style="margin:5px 0;">
-                        <option>40m (7 MHz)</option><option>20m (14 MHz)</option>
-                        <option>15m (21 MHz)</option><option>10m (28 MHz)</option>
-                        <option>2m (144 MHz)</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.75rem; color:#64748b;">Modo:</label>
-                    <select id="log-mode" style="margin:5px 0;">
-                        <option>SSB (Voz)</option><option>FT8</option>
-                        <option>CW (Morse)</option><option>FM</option>
-                    </select>
-                </div>
-                <button onclick="guardarRegistroNuevo()" class="btn" style="grid-column: 1/-1; margin-top:5px;">Registrar Contacto</button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr><th>Fecha (UTC)</th><th>Contacto DX</th><th>Banda</th><th>Modo</th><th>RST</th></tr>
-                    </thead>
-                    <tbody id="log-table-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        let listadoMensajes = [
-            { time: "00:01Z", user: "SYSTEM", msg: "Consola operativa blindada en GitHub Pages." }
-        ];
-        let listadoContactos = [];
-
-        document.addEventListener("DOMContentLoaded", () => {
-            relojesMilisegundos();
-            cargarSismosUSGS();
-            pintarChatActual();
-            pintarTablaContactos();
-
-            document.getElementById("chat-message").addEventListener("keypress", function(e) { if (e.key === "Enter") enviarMensajeEstacion(); });
-        });
-
-        // 1. RELOJES NATIVOS DE PRECISIÓN ABSOLUTA
-        function relojesMilisegundos() {
-            const actualizar = () => {
-                const ahora = new Date();
-                document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
-                
-                const hUTC = String(ahora.getUTCHours()).padStart(2, '0');
-                const mUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
-                const sUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
-                document.getElementById('clock-utc').innerText = `${hUTC}:${mUTC}:${sUTC} UTC`;
-            };
-            actualizar();
-            setInterval(actualizar, 1000);
-        }
-
-        // 2. METEOROLOGÍA PARSEADA CON URL SEPARADA
-        function obtenerClimaGitHub() {
-            const selector = document.getElementById("weather-coords");
-            const geo = selector.value.split("&");
-            const lat = geo[0];
-            const lon = geo[1];
-            const txtCiudad = selector.options[selector.selectedIndex].text;
-            const caja = document.getElementById("weather-result");
-
-            caja.innerHTML = "<p style='color:var(--cyan)'>Sincronizando satélite...</p>";
-
-            fetch(`https://open-meteo.com{lat}&longitude=${lon}&current_weather=true`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || !data.current_weather) {
-                        caja.innerHTML = "<p style='color:var(--red)'>⚠️ Datos no válidos.</p>";
-                        return;
-                    }
-                    caja.innerHTML = `
-                        <div class="weather-main" style="color: var(--green);">${txtCiudad.toUpperCase()}</div>
+    <!-- Pie de página -->
+    <footer class="shack-footer">
+        <p>&copy; 2026 EA1ABC - Todos los derechos reservados. Grid: IN80ln</p>
+    </footer>
+</body>
+</html>

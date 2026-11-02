@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consola de Operaciones DX - Radioafición</title>
+    <title>Consola Operativa de Radioafición</title>
     <style>
         :root {
             --bg-main: #060913;
@@ -62,6 +62,39 @@
             background-color: #05070c;
             border-radius: 4px;
         }
+        /* Estilos del Chat */
+        .chat-box {
+            height: 200px;
+            background-color: #05070c;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        .chat-msg { margin-bottom: 8px; line-height: 1.2; }
+        .chat-msg .user { color: var(--cyan); font-weight: bold; }
+        .chat-msg .time { color: #64748b; font-size: 0.75rem; }
+        .chat-input-area { display: flex; gap: 8px; }
+        .chat-input-area input {
+            flex: 1;
+            padding: 8px;
+            background-color: #05070c;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: monospace;
+            border-radius: 4px;
+        }
+        .chat-input-area button {
+            padding: 0 15px;
+            background-color: var(--green);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
         /* Estilos del Logger */
         .logger-form {
             display: grid;
@@ -90,7 +123,6 @@
             border-radius: 4px;
             text-transform: uppercase;
         }
-        .logger-form button:hover { background-color: #00c8d6; }
         .log-table-container {
             margin-top: 15px;
             max-height: 120px;
@@ -105,13 +137,13 @@
 <body>
 
     <div class="header">
-        <h1>CONSOLA DE MONITOREO & LOG DX</h1>
-        <div style="color: var(--green); font-size: 0.8rem; margin-top: 5px;">[SISTEMA DE COMUNICACIONES GLOBAL OPERATIVO]</div>
+        <h1>CONSOLA DE CONTROL OPERATIVO - DX CLUSTER</h1>
+        <div style="color: var(--green); font-size: 0.8rem; margin-top: 5px;">[SISTEMA GLOBAL ESTABLE - SIN APIS EXTERNAS]</div>
     </div>
 
     <div class="dashboard">
 
-        <!-- PANEL 1: LOGGER NATIVO PARA LLAMADOS GENERALES (CQ) -->
+        <!-- 1. LOGGER PARA LLAMADOS GENERALES -->
         <div class="card">
             <h2>Radio Logbook (Libro de Guardia)</h2>
             <div class="logger-form">
@@ -139,17 +171,17 @@
                     </select>
                 </div>
                 <div>
-                    <label>Reporte RST (Enviado):</label>
+                    <label>Reporte RST:</label>
                     <input type="text" id="rst" value="59">
                 </div>
-                <button onclick="addLog()">Registrar Llamado General / QSO</button>
+                <button onclick="addLog()">Registrar QSO / Llamado General</button>
             </div>
             
             <div class="log-table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Fecha/UTC</th>
+                            <th>Fecha (UTC)</th>
                             <th>Indicativo</th>
                             <th>Banda</th>
                             <th>Modo</th>
@@ -157,37 +189,48 @@
                         </tr>
                     </thead>
                     <tbody id="log-body">
-                        <!-- Los registros aparecerán aquí -->
+                        <!-- Se agregan aquí -->
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- PANEL 2: ALERTAS DE TERREMOTOS EN VIVO (Feed Global Sísmico) -->
+        <!-- 2. CHAT INTERACTIVO (SIMULADOR DE CLUSTER) -->
         <div class="card">
-            <h2 style="color: var(--red);">Alertas Globales de Terremotos</h2>
-            <!-- Monitor interactivo del USGS que mapea los sismos mundiales en tiempo real sin bloquearse -->
-            <iframe class="widget-frame" src="https://usgs.gov"></iframe>
+            <h2>Chat Interactivo / DX Cluster</h2>
+            <div class="chat-box" id="chat-box">
+                <div class="chat-msg"><span class="time">[13:02]</span> <span class="user">CO2KK:</span> CQ DX en 14.195 MHz propagación abriendo hacia el sur.</div>
+                <div class="chat-msg"><span class="time">[13:05]</span> <span class="user">EA4URS:</span> QRV por aquí en 40 metros, fuerte ruido estático hoy.</div>
+                <div class="chat-msg"><span class="time">[13:09]</span> <span class="user">LU9FCE:</span> Escuchando balizas en 10 metros, reporten señales compañeros.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Escribe un reporte o mensaje al clúster...">
+                <button onclick="sendChatMessage()">Enviar</button>
+            </div>
         </div>
 
-        <!-- PANEL 3: METEOROLOGÍA GLOBAL (Presión, Vientos y Satélite) -->
+        <!-- 3. METEOROLOGÍA GLOBAL (WINDY - SEGURO) -->
         <div class="card">
             <h2 style="color: var(--amber);">Servicio Meteorológico Global</h2>
-            <!-- Widget profesional de visualización de capas de viento, tormentas y frentes de presión troposféricos -->
-            <iframe class="widget-frame" src="https://usgs.gov" id="weather-placeholder" style="display:none;"></iframe>
             <iframe class="widget-frame" src="https://windy.com"></iframe>
         </div>
 
-        <!-- PANEL 4: NOTICIAS INFORMATIVAS Y CONDICIONES HF -->
+        <!-- 4. ALERTAS SÍSMICAS ACTIVAS -->
         <div class="card">
-            <h2>Noticias y Boletines Informativos DX</h2>
-            <!-- Incorporación segura de boletines informativos de radioafición y clima espacial internacional -->
-            <iframe class="widget-frame" src="https://noaa.gov"></iframe>
+            <h2 style="color: var(--red);">Alertas de Terremotos Mundiales</h2>
+            <iframe class="widget-frame" src="https://emsc-csem.org"></iframe>
+        </div>
+
+        <!-- 5. NOTICIAS Y BOLETINES TÉCNICOS DE RADIO -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>Boletines Informativos de Propagación Solar (NOAA)</h2>
+            <iframe class="widget-frame" style="height: 180px;" src="https://noaa.gov"></iframe>
         </div>
 
     </div>
 
     <script>
+        // Función del Logger
         function addLog() {
             const callsign = document.getElementById('callsign').value.toUpperCase();
             const band = document.getElementById('band').value;
@@ -195,16 +238,15 @@
             const rst = document.getElementById('rst').value;
             
             if (!callsign) {
-                alert("Por favor introduce un indicativo válido.");
+                alert("Introduce un indicativo válido.");
                 return;
             }
 
             const now = new Date();
-            const timeUTC = now.toISOString().replace('T', ' ').substring(0, 16) + "Z";
+            const timeUTC = now.toISOString().replace('T', ' ').substring(11, 16) + "Z";
 
             const tableBody = document.getElementById('log-body');
             const row = document.createElement('tr');
-
             row.innerHTML = `
                 <td>${timeUTC}</td>
                 <td style="color: var(--cyan); font-weight: bold;">${callsign}</td>
@@ -212,12 +254,14 @@
                 <td>${mode}</td>
                 <td>${rst}</td>
             `;
-
             tableBody.insertBefore(row, tableBody.firstChild);
-            
-            // Limpia el campo de texto para el próximo llamado
             document.getElementById('callsign').value = "";
         }
-    </script>
-</body>
-</html>
+
+        // Función del Chat
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const now = new Date();

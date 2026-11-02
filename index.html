@@ -3,60 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EA1ABC - Estación de Radioaficionado</title>
-    <link rel="stylesheet" href="style.css">
+    <title>EA1ABC | Estación de Radioaficionado</title>
+    
+    <!-- Meta etiquetas SEO y Open Graph (Tarjetas de vista previa) -->
+    <meta name="description" content="Página oficial de la estación de radioaficionado EA1ABC. QTH: Madrid, Locator: IN80ln. Detalle de equipos, antenas e información QSL.">
+    <meta property="og:title" content="EA1ABC - Amateur Radio Station">
+    <meta property="og:description" content="QTH: Madrid | Grid: IN80ln | HF & VHF/UHF Operator">
+    <meta property="og:image" content="https://tu-usuario.github.io/tu-repositorio/qsl-preview.jpg">
+    <meta property="og:url" content="https://tu-usuario.github.io/tu-repositorio/">
+
+    <!-- Estilos locales -->
+    <link rel="stylesheet" href="./style.css">
+    
+    <!-- Iconos SVG (FontAwesome por CDN para carga rápida) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header / Indicativo Principal -->
-    <header class="shack-header">
-        <div class="container">
+
+    <!-- Header con estética industrial/shack -->
+    <header class="hero">
+        <div class="container hero-content">
+            <div class="badge qrv"><i class="fa-solid fa-signal"></i> ESTADO: QRV (En Frecuencia)</div>
             <h1 class="callsign">EA1ABC</h1>
-            <p class="operator-name">Operator: Carlos | QTH: Madrid (IN80ln)</p>
-            <div class="status-badge">QRV / Listening</div>
+            <p class="subtitle">Carlos | Madrid, España — Grid: IN80ln</p>
+            
+            <div class="quick-links">
+                <a href="https://www.qrz.com/db/EA1ABC" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> QRZ.com</a>
+                <a href="https://clublog.org/logsearch/EA1ABC" target="_blank" rel="noopener"><i class="fa-solid fa-list-check"></i> ClubLog</a>
+                <a href="#qsl"><i class="fa-solid fa-envelope"></i> Info QSL</a>
+            </div>
         </div>
     </header>
 
     <!-- Navegación -->
-    <nav class="shack-nav">
-        <ul>
-            <li><a href="#shack">El Shack</a></li>
-            <li><a href="#antennas">Antenas</a></li>
-            <li><a href="#qsl">QSL Info</a></li>
-            <li><a href="#logbook">Logbook</a></li>
-        </ul>
+    <nav class="navbar">
+        <div class="container nav-flex">
+            <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack</a>
+            <a href="#antennas"><a href="#antennas"><i class="fa-solid fa-tower-cell"></i> Antenas</a>
+            <a href="#logbook"><i class="fa-solid fa-globe"></i> Logbook</a>
+            <a href="#qsl"><i class="fa-solid fa-address-card"></i> QSL Policy</a>
+        </div>
     </nav>
 
     <!-- Contenido Principal -->
-    <main class="container">
-        <!-- Sección El Shack -->
-        <section id="shack" class="card">
-            <h2>Transceptores y Equipamiento</h2>
-            <ul>
-                <li><strong>HF:</strong> Icom IC-7300 (100W)</li>
-                <li><strong>VHF/UHF:</strong> Yaesu FT-991A</li>
-                <li><strong>Audio/Mic:</strong> Heil Sound PR 40</li>
-            </ul>
+    <main class="container grid-layout">
+
+        <!-- Columna Principal -->
+        <section class="main-content">
+            
+            <!-- Sección Equipos -->
+            <article id="shack" class="card">
+                <h2><i class="fa-solid fa-headset"></i> Equipamiento (The Shack)</h2>
+                <div class="equip-grid">
+                    <div class="equip-item">
+                        <span class="tag hf">HF / 50 MHz</span>
+                        <h3>Icom IC-7300</h3>
+                        <p>100W SDR Transceiver | Mic: Heil Sound PR 40</p>
+                    </div>
+                    <div class="equip-item">
+                        <span class="tag vhf">VHF / UHF</span>
+                        <h3>Yaesu FT-991A</h3>
+                        <p>All-Mode Portable & Shack Transceiver</p>
+                    </div>
+                    <div class="equip-item">
+                        <span class="tag digital">Digital / Sat</span>
+                        <h3>Raspberry Pi 4</h3>
+                        <p>WSJT-X, FT8, JS8Call & Direwolf TNC</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Sección Antenas -->
+            <article id="antennas" class="card">
+                <h2><i class="fa-solid fa-broadcast-tower"></i> Antenas & Estructura</h2>
+                <ul class="spec-list">
+                    <li><strong>10m / 15m / 20m:</strong> Yagi direccional de 3 elementos a 12 metros de altura.</li>
+                    <li><strong>40m / 80m:</strong> Dipolo en V invertida con balun 1:1.</li>
+                    <li><strong>V/UHF:</strong> Antena colineal Diamond X-510N en cumbre de torre.</li>
+                </ul>
+            </article>
+
+            <!-- Búsqueda en Logbook (Widget de ClubLog) -->
+            <article id="logbook" class="card">
+                <h2><i class="fa-solid fa-search"></i> Logbook Online Search</h2>
+                <p>Verifica si nuestro QSO está confirmado en el libro de guardia:</p>
+                
+                <!-- Frame/Formulario integrado para ClubLog -->
+                <div class="clublog-widget">
+                    <form action="https://clublog.org/logsearch.php" method="get" target="_blank">
+                        <input type="hidden" name="call" value="EA1ABC">
+                        <div class="search-box">
+                            <input type="text" name="target" placeholder="Tu indicativo (ej. W1AW)" required>
+                            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar QSO</button>
+                        </div>
+                    </form>
+                </div>
+            </article>
+
         </section>
 
-        <!-- Sección Antenas -->
-        <section id="antennas" class="card">
-            <h2>Sistema de Antenas</h2>
-            <p>Yagi de 3 elementos para bandas WARC y superiores, dipolo rígido para 40/80m.</p>
-        </section>
-
-        <!-- Sección QSL -->
-        <section id="qsl" class="card">
-            <h2>Información QSL & Bureau</h2>
-            <p>Acepto QSL vía Directa, Bureau URE, y LoTW / eQSL.</p>
-            <div class="qsl-card-preview">
-                <!-- Imagen o vista previa de la tarjeta QSL -->
+        <!-- Barra Lateral -->
+        <aside class="sidebar">
+            
+            <!-- Tarjeta QSL -->
+            <div id="qsl" class="card sidebar-card">
+                <h3><i class="fa-solid fa-paper-plane"></i> Información QSL</h3>
+                <ul class="qsl-status">
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>LoTW:</strong> Carga automática diaria.</li>
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>Bureau:</strong> Vía URE (Unión de Radioaficionados Españoles).</li>
+                    <li><i class="fa-solid fa-envelope text-blue"></i> <strong>Directa:</strong> Incluir SAE + 2$ USD / IRC.</li>
+                </ul>
             </div>
-        </section>
+
+            <!-- Datos de Ubicación / Solar -->
+            <div class="card sidebar-card">
+                <h3><i class="fa-solid fa-location-dot"></i> Datos de Estación</h3>
+                <p><strong>CQ Zone:</strong> 14</p>
+                <p><strong>ITU Zone:</strong> 37</p>
+                <p><strong>Grid Square:</strong> IN80ln</p>
+            </div>
+
+        </aside>
+
     </main>
 
-    <!-- Pie de página -->
-    <footer class="shack-footer">
-        <p>&copy; 2026 EA1ABC - Todos los derechos reservados. Grid: IN80ln</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>73 de EA1ABC &copy; 2026 | Alojado gratuitamente en <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></p>
+        </div>
     </footer>
+
 </body>
 </html>

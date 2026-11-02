@@ -14,7 +14,6 @@
         .header { grid-column: 1 / -1; text-align: center; border-bottom: 2px solid var(--cyan); padding-bottom: 15px; margin-bottom: 15px; }
         .header h1 { margin: 0; color: var(--cyan); font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; }
         
-        /* Contenedor de Relojes Reales */
         .clocks-container { display: flex; justify-content: center; gap: 40px; margin-top: 12px; font-weight: bold; font-size: 1.2rem; }
         .clock { color: var(--green); text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
         .clock-utc { color: var(--amber); border: 1px solid var(--amber); padding: 3px 10px; border-radius: 4px; box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
@@ -26,9 +25,8 @@
         .btn { width: 100%; padding: 12px; background: var(--cyan); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 1rem; }
         .btn-green { background: var(--green); color: #000; }
 
-        /* Contenedores de Feeds de Datos Reales */
         .feed-container { height: 220px; background: #05070c; border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
-        .feed-item { border-bottom: 1px solid #111827; padding: 6px 0; line-height: 1.4; }
+        .feed-item { border-bottom: 1px solid #111827; padding: 8px 0; line-height: 1.4; }
         .feed-title { color: var(--cyan); font-weight: bold; text-decoration: none; display: block; margin-bottom: 2px; }
         .feed-title:hover { text-decoration: underline; }
         .feed-date { color: #64748b; font-size: 0.75rem; }
@@ -55,15 +53,15 @@
 
     <div class="dashboard">
 
-        <!-- MODULO 1: BOLETINES INFORMATIVOS Y NOTICIAS EN VIVO DE RADIOAFICIÓN -->
+        <!-- MODULO RSS: NOTICIAS VIVAS DE LA ARRL -->
         <div class="card" style="grid-column: 1 / -1;">
-            <h2>Noticias y Boletines DX en Tiempo Real (Feed ARRL / Newsline)</h2>
+            <h2>Noticias y Boletines DX en Tiempo Real (Feed Vivo de la ARRL)</h2>
             <div class="feed-container" id="news-contents" style="height: 180px;">
-                <p style="color:var(--cyan);">Conectando con los servidores de noticias de radioafición y descargando teletipo...</p>
+                <p style="color:var(--cyan);">Conectando de forma segura con los servidores de la ARRL y descargando boletines...</p>
             </div>
         </div>
 
-        <!-- MODULO 2: CHAT / CLÚSTER LOCAL -->
+        <!-- MODULO: CHAT -->
         <div class="card">
             <h2>Chat Interno / Clúster de Reportes</h2>
             <div class="feed-container" id="chat-contents"></div>
@@ -73,7 +71,7 @@
             </div>
         </div>
 
-        <!-- MODULO 3: LOGGER (LIBRO DE GUARDIA) -->
+        <!-- MODULO: LOGGER -->
         <div class="card">
             <h2>Radio Logbook (Libro de Guardia)</h2>
             <div class="logger-grid">
@@ -113,9 +111,9 @@
             </div>
         </div>
 
-        <!-- MODULO 4: METEOROLOGÍA TROPOSFÉRICA COMPATIBLE -->
+        <!-- MODULO: CLIMA -->
         <div class="card">
-            <h2>Meteorología Local de Estación</h2>
+            <h2>Meteorología Local de Estación Real</h2>
             <div class="weather-search-box" style="display:flex; gap:5px; margin-bottom:10px;">
                 <select id="weather-coords" style="margin:0;">
                     <option value="40.41,-3.70">Madrid, España</option>
@@ -131,13 +129,13 @@
                 <button onclick="cargarClimaAbierto()" class="btn btn-green" style="width:auto; padding:0 15px;">Sincronizar</button>
             </div>
             <div class="feed-container" id="weather-result" style="height: 160px; background: #05070c;">
-                <p style="color:#64748b; margin:0;">Selecciona tu zona geográfica de antenas para descargar telemetría barométrica real...</p>
+                <p style="color:#64748b; margin:0;">Sincroniza la zona geográfica para telemetría atmosférica...</p>
             </div>
         </div>
 
-        <!-- MODULO 5: ALERTAS DE SISMOS REALES DEL USGS -->
+        <!-- MODULO: TERREMOTOS -->
         <div class="card">
-            <h2>Alertas de Terremotos Mundiales Recientes (USGS Real)</h2>
+            <h2>Alertas de Terremotos Mundiales (USGS Real)</h2>
             <div class="feed-container" id="eq-contents">
                 <p style="color:var(--cyan); margin:0;">Sincronizando con la red sismológica planetaria...</p>
             </div>
@@ -147,15 +145,14 @@
 
     <script>
         let listadoMensajes = [
-            { time: "13:30Z", user: "SYSTEM_DX", msg: "Feeds e hilos síncronos HTTPS enlazados correctamente." },
-            { time: "13:34Z", user: "EA1ABC", msg: "Monitoreando alertas sismológicas mundiales y flujos de propagación." }
+            { time: "00:01Z", user: "SYSTEM", msg: "Consola de monitoreo iniciada. Canales síncronos listos." }
         ];
         let listadoContactos = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             correrRelojesSistema();
             buscarSismosActivos();
-            cargarNoticiasRealesRadio();
+            cargarNoticiasRealesARRL();
             pintarChatActual();
             pintarTablaContactos();
 
@@ -166,9 +163,16 @@
         function correrRelojesSistema() {
             setInterval(() => {
                 const ahora = new Date();
-                
-                // Hora Local Real del Dispositivo
                 document.getElementById('clock-local').innerText = ahora.toLocaleTimeString();
                 
-                // Hora UTC Real sin desvíos de servidor
                 const hUTC = String(ahora.getUTCHours()).padStart(2, '0');
+                const mUTC = String(ahora.getUTCMinutes()).padStart(2, '0');
+                const sUTC = String(ahora.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('clock-utc').innerText = `${hUTC}:${mUTC}:${sUTC} UTC`;
+            }, 1000);
+        }
+
+        // 2. PARSEO DE XML REAL DE LA ARRL COMPATIBLE CON GITHUB PAGES (A TRAVES DE CORSPROXY.IO)
+        async function cargarNoticiasRealesARRL() {
+            const contenedorNoticias = document.getElementById("news-contents");
+            try {

@@ -1,896 +1,1138 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CX3DW — Estación DX & Digital | Dashboard de Radioaficionado</title>
+    <title>CX3DW — Dashboard de Radioaficionado DX & Digital</title>
 
     <!-- Meta Open Graph -->
-    <meta name="description" content="Estación de Radioaficionado CX3DW. Dashboard DX, usuarios en línea, estado de frecuencia/plataforma en tiempo real, chat en vivo y registro de contactos. Creado por CX3DW.">
-    <meta property="og:title" content="CX3DW - Amateur Radio DX Dashboard">
-    <meta property="og:description" content="Operadores en línea, Equipos a demanda, Plataforma de llamada en vivo, Chat, Clima, Relojes UTC/Local. Creado por CX3DW">
+    <meta name="description" content="Dashboard en tiempo real para la estación de radioaficionado CX3DW. Autenticación, registro de operadores, llamada activa, chat en vivo y propagación solar.">
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkbg: '#05070f',
-                        cardbg: 'rgba(15, 23, 42, 0.85)',
-                        neoncyan: '#00f0ff',
-                        neonpink: '#ff2a85',
-                        neongreen: '#10b981',
-                        neonpurple: '#a855f7',
-                        neonyellow: '#ffcc00'
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- FontAwesome Icons -->
+    <!-- Iconos FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- SDK oficial de PubNub -->
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
 
     <style>
+        /* ==========================================================
+           DISEÑO OSCURO ULTRA-NEÓN PROFESIONAL — CX3DW GLASSMORPHISM
+           ========================================================== */
+        :root {
+            --bg-dark: #05070f;
+            --bg-card: rgba(15, 23, 42, 0.88);
+            --bg-card-inner: rgba(2, 6, 23, 0.75);
+            
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff2a85;
+            --neon-green: #10b981;
+            --neon-yellow: #ffcc00;
+            --neon-purple: #a855f7;
+            
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background-color: #05070f;
+            background-color: var(--bg-dark);
             background-image: 
                 radial-gradient(circle at 10% 15%, rgba(0, 240, 255, 0.12) 0%, transparent 35%),
                 radial-gradient(circle at 90% 85%, rgba(255, 42, 133, 0.12) 0%, transparent 35%),
                 radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
             background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
         }
 
-        .glass-card {
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+        .mono { font-family: 'Consolas', 'Courier New', monospace; }
+        .uppercase { text-transform: uppercase; }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .glow-cyan { text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
-        .glow-pink { text-shadow: 0 0 15px rgba(255, 42, 133, 0.6); }
-        .glow-green { text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+        /* Header / Banner Superior */
+        .header {
+            background: rgba(10, 15, 29, 0.95);
+            border-bottom: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+            padding: 1.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
 
-        .border-glow-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.25); }
-        .border-glow-pink { box-shadow: 0 0 15px rgba(255, 42, 133, 0.25); }
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(5, 7, 15, 0.8); }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.3); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 240, 255, 0.6); }
+        .brand-badge {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .callsign {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 20px var(--neon-cyan);
+            line-height: 1.1;
+        }
+
+        .sub-callsign {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Relojes UTC / Local */
+        .clock-container {
+            display: flex;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-cyan);
+            padding: 8px 18px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .clock-block { text-align: center; }
+
+        .clock-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--neon-pink);
+            font-weight: 800;
+            display: block;
+        }
+
+        .clock-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-yellow);
+        }
+
+        /* Badge QRV */
+        .qrv-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Barra de Navegación */
+        .nav {
+            background: rgba(2, 6, 23, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 78px;
+            z-index: 90;
+        }
+
+        .nav-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .nav-auth {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-ext {
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: #fff;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-pink { background: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 42, 133, 0.4); }
+        .btn-purple { background: var(--neon-purple); box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+        .btn-cyan { background: var(--neon-cyan); color: #000; font-weight: 900; box-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+
+        /* Grid Layout Principal */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 25px;
+            margin: 2rem auto;
+        }
+
+        /* Tarjetas Neón Glassmorphic */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.6rem;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-cyan { border-left: 5px solid var(--neon-cyan); }
+        .card-pink { border-left: 5px solid var(--neon-pink); }
+        .card-green { border-left: 5px solid var(--neon-green); }
+        .card-purple { border-left: 5px solid var(--neon-purple); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--neon-yellow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .tag-cyan { background: var(--neon-cyan); color: #000; }
+        .tag-pink { background: var(--neon-pink); color: #fff; }
+        .tag-green { background: var(--neon-green); color: #000; }
+        .tag-purple { background: var(--neon-purple); color: #fff; }
+
+        /* Banner de Autenticación en vivo */
+        .auth-banner {
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #000;
+        }
+
+        /* Formulario de Equipamiento a Demanda */
+        .form-demand {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.6rem;
+            color: #fff;
+            font-size: 0.85rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+            color: #000;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover { opacity: 0.9; }
+
+        /* Chat Directo PubNub */
+        .chat-box {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .chat-logs {
+            height: 220px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.88rem;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-form input {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--neon-purple);
+            padding: 0.7rem;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.88rem;
+        }
+
+        .chat-form input:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 42, 133, 0.4);
+        }
+
+        .chat-form button {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+            color: #fff;
+            border: none;
+            padding: 0 1.4rem;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* Operadores Online */
+        .online-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .online-item {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .online-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .online-callsign {
+            font-weight: 800;
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+        }
+
+        .online-platform {
+            font-size: 0.78rem;
+            color: var(--neon-green);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Listas y Tablas */
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .sub-box {
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            padding: 1.2rem;
+            border-radius: 10px;
+        }
+
+        .sub-box h4 { font-size: 1.05rem; color: #fff; margin: 6px 0; }
+        .sub-box p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .list-clean {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .list-clean strong { color: #fff; }
+
+        .data-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .data-row span { color: var(--text-muted); }
+        .data-row strong { color: #fff; }
+
+        /* Form ClubLog */
+        .form-log { display: flex; gap: 10px; }
+        .form-log input {
+            flex: 1;
+            background: var(--bg-card-inner);
+            border: 1px solid var(--neon-green);
+            padding: 0.7rem;
+            border-radius: 8px;
+            color: #fff;
+        }
+        .form-log button {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 0 1.2rem;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* Modal de Login y Registro */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 440px;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-tab {
+            padding: 8px 16px;
+            color: var(--text-muted);
+            font-weight: 800;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .modal-tab.active {
+            color: var(--neon-cyan);
+            border-bottom-color: var(--neon-cyan);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(2, 6, 23, 0.95);
+            border-top: 2px solid var(--neon-pink);
+            padding: 2.5rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer p { color: var(--text-muted); font-size: 0.9rem; }
+        .footer-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+
+        @media (max-width: 850px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .header-flex, .nav-flex { flex-direction: column; text-align: center; gap: 12px; }
+            .nav-links { justify-content: center; width: 100%; }
+        }
     </style>
 </head>
-<body class="text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body>
 
-    <!-- Top Notice Banner for Firebase Setup -->
-    <div id="firebase-config-notice" class="bg-gradient-to-r from-purple-900/90 via-pink-900/90 to-cyan-900/90 border-b border-pink-500/30 text-xs py-2 px-4 text-center font-mono flex items-center justify-between">
-        <div class="flex items-center justify-center space-x-2 mx-auto">
-            <i class="fa-solid fa-triangle-exclamation text-yellow-400 animate-pulse"></i>
-            <span><strong>Aviso de Configuración:</strong> Para producción, añade tus credenciales de Firebase en la constante <code class="bg-black/50 px-1.5 py-0.5 rounded text-cyan-300">firebaseConfig</code> en el script. Mientras tanto, funciona con simulación local.</span>
-        </div>
-        <button onclick="document.getElementById('firebase-config-notice').style.display='none'" class="text-slate-400 hover:text-white ml-2"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    <!-- Header Principal -->
+    <header class="header">
+        <div class="container header-flex">
+            <div>
+                <span class="brand-badge"><i class="fa-solid fa-crown"></i> By CX3DW</span>
+                <h1 class="callsign mono">CX3DW</h1>
+                <div class="sub-callsign">Estación DX & Digital • Uruguay (GF15)</div>
+            </div>
 
-    <!-- Header Principal / Panel Superior DX -->
-    <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-cyan-500/30 shadow-lg shadow-cyan-500/5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Branding Estación -->
-            <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-tr from-cyan-500 via-purple-600 to-pink-500 p-3 rounded-2xl shadow-lg shadow-cyan-500/20">
-                    <i class="fa-solid fa-tower-broadcast text-2xl text-white"></i>
+            <!-- Relojes UTC y Local -->
+            <div class="clock-container">
+                <div class="clock-block">
+                    <span class="clock-title">Local</span>
+                    <span id="local-time" class="clock-time mono">--:--:--</span>
                 </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full shadow-sm">By CX3DW</span>
-                        <span class="text-xs text-slate-400 font-semibold hidden sm:inline-block">Uruguay • GF15</span>
-                    </div>
-                    <h1 class="text-3xl font-black tracking-wider font-mono text-white glow-cyan">CX3DW</h1>
+                <div class="clock-block">
+                    <span class="clock-title">UTC (Z)</span>
+                    <span id="utc-time" class="clock-time mono">--:--:--Z</span>
                 </div>
             </div>
 
-            <!-- Relojes UTC & Local -->
-            <div class="hidden md:flex items-center space-x-6 bg-black/60 border border-cyan-500/40 px-5 py-2 rounded-2xl border-glow-cyan">
-                <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-pink-400 tracking-wider block">Hora Local</span>
-                    <span id="clock-local" class="font-mono text-sm font-bold text-yellow-400">--:--:--</span>
-                </div>
-                <div class="h-6 w-px bg-slate-800"></div>
-                <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider block">Hora UTC (Z)</span>
-                    <span id="clock-utc" class="font-mono text-sm font-bold text-cyan-400">--:--:--Z</span>
-                </div>
-            </div>
-
-            <!-- QRV Status & Login Bar -->
-            <div class="flex items-center space-x-3">
-                <div class="hidden xl:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-xs font-extrabold text-emerald-400 tracking-wide">QRV / LISTENING</span>
-                </div>
-
-                <!-- User Controls -->
-                <div id="auth-header-guest" class="flex items-center space-x-2">
-                    <button onclick="openAuthModal('login')" class="text-xs font-bold bg-cyan-500/10 border border-cyan-500/40 hover:bg-cyan-500/20 text-cyan-400 px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Ingresar</span>
-                    </button>
-                    <button onclick="openAuthModal('register')" class="text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-3.5 py-2 rounded-xl transition shadow-lg shadow-pink-500/20 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Registrarse</span>
-                    </button>
-                </div>
-
-                <div id="auth-header-user" class="hidden flex items-center space-x-3">
-                    <div class="flex items-center space-x-2 bg-slate-900 border border-slate-700/80 px-3 py-1.5 rounded-xl">
-                        <div id="user-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-pink-500 flex items-center justify-center font-mono font-bold text-xs text-black uppercase">--</div>
-                        <div class="text-left">
-                            <span id="user-callsign-display" class="font-mono text-xs font-bold text-cyan-400 block leading-none">--</span>
-                            <span id="user-qth-display" class="text-[10px] text-slate-400 block leading-tight">--</span>
-                        </div>
-                    </div>
-                    <button onclick="logoutUser()" title="Cerrar Sesión" class="text-slate-400 hover:text-pink-400 p-2 rounded-lg hover:bg-slate-900 transition">
-                        <i class="fa-solid fa-power-off text-sm"></i>
-                    </button>
-                </div>
+            <!-- Estado QRV -->
+            <div class="qrv-badge">
+                <span class="dot"></span> QRV / LISTENING
             </div>
         </div>
     </header>
 
-    <!-- Barra de Navegación Rápida -->
-    <nav class="bg-slate-950/60 border-b border-slate-800/80 sticky top-20 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12">
-            <div class="flex space-x-6 overflow-x-auto text-xs font-bold text-slate-300 no-scrollbar">
-                <a href="#shack" class="hover:text-cyan-400 transition flex items-center space-x-1.5 py-3 border-b-2 border-transparent hover:border-cyan-400"><i class="fa-solid fa-microchip text-cyan-400"></i><span>El Shack & Equipos</span></a>
-                <a href="#antennas" class="hover:text-pink-400 transition flex items-center space-x-1.5 py-3 border-b-2 border-transparent hover:border-pink-400"><i class="fa-solid fa-satellite-dish text-pink-400"></i><span>Antenas</span></a>
-                <a href="#widgets" class="hover:text-emerald-400 transition flex items-center space-x-1.5 py-3 border-b-2 border-transparent hover:border-emerald-400"><i class="fa-solid fa-cloud-sun text-emerald-400"></i><span>Clima & DX</span></a>
-                <a href="#chat" class="hover:text-purple-400 transition flex items-center space-x-1.5 py-3 border-b-2 border-transparent hover:border-purple-400"><i class="fa-solid fa-comments text-purple-400"></i><span>Chat Vivo</span></a>
-                <a href="#operators" class="hover:text-yellow-400 transition flex items-center space-x-1.5 py-3 border-b-2 border-transparent hover:border-yellow-400"><i class="fa-solid fa-users text-yellow-400"></i><span>Operadores En Línea</span></a>
+    <!-- Navegación -->
+    <nav class="nav">
+        <div class="container nav-flex">
+            <div class="nav-links">
+                <a href="#shack"><i class="fa-solid fa-microchip"></i> Equipos & Modos</a>
+                <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
+                <a href="#widgets"><i class="fa-solid fa-cloud-sun-rain"></i> Clima & DX</a>
+                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
+                <a href="#logbook"><i class="fa-solid fa-database"></i> Log / QRZ</a>
             </div>
-            <div class="hidden sm:flex items-center space-x-2">
-                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="text-[11px] font-bold bg-pink-600/80 hover:bg-pink-600 text-white px-3 py-1 rounded-lg transition">QRZ.com</a>
-                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="text-[11px] font-bold bg-purple-600/80 hover:bg-purple-600 text-white px-3 py-1 rounded-lg transition">ClubLog</a>
+            <div class="nav-auth">
+                <div id="nav-guest-btns">
+                    <button onclick="openAuthModal('login')" class="btn-ext btn-cyan"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+                    <button onclick="openAuthModal('register')" class="btn-ext btn-purple"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
+                </div>
+                <div id="nav-user-btns" style="display: none;">
+                    <button onclick="logoutOperator()" class="btn-ext btn-pink"><i class="fa-solid fa-power-off"></i> Salir</button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Dashboard Principal -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">
-        
-        <!-- Columna Izquierda (Shack, Antenas, Clima, Chat) -->
-        <div class="lg:col-span-2 space-y-8">
-            
-            <!-- Sección Equipamiento Shack y Plataforma de Llamada A DEMANDA -->
-            <section id="shack" class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-400">
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                    <h2 class="text-lg font-extrabold flex items-center space-x-3 text-white">
-                        <i class="fa-solid fa-headset text-cyan-400 text-xl"></i>
-                        <span>Equipamiento & Estado de Transmisión Activa</span>
-                    </h2>
-                    <span class="font-mono text-[10px] uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-md font-bold">Llenado A Demanda</span>
+    <!-- Contenido Principal -->
+    <main class="container main-grid">
+
+        <!-- Columna Izquierda -->
+        <div>
+            <!-- Banner de Operador Logueado -->
+            <div id="auth-status-banner" class="auth-banner" style="display: none;">
+                <div class="user-pill">
+                    <div id="user-avatar" class="user-avatar mono">--</div>
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">OPERADOR EN SESIÓN</div>
+                        <div style="font-weight:900; color:#fff;" class="mono"><span id="user-display-callsign" style="color:var(--neon-cyan)">--</span> (<span id="user-display-name">--</span>)</div>
+                    </div>
+                </div>
+                <span class="card-tag tag-green"><i class="fa-solid fa-wifi"></i> Conectado a PubNub</span>
+            </div>
+
+            <!-- Llenado a Demanda de Equipamiento y Plataforma -->
+            <section id="shack" class="card card-cyan">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-headset"></i> Equipamiento y Plataforma a Demanda</h2>
+                    <span class="card-tag tag-cyan">Llamada en Vivo</span>
                 </div>
 
-                <!-- Formulario Editable Dinámico para el Operador Logueado -->
-                <div id="equip-edit-container" class="hidden bg-slate-900/90 border border-cyan-500/40 p-4 rounded-xl mb-6 shadow-lg shadow-cyan-500/10">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-                        <span class="text-xs font-extrabold text-cyan-400 uppercase tracking-wider flex items-center space-x-2">
-                            <i class="fa-solid fa-sliders"></i>
-                            <span>Llenar a demanda tu equipo y plataforma de transmisión</span>
-                        </span>
-                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">Llenado Activo</span>
-                    </div>
-                    
-                    <form id="form-update-equipment" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div>
-                            <label class="block font-bold text-slate-300 mb-1">Plataforma / Modo / Frecuencia de Llamada *</label>
-                            <input type="text" id="input-calling-platform" placeholder="ej. 20m FT8 | SvxReflector TG 748 | BrandMeister DMR | 145.200 MHz" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
+                <div class="form-demand">
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+                        <i class="fa-solid fa-circle-info" style="color:var(--neon-cyan)"></i> Registra o inicia sesión para anunciar tu frecuencia activa y equipos a la comunidad.
+                    </p>
+                    <form id="form-operator-status">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Indicativo / Callsign *</label>
+                                <input type="text" id="op-callsign" placeholder="ej. LU1ABC" required class="mono uppercase">
+                            </div>
+                            <div class="form-group">
+                                <label>Plataforma / Modo / Frecuencia *</label>
+                                <input type="text" id="op-platform" placeholder="ej. 20m FT8 | SvxReflector TG 748 | 145.200 FM" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Transceptor (HF / VHF)</label>
+                                <input type="text" id="op-trx" placeholder="ej. Yaesu FT-991A / IC-7300">
+                            </div>
+                            <div class="form-group">
+                                <label>Antenas / Grid Locator</label>
+                                <input type="text" id="op-antenna" placeholder="ej. Yagi 3 Ele / GF05">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block font-bold text-slate-300 mb-1">Transceptor (HF / V/UHF)</label>
-                            <input type="text" id="input-trx" placeholder="ej. Yaesu FT-991A / Icom IC-7300 / Xiegu G90" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-300 mb-1">Sistema de Antenas</label>
-                            <input type="text" id="input-antenna" placeholder="ej. Yagi 3 Ele 20m / Dipolo V Invertida / Colineal X-510" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-300 mb-1">Interfaz Digital / Red / Hotspot</label>
-                            <input type="text" id="input-interface" placeholder="ej. Raspberry Pi 4 / WSJT-X / MMDVM / DVSwitch" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
-                        </div>
-                        <div class="sm:col-span-2 flex justify-end mt-2">
-                            <button type="submit" class="bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black font-extrabold px-5 py-2 rounded-xl transition shadow-lg shadow-cyan-500/20 flex items-center space-x-2 text-xs">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Guardar e Informar Frecuencia y Equipos</span>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn-submit"><i class="fa-solid fa-broadcast-tower"></i> Publicar Estado y Notificar Frecuencia</button>
                     </form>
                 </div>
 
-                <!-- Tarjetas de Muestra de Equipamiento Actual -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-black/40 border border-slate-800 p-4 rounded-xl hover:border-cyan-500/40 transition">
-                        <span class="text-[10px] font-bold uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded">Plataforma / Modo Activo</span>
-                        <h3 id="display-calling-platform" class="font-bold text-sm mt-2 text-emerald-400 font-mono">20m FT8 / 14.074 MHz</h3>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Frecuencia o reflector digital por el cual se encuentra transmitiendo o escuchando.</p>
+                <div class="sub-grid">
+                    <div class="sub-box">
+                        <span class="card-tag tag-pink">HF / 50 MHz</span>
+                        <h4>Transceptor SDR CX3DW</h4>
+                        <p id="disp-trx">Procesamiento digital directo para señales débil y concursos DX.</p>
                     </div>
-                    <div class="bg-black/40 border border-slate-800 p-4 rounded-xl hover:border-purple-500/40 transition">
-                        <span class="text-[10px] font-bold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded">Transceptor SDR / HF</span>
-                        <h3 id="display-trx" class="font-bold text-sm mt-2 text-white">Transceptor SDR Multibanda</h3>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Procesamiento digital directo y filtrado dinámico para baja señal y DX.</p>
-                    </div>
-                    <div class="bg-black/40 border border-slate-800 p-4 rounded-xl hover:border-pink-500/40 transition">
-                        <span class="text-[10px] font-bold uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2 py-0.5 rounded">Antenas & TNC</span>
-                        <h3 id="display-antenna" class="font-bold text-sm mt-2 text-white">Yagi 3 Elem + Dipolo V</h3>
-                        <p id="display-interface" class="text-xs text-slate-400 mt-1 leading-relaxed">WSJT-X + TNC control computarizado por GPS/NTP.</p>
+                    <div class="sub-box">
+                        <span class="card-tag tag-purple">Digital Interface</span>
+                        <h4>WSJT-X / FT8 / RTTY</h4>
+                        <p id="disp-platform">Modos digitales con sincronización de frecuencia activa.</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección Sistema Radiante de Antenas -->
-            <section id="antennas" class="glass-card rounded-2xl p-6 border-l-4 border-l-pink-500">
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                    <h2 class="text-lg font-extrabold flex items-center space-x-3 text-white">
-                        <i class="fa-solid fa-satellite-dish text-pink-400 text-xl"></i>
-                        <span>Sistema Radiante</span>
-                    </h2>
-                    <span class="font-mono text-[10px] uppercase bg-pink-500/10 text-pink-400 border border-pink-500/30 px-2.5 py-1 rounded-md font-bold">Antenas HF/VHF</span>
+            <!-- Antenas -->
+            <section id="antennas" class="card card-pink">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-satellite-dish"></i> Sistema Radiante de CX3DW</h2>
+                    <span class="card-tag tag-pink">Antenas</span>
                 </div>
-                <ul class="space-y-3 text-sm text-slate-300">
-                    <li class="flex items-start space-x-3 bg-black/40 p-3.5 rounded-xl border border-slate-800">
-                        <i class="fa-solid fa-bolt text-cyan-400 mt-1"></i>
-                        <div><strong class="text-white">Direccionales HF:</strong> Yagi multibanda optimizada en torre autosoportada a gran altura para cobertura intercontinental.</div>
-                    </li>
-                    <li class="flex items-start space-x-3 bg-black/40 p-3.5 rounded-xl border border-slate-800">
-                        <i class="fa-solid fa-bolt text-cyan-400 mt-1"></i>
-                        <div><strong class="text-white">Bandas Bajas & WARC:</strong> Arreglos de dipolos y slopers en V invertida sintonizados para 40m y 80m.</div>
-                    </li>
+                <ul class="list-clean">
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Direccionales HF:</strong> Yagi multibanda ajustada para máxima ganancia directiva.</li>
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Bandas Bajas & WARC:</strong> Dipolos en V invertida de alto rendimiento.</li>
                 </ul>
             </section>
 
-            <!-- Sección Clima & Propagación Solar -->
-            <section id="widgets" class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500">
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                    <h2 class="text-lg font-extrabold flex items-center space-x-3 text-white">
-                        <i class="fa-solid fa-temperature-arrow-up text-emerald-400 text-xl"></i>
-                        <span>Clima & Propagación Solar</span>
-                    </h2>
-                    <span class="font-mono text-[10px] uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-md font-bold">Tiempo Real</span>
+            <!-- Clima & Propagación -->
+            <section id="widgets" class="card card-green">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-temperature-arrow-up"></i> Clima & Propagación Solar</h2>
+                    <span class="card-tag tag-green">Tiempo Real</span>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-black/40 border border-slate-800 p-4 rounded-xl flex items-center space-x-4">
-                        <i class="fa-solid fa-cloud-sun text-3xl text-yellow-400"></i>
+                <div class="sub-grid">
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-cloud-sun" style="font-size:2rem; color:var(--neon-yellow)"></i>
                         <div>
-                            <span class="text-[10px] font-bold uppercase text-slate-400 block">Clima QTH (Uruguay)</span>
-                            <div class="text-sm font-extrabold text-white mt-0.5">22°C | Soleado</div>
-                            <span class="text-[11px] text-slate-400">Viento: SSE 14 km/h • Humedad: 58%</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">CLIMA QTH (URUGUAY)</span>
+                            <div style="font-weight:700; color:#fff;">22°C | Soleado | Viento SE 14 km/h</div>
                         </div>
                     </div>
-                    <div class="bg-black/40 border border-slate-800 p-4 rounded-xl flex items-center space-x-4">
-                        <i class="fa-solid fa-solar-panel text-3xl text-pink-400"></i>
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-solar-panel" style="font-size:2rem; color:var(--neon-pink)"></i>
                         <div>
-                            <span class="text-[10px] font-bold uppercase text-slate-400 block">Estado Solar & Propagación</span>
-                            <div class="text-sm font-extrabold text-emerald-400 mt-0.5">SFI: 145 | K-Index: 2</div>
-                            <span class="text-[11px] text-slate-400">Condiciones HF: Excelentes / Abierto</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">ESTADO SOLAR</span>
+                            <div style="font-weight:700; color:var(--neon-green);">SFI: 145 | K-Index: 2 (Bandas Abiertas)</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Chat Directo de Estación en Tiempo Real -->
-            <section id="chat" class="glass-card rounded-2xl p-6 border-l-4 border-l-purple-500">
-                <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-800">
-                    <div>
-                        <h2 class="text-lg font-extrabold flex items-center space-x-3 text-white">
-                            <i class="fa-solid fa-comments text-purple-400 text-xl"></i>
-                            <span>Chat Directo de Estación</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Intercambio de reportes de señal y saludos con CX3DW</p>
-                    </div>
-                    <span class="font-mono text-[10px] uppercase bg-purple-500/10 text-purple-400 border border-purple-500/30 px-2.5 py-1 rounded-md font-bold">Realtime</span>
+            <!-- Chat Directo PubNub -->
+            <section id="chat" class="card card-purple">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo PubNub en Vivo</h2>
+                    <span class="card-tag tag-purple">Realtime</span>
                 </div>
-
-                <!-- Chat Box -->
-                <div class="bg-black/60 border border-slate-800 rounded-xl p-4">
-                    <div id="chat-messages" class="h-60 overflow-y-auto space-y-3 mb-4 pr-2 text-xs font-sans">
-                        <div class="bg-slate-900/60 border border-slate-800 p-3 rounded-lg">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-mono font-bold text-cyan-400">[CX3DW]</span>
-                                <span class="text-[10px] text-slate-500">Sistema</span>
-                            </div>
-                            <p class="text-slate-300">¡Bienvenidos a la estación CX3DW! Inicia sesión para publicar tu saludo o reporte de frecuencia.</p>
-                        </div>
+                <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:10px;">Comunícate en tiempo real con la estación CX3DW y otros radioaficionados:</p>
+                <div class="chat-box">
+                    <div id="chat-messages" class="chat-logs">
+                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Conectado a canal PubNub. ¡73s de CX3DW!</div>
                     </div>
-
-                    <!-- Chat Form Input -->
-                    <div id="chat-auth-prompt" class="bg-slate-900/80 border border-slate-800 p-3 rounded-xl text-center text-xs">
-                        <span class="text-slate-400">Debes <button onclick="openAuthModal('login')" class="text-cyan-400 font-bold underline hover:text-cyan-300">Iniciar Sesión</button> o <button onclick="openAuthModal('register')" class="text-pink-400 font-bold underline hover:text-pink-300">Registrarte</button> para enviar mensajes en el chat.</span>
-                    </div>
-
-                    <form id="chat-form" class="hidden flex gap-2">
-                        <input type="text" id="chat-input-text" placeholder="Escribe tu mensaje o reporte de señal..." required class="bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white flex-1 focus:outline-none focus:border-cyan-500">
-                        <button type="submit" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/20 flex items-center space-x-1">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span class="hidden sm:inline">Enviar</span>
-                        </button>
+                    <form id="chat-form" class="chat-form">
+                        <input type="text" id="chat-callsign" placeholder="Indicativo (LU1ABC)" required style="width: 140px;" class="mono uppercase">
+                        <input type="text" id="chat-text" placeholder="Escribe tu reporte o mensaje..." required style="flex:1;">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
                     </form>
                 </div>
             </section>
-
         </div>
 
-        <!-- Columna Derecha (Barra Lateral: Operadores Online & QTH) -->
-        <div class="space-y-8">
-            
-            <!-- Panel: Operadores En Línea (Presence System) -->
-            <section id="operators" class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-400 border-glow-pink">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                    <h3 class="text-base font-extrabold flex items-center space-x-2 text-white">
-                        <i class="fa-solid fa-users text-emerald-400"></i>
-                        <span>Operadores En Línea</span>
-                    </h3>
-                    <span id="online-count-badge" class="font-mono text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">0 Activos</span>
+        <!-- Columna Derecha -->
+        <div>
+            <!-- Operadores En Línea -->
+            <div class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-users"></i> Radioaficionados Activos</h3>
+                    <span id="count-online" class="card-tag tag-green">0 Activos</span>
                 </div>
-
-                <p class="text-xs text-slate-400 mb-4">Radioaficionados conectados en tiempo real con su plataforma activa:</p>
-
-                <!-- Lista de Usuarios Conectados -->
-                <div id="online-users-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                    <div class="text-center py-6 text-slate-500 text-xs italic">
-                        Cargando lista de operadores...
-                    </div>
+                <div id="online-operators-list" class="online-list">
+                    <div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px;">Llena tu formulario a la izquierda para aparecer en la lista.</div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Coordenadas QTH & Indicativo -->
-            <section class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-400">
-                <h3 class="text-base font-extrabold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
-                    <i class="fa-solid fa-location-dot text-cyan-400"></i>
-                    <span>Datos de Estación</span>
-                </h3>
-                <div class="space-y-2.5 text-xs">
-                    <div class="flex justify-between py-1.5 border-b border-slate-800"><span class="text-slate-400">Indicativo</span><strong class="font-mono text-cyan-400 font-bold">CX3DW</strong></div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-800"><span class="text-slate-400">QTH / País</span><strong class="text-white font-semibold">Uruguay</strong></div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-800"><span class="text-slate-400">Grid Locator</span><strong class="font-mono text-yellow-400 font-bold">GF15</strong></div>
-                    <div class="flex justify-between py-1.5"><span class="text-slate-400">CQ / ITU Zone</span><strong class="text-white font-semibold">11 / 14</strong></div>
+            <!-- Coordenadas QTH -->
+            <div class="card card-cyan">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
                 </div>
-            </section>
+                <div class="data-table">
+                    <div class="data-row"><span>Indicativo</span><strong class="mono" style="color:var(--neon-cyan)">CX3DW</strong></div>
+                    <div class="data-row"><span>QTH</span><strong>Uruguay</strong></div>
+                    <div class="data-row"><span>Grid Locator</span><strong class="mono" style="color:var(--neon-yellow)">GF15</strong></div>
+                    <div class="data-row"><span>CQ / ITU</span><strong>11 / 14</strong></div>
+                </div>
+            </div>
 
-            <!-- Confirmación Logbook -->
-            <section class="glass-card rounded-2xl p-6 border-t-4 border-t-pink-500">
-                <h3 class="text-base font-extrabold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
-                    <i class="fa-solid fa-rotate text-pink-400"></i>
-                    <span>Sincronización Logbook</span>
-                </h3>
-                <ul class="space-y-2.5 text-xs text-slate-300">
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>LoTW:</strong> Sincronización automática</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>eQSL:</strong> AG (Authenticity Guaranteed)</span></li>
-                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>QRZ Logbook:</strong> Confirmación directa</span></li>
+            <!-- Sync Logbook -->
+            <div id="logbook" class="card card-pink">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-rotate"></i> Sync Logbook</h3>
+                </div>
+                <ul class="list-clean">
+                    <li><i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i> <strong>LoTW:</strong> Carga automática</li>
+                    <li><i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed)</li>
+                    <li><i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i> <strong>QRZ Logbook:</strong> Verificado en tiempo real</li>
                 </ul>
-            </section>
+            </div>
 
             <!-- Buscador ClubLog -->
-            <section class="glass-card rounded-2xl p-6 border-t-4 border-t-purple-500">
-                <h3 class="text-base font-extrabold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
-                    <i class="fa-solid fa-magnifying-glass text-purple-400"></i>
-                    <span>Búsqueda en ClubLog</span>
-                </h3>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="space-y-3">
+            <div class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> Consultar ClubLog</h3>
+                </div>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="form-log">
                     <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Tu indicativo (ej. LU1ABC)" required class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 uppercase font-mono">
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/20">
-                        Consultar QSO
-                    </button>
+                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off" class="mono uppercase">
+                    <button type="submit">Buscar</button>
                 </form>
-            </section>
-
+            </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-950 border-t border-slate-800 py-8 text-center text-xs text-slate-400 mt-12">
-        <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p class="text-sm font-extrabold text-white">&copy; 2026 <span class="text-cyan-400 font-mono">CX3DW</span>. Todos los derechos reservados.</p>
-            <p class="text-slate-400">Sitio oficial desarrollado para la estación de radioaficionado <strong class="text-white">CX3DW</strong> • Desplegado en GitHub Pages</p>
-        </div>
-    </footer>
+    <!-- Modal Ventana de Login y Registro -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
 
-    <!-- Modal de Autenticación (Login / Registro) -->
-    <div id="auth-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-card rounded-2xl border border-slate-700 max-w-md w-full p-6 relative shadow-2xl">
-            
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
-
-            <!-- Auth Tabs -->
-            <div class="flex border-b border-slate-800 mb-6">
-                <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 py-2.5 text-xs font-extrabold border-b-2 border-cyan-400 text-cyan-400">Iniciar Sesión</button>
-                <button id="tab-register-btn" onclick="switchAuthTab('register')" class="flex-1 py-2.5 text-xs font-extrabold border-b-2 border-transparent text-slate-400 hover:text-white">Registrarse</button>
+            <div class="modal-tabs">
+                <div id="tab-login" class="modal-tab active" onclick="switchAuthTab('login')">Iniciar Sesión</div>
+                <div id="tab-register" class="modal-tab" onclick="switchAuthTab('register')">Registrarse</div>
             </div>
 
-            <!-- Form Error Message -->
-            <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs"></div>
-
-            <!-- Formulario Iniciar Sesión -->
-            <form id="form-login" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Indicativo / Email</label>
-                    <input type="text" id="login-email" placeholder="ej. LU1ABC o tu@email.com" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+            <!-- Formulario de Login -->
+            <form id="form-login">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label>Indicativo o Correo *</label>
+                    <input type="text" id="login-identifier" placeholder="ej. CX3DW o email@radio.com" required class="mono uppercase">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Contraseña</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label>Contraseña *</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg shadow-cyan-500/20">
-                    Ingresar al Shack
-                </button>
+                <button type="submit" class="btn-submit" style="width:100%;"><i class="fa-solid fa-right-to-bracket"></i> Entrar a la Estación</button>
             </form>
 
-            <!-- Formulario Registro -->
-            <form id="form-register" class="hidden space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Indicativo / Callsign *</label>
-                    <input type="text" id="reg-callsign" placeholder="ej. LU1ABC" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-pink-500">
+            <!-- Formulario de Registro -->
+            <form id="form-register" style="display: none;">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label>Indicativo / Callsign *</label>
+                    <input type="text" id="reg-callsign" placeholder="ej. CX3DW" required class="mono uppercase">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Nombre u Operador</label>
-                    <input type="text" id="reg-name" placeholder="ej. Carlos" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label>Nombre y Apellido *</label>
+                    <input type="text" id="reg-name" placeholder="ej. Daniel Rodríguez" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">QTH / Ubicación</label>
-                    <input type="text" id="reg-qth" placeholder="ej. Buenos Aires (GF05)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label>Correo Electrónico *</label>
+                    <input type="email" id="reg-email" placeholder="operador@radio.com" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Email *</label>
-                    <input type="email" id="reg-email" placeholder="tu@email.com" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label>Contraseña *</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Contraseña *</label>
-                    <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-pink-500">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg shadow-pink-500/20">
-                    Crear Cuenta de Radioaficionado
-                </button>
+                <button type="submit" class="btn-submit" style="width:100%;"><i class="fa-solid fa-user-plus"></i> Crear Cuenta de Operador</button>
             </form>
-
         </div>
     </div>
 
-    <!-- Firebase App SDKs (Modular JS) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, onDisconnect, serverTimestamp, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Creado y administrado para GitHub Pages</p>
+        </div>
+    </footer>
 
-        // =========================================================================
-        // CONFIGURACIÓN DE FIREBASE PARA CX3DW
-        // =========================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCX3DW_DEMO_KEY_REPLACE_WITH_YOURS",
-            authDomain: "cx3dw-radio.firebaseapp.com",
-            databaseURL: "https://cx3dw-radio-default-rtdb.firebaseio.com",
-            projectId: "cx3dw-radio",
-            storageBucket: "cx3dw-radio.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
-
-        let app, auth, db;
-        let isFirebaseAvailable = false;
-        let currentUserData = null;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getDatabase(app);
-            isFirebaseAvailable = true;
-        } catch (e) {
-            console.warn("Firebase no configurado con credenciales válidas. Ejecutando en modo de simulación local.", e);
-        }
-
-        // --- RELOJES EN TIEMPO REAL ---
+    <!-- Lógica JavaScript (Autenticación Local + PubNub Realtime) -->
+    <script>
+        // 1. Relojes UTC y Local
         function updateClocks() {
             const now = new Date();
-            document.getElementById('clock-local').textContent = now.toLocaleTimeString();
+            document.getElementById('local-time').textContent = now.toLocaleTimeString();
             
             const utcHours = String(now.getUTCHours()).padStart(2, '0');
             const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
             const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-            document.getElementById('clock-utc').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
+            document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
         }
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // --- MANEJO DE MODAL Y VENTANAS ---
-        window.openAuthModal = function(tab) {
-            document.getElementById('auth-modal').classList.remove('hidden');
+        // 2. Configuración de PubNub con tus llaves exactas
+        const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
+        const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa";
+
+        const pubnub = new PubNub({
+            publishKey: pubKey,
+            subscribeKey: subKey,
+            userId: "cx3dw_client_" + Math.random().toString(36).substring(7)
+        });
+
+        const chatChannel = 'chat_cx3dw';
+        const presenceChannel = 'operators_cx3dw';
+
+        pubnub.subscribe({ channels: [chatChannel, presenceChannel] });
+
+        // 3. Sistema de Registro e Inicio de Sesión
+        let currentOperator = null;
+
+        function checkStoredSession() {
+            const saved = localStorage.getItem('cx3dw_active_operator');
+            if (saved) {
+                currentOperator = JSON.parse(saved);
+                applyOperatorSession(currentOperator);
+            }
+        }
+
+        function applyOperatorSession(op) {
+            document.getElementById('nav-guest-btns').style.display = 'none';
+            document.getElementById('nav-user-btns').style.display = 'block';
+            document.getElementById('auth-status-banner').style.display = 'flex';
+
+            document.getElementById('user-avatar').textContent = op.callsign.substring(0, 2);
+            document.getElementById('user-display-callsign').textContent = op.callsign;
+            document.getElementById('user-display-name').textContent = op.name;
+
+            document.getElementById('op-callsign').value = op.callsign;
+            document.getElementById('chat-callsign').value = op.callsign;
+        }
+
+        function logoutOperator() {
+            localStorage.removeItem('cx3dw_active_operator');
+            currentOperator = null;
+            document.getElementById('nav-guest-btns').style.display = 'block';
+            document.getElementById('nav-user-btns').style.display = 'none';
+            document.getElementById('auth-status-banner').style.display = 'none';
+            alert("Has cerrado sesión.");
+        }
+
+        // Modal Controls
+        function openAuthModal(tab) {
+            document.getElementById('auth-modal').classList.add('active');
             switchAuthTab(tab);
         }
 
-        window.closeAuthModal = function() {
-            document.getElementById('auth-modal').classList.add('hidden');
-            document.getElementById('auth-error').classList.add('hidden');
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.remove('active');
         }
 
-        window.switchAuthTab = function(tab) {
-            const loginBtn = document.getElementById('tab-login-btn');
-            const regBtn = document.getElementById('tab-register-btn');
-            const loginForm = document.getElementById('form-login');
-            const regForm = document.getElementById('form-register');
-            document.getElementById('auth-error').classList.add('hidden');
-
+        function switchAuthTab(tab) {
             if (tab === 'login') {
-                loginBtn.className = "flex-1 py-2.5 text-xs font-extrabold border-b-2 border-cyan-400 text-cyan-400";
-                regBtn.className = "flex-1 py-2.5 text-xs font-extrabold border-b-2 border-transparent text-slate-400 hover:text-white";
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+                document.getElementById('form-login').style.display = 'block';
+                document.getElementById('form-register').style.display = 'none';
             } else {
-                regBtn.className = "flex-1 py-2.5 text-xs font-extrabold border-b-2 border-pink-500 text-pink-400";
-                loginBtn.className = "flex-1 py-2.5 text-xs font-extrabold border-b-2 border-transparent text-slate-400 hover:text-white";
-                regForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
+                document.getElementById('tab-register').classList.add('active');
+                document.getElementById('tab-login').classList.remove('active');
+                document.getElementById('form-register').style.display = 'block';
+                document.getElementById('form-login').style.display = 'none';
             }
         }
 
-        // --- ESTADO DE AUTENTICACIÓN ---
-        if (isFirebaseAvailable && auth) {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    const userRef = ref(db, 'users/' + user.uid);
-                    onValue(userRef, (snapshot) => {
-                        const val = snapshot.val() || {};
-                        currentUserData = {
-                            callsign: val.callsign || user.email.split('@')[0].toUpperCase(),
-                            name: val.name || 'Operador',
-                            qth: val.qth || 'DX',
-                            callingPlatform: val.callingPlatform || '20m FT8 / 14.074 MHz',
-                            trx: val.trx || 'Transceptor SDR Multibanda',
-                            antenna: val.antenna || 'Yagi 3 Elem + Dipolo V',
-                            interface: val.interface || 'WSJT-X + TNC USB'
-                        };
-                        setupOnlinePresence(user, currentUserData);
-                        updateUIForLoggedInUser(currentUserData);
-                    });
-                } else {
-                    currentUserData = null;
-                    updateUIForLoggedOutUser();
-                }
-            });
-        } else {
-            setupDemoPresenceAndChat();
-        }
-
-        function updateUIForLoggedInUser(data) {
-            document.getElementById('auth-header-guest').classList.add('hidden');
-            document.getElementById('auth-header-user').classList.remove('hidden');
-            document.getElementById('user-callsign-display').textContent = data.callsign;
-            document.getElementById('user-qth-display').textContent = data.qth;
-            document.getElementById('user-avatar').textContent = data.callsign.substring(0, 2);
-
-            document.getElementById('chat-auth-prompt').classList.add('hidden');
-            document.getElementById('chat-form').classList.remove('hidden');
-
-            // Mostrar el panel de edición de equipos/plataforma a demanda
-            document.getElementById('equip-edit-container').classList.remove('hidden');
-            document.getElementById('input-calling-platform').value = data.callingPlatform || '';
-            document.getElementById('input-trx').value = data.trx || '';
-            document.getElementById('input-antenna').value = data.antenna || '';
-            document.getElementById('input-interface').value = data.interface || '';
-
-            // Actualizar tarjetas de visualización
-            updateEquipmentDisplayCard(data);
-
-            closeAuthModal();
-        }
-
-        function updateEquipmentDisplayCard(data) {
-            if (data.callingPlatform) document.getElementById('display-calling-platform').textContent = data.callingPlatform;
-            if (data.trx) document.getElementById('display-trx').textContent = data.trx;
-            if (data.antenna) document.getElementById('display-antenna').textContent = data.antenna;
-            if (data.interface) document.getElementById('display-interface').textContent = data.interface;
-        }
-
-        function updateUIForLoggedOutUser() {
-            document.getElementById('auth-header-guest').classList.remove('hidden');
-            document.getElementById('auth-header-user').classList.add('hidden');
-            document.getElementById('chat-auth-prompt').classList.remove('hidden');
-            document.getElementById('chat-form').classList.add('hidden');
-            document.getElementById('equip-edit-container').classList.add('hidden');
-        }
-
-        // --- ACTUALIZAR EQUIPOS Y MODO DE LLAMADA A DEMANDA ---
-        document.getElementById('form-update-equipment').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const callingPlatform = document.getElementById('input-calling-platform').value.trim();
-            const trx = document.getElementById('input-trx').value.trim();
-            const antenna = document.getElementById('input-antenna').value.trim();
-            const interfaceEquip = document.getElementById('input-interface').value.trim();
-
-            if (!currentUserData) return;
-
-            currentUserData.callingPlatform = callingPlatform;
-            currentUserData.trx = trx;
-            currentUserData.antenna = antenna;
-            currentUserData.interface = interfaceEquip;
-
-            updateEquipmentDisplayCard(currentUserData);
-
-            if (isFirebaseAvailable && auth && auth.currentUser) {
-                const uid = auth.currentUser.uid;
-                // Guardar en Perfil de Usuario en Firebase
-                update(ref(db, 'users/' + uid), {
-                    callingPlatform, trx, antenna, interface: interfaceEquip
-                });
-                // Actualizar en la lista de Presencia en Tiempo Real
-                update(ref(db, 'presence/' + uid), {
-                    callingPlatform, trx, antenna, interface: interfaceEquip
-                });
-            } else {
-                renderDemoPresence();
-            }
-
-            alert("¡Información de llamada y equipos sincronizada correctamente!");
-        });
-
-        // --- SISTEMA DE PRESENCIA EN TIEMPO REAL CON PLATAFORMA DE LLAMADA ---
-        function setupOnlinePresence(user, userData) {
-            if (!isFirebaseAvailable) return;
-
-            const connectedRef = ref(db, '.info/connected');
-            const myPresenceRef = ref(db, 'presence/' + user.uid);
-
-            onValue(connectedRef, (snap) => {
-                if (snap.val() === true) {
-                    onDisconnect(myPresenceRef).remove();
-
-                    set(myPresenceRef, {
-                        callsign: userData.callsign,
-                        name: userData.name,
-                        qth: userData.qth,
-                        callingPlatform: userData.callingPlatform || '20m FT8',
-                        trx: userData.trx || '',
-                        antenna: userData.antenna || '',
-                        connectedAt: serverTimestamp(),
-                        online: true
-                    });
-                }
-            });
-
-            const allPresenceRef = ref(db, 'presence');
-            onValue(allPresenceRef, (snapshot) => {
-                const presenceData = snapshot.val() || {};
-                renderOnlineUsersList(presenceData);
-            });
-        }
-
-        function renderOnlineUsersList(presenceData) {
-            const container = document.getElementById('online-users-list');
-            const countBadge = document.getElementById('online-count-badge');
-            container.innerHTML = '';
-
-            const users = Object.values(presenceData);
-            countBadge.textContent = `${users.length} Activos`;
-
-            if (users.length === 0) {
-                container.innerHTML = `<div class="text-center py-4 text-slate-500 text-xs italic">No hay otros operadores en línea en este momento.</div>`;
-                return;
-            }
-
-            users.forEach(u => {
-                const item = document.createElement('div');
-                item.className = "bg-black/40 border border-slate-800/80 p-3 rounded-xl flex flex-col space-y-1.5 hover:border-emerald-500/30 transition";
-                item.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-slate-900 border border-emerald-500/30 flex items-center justify-center font-mono font-bold text-xs text-emerald-400">
-                                ${u.callsign.substring(0, 2)}
-                            </div>
-                            <div>
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="font-mono font-bold text-xs text-white">${u.callsign}</span>
-                                    <span class="text-[10px] text-slate-400">(${u.name})</span>
-                                </div>
-                                <span class="text-[10px] text-slate-500 block">${u.qth}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-emerald-400">ONLINE</span>
-                        </div>
-                    </div>
-                    ${u.callingPlatform ? `
-                    <div class="bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-[10px] font-mono text-emerald-300 flex items-center space-x-1.5">
-                        <i class="fa-solid fa-signal text-emerald-400"></i>
-                        <span><strong>Llamando en:</strong> ${u.callingPlatform}</span>
-                    </div>` : ''}
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // --- CHAT EN TIEMPO REAL ---
-        if (isFirebaseAvailable && db) {
-            const chatRef = ref(db, 'chat_messages');
-            onChildAdded(chatRef, (snapshot) => {
-                const msg = snapshot.val();
-                appendChatMessage(msg);
-            });
-        }
-
-        function appendChatMessage(msg) {
-            const chatBox = document.getElementById('chat-messages');
-            const msgEl = document.createElement('div');
-            msgEl.className = "bg-slate-900/80 border border-slate-800 p-3 rounded-xl";
-            
-            const timeStr = msg.time || new Date().toLocaleTimeString();
-
-            msgEl.innerHTML = `
-                <div class="flex justify-between items-center mb-1">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-mono font-bold text-xs text-cyan-400">[${msg.callsign}]</span>
-                        <span class="text-[10px] text-slate-400">${msg.name} (${msg.qth})</span>
-                    </div>
-                    <span class="text-[10px] text-slate-500 font-mono">${timeStr}</span>
-                </div>
-                <p class="text-slate-200 text-xs">${msg.text}</p>
-            `;
-            chatBox.appendChild(msgEl);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // Enviar Mensaje
-        document.getElementById('chat-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const textInput = document.getElementById('chat-input-text');
-            const text = textInput.value.trim();
-
-            if (!text || !currentUserData) return;
-
-            const msgData = {
-                callsign: currentUserData.callsign,
-                name: currentUserData.name,
-                qth: currentUserData.qth,
-                text: text,
-                time: new Date().toLocaleTimeString() + ' Local',
-                timestamp: serverTimestamp()
-            };
-
-            if (isFirebaseAvailable && db) {
-                push(ref(db, 'chat_messages'), msgData);
-            } else {
-                appendChatMessage(msgData);
-            }
-
-            textInput.value = '';
-        });
-
-        // --- REGISTRO DE USUARIO ---
-        document.getElementById('form-register').addEventListener('submit', async (e) => {
+        // Registro de Usuarios
+        document.getElementById('form-register').addEventListener('submit', function(e) {
             e.preventDefault();
             const callsign = document.getElementById('reg-callsign').value.toUpperCase().trim();
             const name = document.getElementById('reg-name').value.trim();
-            const qth = document.getElementById('reg-qth').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
-            const errorDiv = document.getElementById('auth-error');
 
-            if (!isFirebaseAvailable) {
-                currentUserData = { callsign, name, qth, callingPlatform: '20m FT8 / 14.074 MHz', trx: 'IC-7300', antenna: 'Yagi 3 Elem' };
-                updateUIForLoggedInUser(currentUserData);
-                renderDemoPresence();
+            let users = JSON.parse(localStorage.getItem('cx3dw_registered_users') || '[]');
+            
+            if (users.some(u => u.callsign === callsign)) {
+                alert("Este indicativo ya está registrado.");
                 return;
             }
 
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+            const newUser = { callsign, name, email, password };
+            users.push(newUser);
+            localStorage.setItem('cx3dw_registered_users', JSON.stringify(users));
 
-                await set(ref(db, 'users/' + user.uid), {
-                    callsign: callsign,
-                    name: name,
-                    qth: qth,
-                    email: email,
-                    callingPlatform: '20m FT8 / 14.074 MHz',
-                    trx: 'SDR Multibanda',
-                    antenna: 'Yagi HF + Dipolo',
-                    interface: 'WSJT-X USB',
-                    createdAt: serverTimestamp()
+            currentOperator = newUser;
+            localStorage.setItem('cx3dw_active_operator', JSON.stringify(newUser));
+            applyOperatorSession(newUser);
+            closeAuthModal();
+
+            alert(`¡Bienvenido ${callsign}! Registro exitoso.`);
+        });
+
+        // Login de Usuarios
+        document.getElementById('form-login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('login-identifier').value.toUpperCase().trim();
+            const pass = document.getElementById('login-password').value;
+
+            let users = JSON.parse(localStorage.getItem('cx3dw_registered_users') || '[]');
+            const found = users.find(u => (u.callsign === id || u.email.toUpperCase() === id) && u.password === pass);
+
+            if (found) {
+                currentOperator = found;
+                localStorage.setItem('cx3dw_active_operator', JSON.stringify(found));
+                applyOperatorSession(found);
+                closeAuthModal();
+            } else {
+                alert("Indicativo/Correo o contraseña incorrectos.");
+            }
+        });
+
+        // 4. Chat Directo en vivo
+        const chatMessages = document.getElementById('chat-messages');
+
+        function appendMessage(callsign, text, time) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
+            msgDiv.style.padding = "8px 12px";
+            msgDiv.style.borderRadius = "6px";
+            msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
+            msgDiv.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${callsign}]</strong>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">${time}</span>
+                </div>
+                <div style="color:#fff;">${text}</div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        pubnub.addListener({
+            message: function(event) {
+                if (event.channel === chatChannel) {
+                    const data = event.message;
+                    appendMessage(data.callsign, data.text, data.time);
+                } else if (event.channel === presenceChannel) {
+                    addOperatorToList(event.message);
+                }
+            }
+        });
+
+        // Enviar mensajes al Chat
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsign = document.getElementById('chat-callsign').value.toUpperCase().trim();
+            const text = document.getElementById('chat-text').value.trim();
+
+            if (callsign && text) {
+                pubnub.publish({
+                    channel: chatChannel,
+                    message: { callsign, text, time: new Date().toLocaleTimeString() }
+                }).then(() => {
+                    document.getElementById('chat-text').value = '';
+                });
+            }
+        });
+
+        // 5. Presencia y Lista de Operadores Activos
+        const activeOperators = {};
+
+        function addOperatorToList(op) {
+            activeOperators[op.callsign] = op;
+            renderOperators();
+        }
+
+        function renderOperators() {
+            const listContainer = document.getElementById('online-operators-list');
+            const countTag = document.getElementById('count-online');
+            const keys = Object.keys(activeOperators);
+
+            countTag.textContent = `${keys.length} Activo(s)`;
+            listContainer.innerHTML = '';
+
+            if (keys.length === 0) {
+                listContainer.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px;">Llena tu formulario a la izquierda para aparecer en la lista.</div>`;
+                return;
+            }
+
+            keys.forEach(call => {
+                const op = activeOperators[call];
+                const item = document.createElement('div');
+                item.className = 'online-item';
+                item.innerHTML = `
+                    <div class="online-item-header">
+                        <span class="online-callsign mono">[${op.callsign}]</span>
+                        <span class="online-platform mono">${op.platform}</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-muted);">
+                        ${op.trx ? 'Rig: ' + op.trx : ''} ${op.antenna ? '| ' + op.antenna : ''}
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // Llenado a Demanda
+        document.getElementById('form-operator-status').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsign = document.getElementById('op-callsign').value.toUpperCase().trim();
+            const platform = document.getElementById('op-platform').value.trim();
+            const trx = document.getElementById('op-trx').value.trim();
+            const antenna = document.getElementById('op-antenna').value.trim();
+
+            if (callsign && platform) {
+                const opData = { callsign, platform, trx, antenna };
+                
+                if (trx) document.getElementById('disp-trx').textContent = trx;
+                if (platform) document.getElementById('disp-platform').textContent = platform;
+
+                pubnub.publish({
+                    channel: presenceChannel,
+                    message: opData
                 });
 
-            } catch (err) {
-                errorDiv.textContent = "Error al registrarse: " + err.message;
-                errorDiv.classList.remove('hidden');
+                document.getElementById('chat-callsign').value = callsign;
+                addOperatorToList(opData);
+                alert("¡Frecuencia y estado publicados en tiempo real!");
             }
         });
 
-        // --- INICIO DE SESIÓN ---
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailOrCall = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('auth-error');
-
-            let email = emailOrCall;
-            if (!email.includes('@')) {
-                email = `${emailOrCall.toLowerCase()}@hamradio.local`;
-            }
-
-            if (!isFirebaseAvailable) {
-                currentUserData = { callsign: emailOrCall.toUpperCase(), name: 'Operador DX', qth: 'QTH Local', callingPlatform: '145.200 MHz FM / SvxReflector TG 748', trx: 'FT-991A', antenna: 'Colineal VHF/UHF' };
-                updateUIForLoggedInUser(currentUserData);
-                renderDemoPresence();
-                return;
-            }
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (err) {
-                errorDiv.textContent = "Error al ingresar: " + err.message;
-                errorDiv.classList.remove('hidden');
-            }
-        });
-
-        // --- LOGOUT ---
-        window.logoutUser = function() {
-            if (isFirebaseAvailable && auth) {
-                signOut(auth);
-            } else {
-                currentUserData = null;
-                updateUIForLoggedOutUser();
-            }
-        }
-
-        // --- MODO SIMULADO DE DEMOSTRACIÓN ---
-        function setupDemoPresenceAndChat() {
-            const demoUsers = {
-                'demo1': { callsign: 'CX3DW', name: 'Carlos', qth: 'Uruguay (GF15)', callingPlatform: '20m FT8 / 14.074 MHz' },
-                'demo2': { callsign: 'LU1ABC', name: 'Roberto', qth: 'Buenos Aires', callingPlatform: 'SvxReflector TG 748' },
-                'demo3': { callsign: 'PY2DX', name: 'Marcelo', qth: 'São Paulo', callingPlatform: '145.200 MHz FM Local' }
-            };
-            renderOnlineUsersList(demoUsers);
-
-            appendChatMessage({
-                callsign: 'CX3DW',
-                name: 'Carlos',
-                qth: 'Uruguay',
-                text: '¡Estación QRV en 20m FT8! Bienvenidos a todos los corresponsales.',
-                time: '21:15:00'
-            });
-
-            appendChatMessage({
-                callsign: 'LU1ABC',
-                name: 'Roberto',
-                qth: 'Buenos Aires',
-                text: '73s Carlos, reporte 59 en 40m y conectado en SvxReflector TG 748.',
-                time: '21:20:12'
-            });
-        }
-
-        function renderDemoPresence() {
-            const users = {
-                'demo1': { callsign: 'CX3DW', name: 'Carlos', qth: 'Uruguay (GF15)', callingPlatform: '20m FT8 / 14.074 MHz' }
-            };
-            if (currentUserData) {
-                users['myuser'] = currentUserData;
-            }
-            renderOnlineUsersList(users);
-        }
+        // Inicializar comprobación de sesión al cargar
+        checkStoredSession();
     </script>
 </body>
 </html>

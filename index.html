@@ -369,12 +369,12 @@
             <section id="chat" class="card card-purple">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">PubNub</span>
+                    <span class="card-tag tag-purple">PubNub En Vivo</span>
                 </div>
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
                 <div class="chat-box">
                     <div id="chat-messages" class="chat-logs">
-                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>
+                        <!-- Mensajes cargados en tiempo real -->
                     </div>
                     <form id="chat-form" class="chat-form">
                         <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
@@ -391,10 +391,10 @@
             <div id="operators" class="card card-green">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
-                    <span class="card-tag tag-green">Tiempo Real</span>
+                    <span class="card-tag tag-green">Sincronizado</span>
                 </div>
                 <div id="operator-list" class="online-list">
-                    <!-- Los datos cargados aparecen aquí al instante -->
+                    <!-- Los operadores se actualizan de forma global -->
                 </div>
             </div>
 
@@ -448,8 +448,8 @@
             userId: myUuid
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v9";
-        const CHANNEL_STATUS = "operators_cx3dw_v9";
+        const CHANNEL_CHAT = "chat_cx3dw_v10";
+        const CHANNEL_STATUS = "operators_cx3dw_v10";
 
         // 1. AUTENTICACIÓN / SESIÓN LOCAL
         let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
@@ -571,14 +571,30 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // 4. CHAT DIRECTO Y CONTROL DE DUPLICADOS
+        // 4. CHAT GLOBAL CON PERSISTENCIA EN LOCALSTORAGE Y PUBNUB
         const chatMessages = document.getElementById('chat-messages');
-        const renderedMessageIds = new Set();
 
-        function renderMensaje(callsign, text, time, msgId) {
-            if (msgId && renderedMessageIds.has(msgId)) return;
-            if (msgId) renderedMessageIds.add(msgId);
+        function getStoredMessages() {
+            try {
+                return JSON.parse(localStorage.getItem('cx3dw_chat_history')) || [];
+            } catch(e) { return []; }
+        }
 
+        function saveAndRenderMessage(callsign, text, time, msgId) {
+            let history = getStoredMessages();
+            // Evitar duplicados por ID único
+            if (history.some(m => m.msgId === msgId)) return;
+
+            const messageObj = { callsign, text, time, msgId };
+            history.push(messageObj);
+            // Mantener solo los últimos 30 mensajes
+            if (history.length > 30) history.shift();
+            localStorage.setItem('cx3dw_chat_history', JSON.stringify(history));
+
+            appendMessageToDOM(callsign, text, time);
+        }
+
+        function appendMessageToDOM(callsign, text, time) {
             const msgDiv = document.createElement('div');
             msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
             msgDiv.style.padding = "8px 12px";
@@ -595,6 +611,18 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // Cargar historial al iniciar
+        function loadChatHistory() {
+            chatMessages.innerHTML = '';
+            const history = getStoredMessages();
+            if (history.length === 0) {
+                chatMessages.innerHTML = `<div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>`;
+            } else {
+                history.forEach(m => appendMessageToDOM(m.callsign, m.text, m.time));
+            }
+        }
+        loadChatHistory();
+
         const chatForm = document.getElementById('chat-form');
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -608,11 +636,12 @@
                 const nowTime = new Date().toLocaleTimeString();
                 const uniqueMsgId = 'msg_' + Math.random().toString(36).substring(2) + Date.now();
                 
-                // Renderizar inmediatamente en el dispositivo propio
-                renderMensaje(callsign, text, nowTime, uniqueMsgId);
                 document.getElementById('my-callsign').value = callsign;
 
-                // Transmitir a todos los dispositivos conectados (PC ⇄ Celular)
+                // Guardar y mostrar localmente
+                saveAndRenderMessage(callsign, text, nowTime, uniqueMsgId);
+
+                // Enviar por red PubNub
                 pubnub.publish({
                     channel: CHANNEL_CHAT,
                     message: { callsign: callsign, text: text, time: nowTime, msgId: uniqueMsgId }
@@ -622,16 +651,30 @@
             }
         });
 
-        // 5. OPERADORES EN LÍNEA & PRESENCIA
-        const onlineOperators = {};
+        // 5. OPERADORES EN LÍNEA & PERSISTENCIA GLOBAL
+        function getStoredOperators() {
+            try {
+                return JSON.parse(localStorage.getItem('cx3dw_active_operators')) || {};
+            } catch(e) { return {}; }
+        }
+
+        function saveOperatorToStorage(opData) {
+            let ops = getStoredOperators();
+            ops[opData.callsign] = opData;
+            localStorage.setItem('cx3dw_active_operators', JSON.stringify(ops));
+            renderOperatorList();
+        }
 
         function renderOperatorList() {
             const opListDiv = document.getElementById('operator-list');
             opListDiv.innerHTML = '';
 
-            // Estación CX3DW base fija por defecto
-            if (!onlineOperators['CX3DW']) {
-                onlineOperators['CX3DW'] = {
+            let ops = getStoredOperators();
+
+            // Asegurar estación base por defecto CX3DW si no está
+            if (!ops['CX3DW']) {
+                ops['CX3DW'] = {
+                    callsign: "CX3DW",
                     city: "Montevideo, Uruguay",
                     rig: "SDR Multi-Modo",
                     platform: "Svxlink",
@@ -639,14 +682,10 @@
                     tg: "TG 748",
                     weatherStr: "Cargando clima..."
                 };
-                fetchRealtimeWeather("Montevideo").then(w => {
-                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
-                    renderOperatorList();
-                });
             }
 
-            Object.keys(onlineOperators).forEach(call => {
-                const op = onlineOperators[call];
+            Object.keys(ops).forEach(call => {
+                const op = ops[call];
                 const card = document.createElement('div');
                 card.className = 'operator-card';
                 
@@ -671,30 +710,22 @@
             message: function(event) {
                 if (event.channel === CHANNEL_CHAT) {
                     const data = event.message;
-                    // Mostrar mensaje recibido desde otro dispositivo
-                    renderMensaje(data.callsign, data.text, data.time, data.msgId);
+                    if (data && data.msgId && data.callsign && data.text) {
+                        saveAndRenderMessage(data.callsign, data.text, data.time, data.msgId);
+                    }
                 } else if (event.channel === CHANNEL_STATUS) {
                     const op = event.message;
-                    onlineOperators[op.callsign] = op;
-                    renderOperatorList();
-                }
-            },
-            presence: function(event) {
-                if (event.action === 'join' || event.action === 'state-change') {
-                    if (event.state && event.state.callsign) {
-                        onlineOperators[event.state.callsign] = event.state;
-                        renderOperatorList();
-                    }
-                } else if (event.action === 'leave' || event.action === 'timeout') {
-                    if (event.state && event.state.callsign && event.state.callsign !== 'CX3DW') {
-                        delete onlineOperators[event.state.callsign];
+                    if (op && op.callsign) {
+                        let ops = getStoredOperators();
+                        ops[op.callsign] = op;
+                        localStorage.setItem('cx3dw_active_operators', JSON.stringify(ops));
                         renderOperatorList();
                     }
                 }
             }
         });
 
-        // SUSCRIPCIÓN ACTIVA A CANALES
+        // SUSCRIPCIÓN ACTIVA
         pubnub.subscribe({ 
             channels: [CHANNEL_CHAT, CHANNEL_STATUS], 
             withPresence: true 
@@ -723,36 +754,27 @@
                     weatherStr: "Consultando clima..." 
                 };
 
-                onlineOperators[callsign] = opData;
-                renderOperatorList();
+                saveOperatorToStorage(opData);
 
+                // Publicar estado a la red
                 pubnub.publish({
                     channel: CHANNEL_STATUS,
                     message: opData
-                });
-
-                pubnub.setState({
-                    channels: [CHANNEL_STATUS],
-                    state: opData
                 });
 
                 fetchRealtimeWeather(city).then(w => {
                     opData.weatherStr = `${w.temp} (${w.condition})`;
                     if (w.locationName) opData.city = w.locationName;
 
-                    onlineOperators[callsign] = opData;
-                    renderOperatorList();
+                    saveOperatorToStorage(opData);
 
                     pubnub.publish({
                         channel: CHANNEL_STATUS,
                         message: opData
                     });
-
-                    pubnub.setState({
-                        channels: [CHANNEL_STATUS],
-                        state: opData
-                    });
                 });
+
+                alert(`¡Estado transmitido con éxito para ${callsign} en todo el canal!`);
             }
         });
 
@@ -762,4 +784,3 @@
     </script>
 </body>
 </html>
-

@@ -101,6 +101,8 @@
         .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .sub-box { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 10px; }
         .sub-box h4 { font-size: 1.1rem; color: #fff; margin: 6px 0; }
+        .sub-box h4 a { color: var(--neon-cyan); text-decoration: none; }
+        .sub-box h4 a:hover { text-decoration: underline; }
         .sub-box p { font-size: 0.85rem; color: var(--text-muted); }
         .list-clean { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem; color: var(--text-muted); }
         .data-table { display: flex; flex-direction: column; gap: 10px; }
@@ -299,12 +301,400 @@
                     <h2 class="card-title"><i class="fa-solid fa-newspaper"></i> Noticias & Novedades — Radio Club Uruguayo (CX1AA)</h2>
                     <span class="card-tag tag-cyan">Oficial RCU</span>
                 </div>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Haz clic en cualquier titular para acceder directamente a la noticia completa en la web oficial:</p>
                 <div class="sub-grid">
                     <div class="sub-box">
                         <span class="card-tag tag-pink">Aeroespacial & SSTV</span>
-                        <h4>Lanzamiento Globo Pichón IV</h4>
-                        <p>Exitoso vuelo de telemetría e imágenes SSTV integr
+                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Globo Pichón IV</a></h4>
+                        <p>Exitoso vuelo de telemetría e imágenes SSTV integrando a radioaficionados de todo el país y la región.</p>
+                    </div>
+                    <div class="sub-box">
+                        <span class="card-tag tag-purple">Patrimonio Histórico</span>
+                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Convenio MNA & RCU</a></h4>
+                        <p>Acuerdo con el Museo Nacional de Antropología para la preservación e historia de la radioafición uruguaya.</p>
+                    </div>
+                    <div class="sub-box">
+                        <span class="card-tag tag-green">Exámenes URSEC</span>
+                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Mesas de Examen & Permisos</a></h4>
+                        <p>Apertura periódica de convocatorias para aspirantes e ingresos en la sede de Simón Bolívar 1195.</p>
+                    </div>
+                    <div class="sub-box">
+                        <span class="card-tag tag-yellow">Actividades DX</span>
+                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> JOTA & Concursos CX</a></h4>
+                        <p>Participación activa junto al movimiento Scout y activaciones especiales con la señal distintiva oficial CX1AA.</p>
+                    </div>
+                </div>
+                <div style="margin-top:18px; text-align:right;">
+                    <a href="https://www.cx1aa.org/" target="_blank" style="background:var(--neon-cyan); color:#000; padding:8px 16px; border-radius:6px; font-weight:800; text-decoration:none; font-size:0.85rem; display:inline-block;">
+                        <i class="fa-solid fa-globe"></i> Visitar Portal Oficial CX1AA.org
+                    </a>
+                </div>
+            </section>
 
-                            
+            <!-- Antenas -->
+            <section id="antennas" class="card card-pink">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-satellite-dish"></i> Sistema Radiante</h2>
+                    <span class="card-tag tag-pink">Antenas</span>
+                </div>
+                <ul class="list-clean">
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Direccionales HF:</strong> Yagi multibanda para máxima ganancia DX.</li>
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Bandas Bajas & WARC:</strong> Dipolos en V invertida de alto rendimiento.</li>
+                </ul>
+            </section>
 
-                            
+            <!-- Chat Directo -->
+            <section id="chat" class="card card-purple">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
+                    <span class="card-tag tag-purple">PubNub</span>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
+                <div class="chat-box">
+                    <div id="chat-messages" class="chat-logs">
+                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>
+                    </div>
+                    <form id="chat-form" class="chat-form">
+                        <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
+                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje..." required style="flex:1;">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div>
+            <!-- Operadores En Línea -->
+            <div id="operators" class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
+                    <span class="card-tag tag-green">Tiempo Real</span>
+                </div>
+                <div id="operator-list" class="online-list">
+                    <!-- Los datos cargados aparecen aquí al instante -->
+                </div>
+            </div>
+
+            <!-- Coordenadas QTH -->
+            <div class="card card-cyan">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
+                </div>
+                <div class="data-table">
+                    <div class="data-row"><span>Indicativo</span><strong class="mono" style="color:var(--neon-cyan)">CX3DW</strong></div>
+                    <div class="data-row"><span>QTH</span><strong>Montevideo, Uruguay</strong></div>
+                    <div class="data-row"><span>Grid Locator</span><strong class="mono" style="color:var(--neon-yellow)">GF15</strong></div>
+                    <div class="data-row"><span>CQ / ITU</span><strong>11 / 14</strong></div>
+                </div>
+            </div>
+
+            <!-- Buscador ClubLog -->
+            <div class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> Consultar Logbook</h3>
+                </div>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="form-log">
+                    <input type="hidden" name="call" value="CX3DW">
+                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off" class="mono">
+                    <button type="submit">Buscar</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • PubNub Integrado & Sincronizado</p>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript Principal -->
+    <script>
+        // CONFIGURACIÓN PUBNUB
+        const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
+        const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
+
+        const pubnub = new PubNub({
+            publishKey: pubKey,
+            subscribeKey: subKey,
+            userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
+        });
+
+        const CHANNEL_CHAT = "chat_cx3dw_v7";
+        const CHANNEL_STATUS = "operators_cx3dw_v7";
+
+        pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
+
+        // 1. LÓGICA DE LOGIN Y REGISTRO (AUTÓNOMA)
+        let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
+
+        function updateAuthUI() {
+            const btn = document.getElementById('auth-btn');
+            if (currentUser) {
+                btn.innerHTML = `<i class="fa-solid fa-user"></i> ${currentUser.callsign} (Salir)`;
+                btn.onclick = logout;
+                document.getElementById('my-callsign').value = currentUser.callsign;
+                document.getElementById('chat-callsign').value = currentUser.callsign;
+                if(currentUser.city) document.getElementById('my-city').value = currentUser.city;
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión`;
+                btn.onclick = openModal;
+            }
+        }
+
+        function openModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
+        
+        document.getElementById('modal-close').onclick = closeModal;
+
+        document.getElementById('tab-login').onclick = function() { switchTab('login'); };
+        document.getElementById('tab-register').onclick = function() { switchTab('register'); };
+
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+            document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
+            document.getElementById('register-form').style.display = tab === 'register' ? 'flex' : 'none';
+        }
+
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsign = document.getElementById('reg-callsign').value.toUpperCase().trim();
+            const city = document.getElementById('reg-city').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+
+            const users = JSON.parse(localStorage.getItem('cx3dw_users')) || {};
+            users[callsign] = { callsign, city, email, pass };
+            localStorage.setItem('cx3dw_users', JSON.stringify(users));
+
+            currentUser = users[callsign];
+            localStorage.setItem('cx3dw_session', JSON.stringify(currentUser));
+            updateAuthUI();
+            closeModal();
+            alert(`¡Bienvenido ${callsign}! Cuenta creada y sesión iniciada.`);
+        });
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsign = document.getElementById('login-callsign').value.toUpperCase().trim();
+            const pass = document.getElementById('login-pass').value;
+
+            const users = JSON.parse(localStorage.getItem('cx3dw_users')) || {};
+            if (users[callsign] && users[callsign].pass === pass) {
+                currentUser = users[callsign];
+                localStorage.setItem('cx3dw_session', JSON.stringify(currentUser));
+                updateAuthUI();
+                closeModal();
+            } else {
+                alert('Indicativo o contraseña no encontrados. Si no tienes cuenta, ve a "Registrarse".');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('cx3dw_session');
+            currentUser = null;
+            updateAuthUI();
+        }
+
+        // 2. CONSULTA DE CLIMA (OPEN-METEO)
+        async function fetchRealtimeWeather(cityName) {
+            try {
+                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
+                const geoData = await geoRes.json();
+                
+                if (!geoData.results || geoData.results.length === 0) {
+                    return { temp: "-- °C", condition: "Clima no disponible", wind: "-- km/h" };
+                }
+
+                const { latitude, longitude, name, country } = geoData.results[0];
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                const weatherData = await weatherRes.json();
+
+                const current = weatherData.current_weather;
+                const temp = `${Math.round(current.temperature)}°C`;
+                const wind = `${Math.round(current.windspeed)} km/h`;
+
+                const weatherCodes = {
+                    0: "Despejado ☀️", 1: "Mayormente Despejado 🌤️", 2: "Parcialmente Nublado ⛅", 3: "Nublado ☁️",
+                    45: "Niebla 🌫️", 61: "Lluvia Ligera 🌧️", 63: "Lluvia Moderada 🌧️", 80: "Chubascos 🌦️", 95: "Tormenta ⛈️"
+                };
+                const condition = weatherCodes[current.weathercode] || "Tiempo Variable 🌤️";
+
+                return { temp, condition, wind, locationName: `${name}, ${country}` };
+            } catch (err) {
+                return { temp: "-- °C", condition: "Sin datos clima", wind: "-- km/h" };
+            }
+        }
+
+        async function loadStationWeather() {
+            const data = await fetchRealtimeWeather("Montevideo");
+            document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
+            document.getElementById('main-weather-wind').textContent = `Viento: ${data.wind}`;
+        }
+        loadStationWeather();
+
+        // 3. RELOJES UTC Y LOCAL
+        function updateClocks() {
+            const now = new Date();
+            document.getElementById('local-time').textContent = now.toLocaleTimeString();
+            const utcHours = String(now.getUTCHours()).padStart(2, '0');
+            const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
+            const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
+            document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        // 4. CHAT DIRECTO PUBNUB
+        const chatMessages = document.getElementById('chat-messages');
+
+        function renderMensaje(callsign, text, time) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
+            msgDiv.style.padding = "8px 12px";
+            msgDiv.style.borderRadius = "6px";
+            msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
+            msgDiv.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${callsign}]</strong>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">${time}</span>
+                </div>
+                <div style="color:#fff;">${text}</div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        const chatForm = document.getElementById('chat-form');
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsignInput = document.getElementById('chat-callsign');
+            const textInput = document.getElementById('chat-text');
+
+            const callsign = callsignInput.value.toUpperCase();
+            const text = textInput.value;
+
+            if (callsign && text) {
+                document.getElementById('my-callsign').value = callsign;
+                pubnub.publish({
+                    channel: CHANNEL_CHAT,
+                    message: { callsign, text, time: new Date().toLocaleTimeString() }
+                }).then(() => { textInput.value = ''; });
+            }
+        });
+
+        // 5. OPERADORES EN LÍNEA & ENVÍO DE ESTADO INMEDIATO
+        const onlineOperators = {};
+
+        function renderOperatorList() {
+            const opListDiv = document.getElementById('operator-list');
+            opListDiv.innerHTML = '';
+
+            // CX3DW base fija por defecto
+            if (!onlineOperators['CX3DW']) {
+                onlineOperators['CX3DW'] = {
+                    city: "Montevideo, Uruguay",
+                    rig: "SDR Multi-Modo",
+                    platform: "Svxlink",
+                    freq: "145.200 MHz",
+                    tg: "TG 748",
+                    weatherStr: "Cargando clima..."
+                };
+                fetchRealtimeWeather("Montevideo").then(w => {
+                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
+                    renderOperatorList();
+                });
+            }
+
+            Object.keys(onlineOperators).forEach(call => {
+                const op = onlineOperators[call];
+                const card = document.createElement('div');
+                card.className = 'operator-card';
+                
+                let statusLabel = op.platform || 'HF';
+                if (op.freq) statusLabel += ` | ${op.freq}`;
+                if (op.tg) statusLabel += ` | ${op.tg}`;
+
+                card.innerHTML = `
+                    <div class="op-header">
+                        <div class="op-callsign mono">${call}</div>
+                        <div class="op-status">${statusLabel}</div>
+                    </div>
+                    <div class="op-details">QTH: <strong>${op.city || 'Desconocido'}</strong> • Rig: ${op.rig || 'Estándar'}</div>
+                    <div class="op-weather"><i class="fa-solid fa-cloud-sun"></i> ${op.weatherStr || 'Consultando clima...'}</div>
+                `;
+                opListDiv.appendChild(card);
+            });
+        }
+
+        // Listener mensajes e incrementos de PubNub
+        pubnub.addListener({
+            message: function(event) {
+                if (event.channel === CHANNEL_CHAT) {
+                    const data = event.message;
+                    renderMensaje(data.callsign, data.text, data.time);
+                } else if (event.channel === CHANNEL_STATUS) {
+                    const op = event.message;
+                    onlineOperators[op.callsign] = op;
+                    renderOperatorList();
+                }
+            }
+        });
+
+        // PROCESAMIENTO DEL FORMULARIO DE ESTADO
+        const statusForm = document.getElementById('op-status-form');
+        statusForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const callsign = document.getElementById('my-callsign').value.toUpperCase().trim();
+            const city = document.getElementById('my-city').value.trim();
+            const platform = document.getElementById('my-platform').value;
+            const rig = document.getElementById('my-rig').value.trim() || 'Estándar';
+            const freq = document.getElementById('my-freq').value.trim();
+            const tg = document.getElementById('my-tg').value.trim();
+
+            if (callsign && city) {
+                const opData = { 
+                    callsign: callsign, 
+                    city: city, 
+                    platform: platform, 
+                    rig: rig,
+                    freq: freq,
+                    tg: tg,
+                    weatherStr: "Consultando clima..." 
+                };
+
+                onlineOperators[callsign] = opData;
+                renderOperatorList();
+
+                pubnub.publish({
+                    channel: CHANNEL_STATUS,
+                    message: opData
+                });
+
+                fetchRealtimeWeather(city).then(w => {
+                    opData.weatherStr = `${w.temp} (${w.condition})`;
+                    if (w.locationName) opData.city = w.locationName;
+
+                    onlineOperators[callsign] = opData;
+                    renderOperatorList();
+
+                    pubnub.publish({
+                        channel: CHANNEL_STATUS,
+                        message: opData
+                    });
+                });
+            }
+        });
+
+        // Inicializar Estado
+        updateAuthUI();
+        renderOperatorList();
+    </script>
+</body>
+</html>

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CX3DW — Estación de Radioaficionado</title>
+    <title>CX3DW | Estación de Radioaficionado</title>
     
     <!-- Meta etiquetas y Open Graph -->
-    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado por CX3DW. Información de shack, antenas, LoTW y logbook.">
+    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado y administrado por CX3DW. Información de shack, antenas y logbook.">
     <meta property="og:title" content="CX3DW - Ham Radio Station">
     <meta property="og:description" content="Operando desde Uruguay | Grid: GF15 | Creado por CX3DW">
     <meta property="og:url" content="https://cx3dw.github.io/">
@@ -14,127 +14,123 @@
     <!-- Estilos y Tipografía -->
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header / Panel de Estado con Gradiente Colorido -->
-    <header class="header">
-        <div class="container header-container">
-            <div class="brand">
-                <span class="callsign">CX3DW</span>
-                <span class="creator-tag">By CX3DW</span>
-                <span class="status-indicator"><span class="pulse"></span> QRV / En Frecuencia</span>
-            </div>
-            <div class="quick-nav">
-                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="btn-glow"><i class="fa-solid fa-id-card"></i> QRZ.com</a>
-                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="btn-glow"><i class="fa-solid fa-book-atlas"></i> ClubLog</a>
+    <!-- Header / Hero con Banner Neón -->
+    <header class="hero">
+        <div class="hero-inner">
+            <div class="container">
+                <span class="author-badge"><i class="fa-solid fa-crown"></i> Creado & Diseñado por CX3DW</span>
+                <h1 class="callsign">CX3DW</h1>
+                <p class="subtitle">Estación de Radioaficionado • Uruguay • Grid: GF15</p>
+                <div class="badge qrv"><i class="fa-solid fa-signal"></i> ESTADO: QRV (En Frecuencia)</div>
+                
+                <div class="quick-links">
+                    <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener"><i class="fa-solid fa-id-card"></i> QRZ.com</a>
+                    <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener"><i class="fa-solid fa-book-atlas"></i> ClubLog</a>
+                    <a href="#qsl"><i class="fa-solid fa-envelope"></i> Info QSL</a>
+                </div>
             </div>
         </div>
     </header>
 
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container nav-flex">
+            <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack</a>
+            <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
+            <a href="#logbook"><i class="fa-solid fa-globe"></i> Logbook</a>
+            <a href="#qsl"><i class="fa-solid fa-address-card"></i> QSL Policy</a>
+        </div>
+    </nav>
+
     <!-- Contenido Principal -->
-    <main class="container main-grid">
-        
-        <!-- Columna Izquierda -->
-        <section class="content-col">
+    <main class="container grid-layout">
+
+        <!-- Columna Principal -->
+        <section class="main-content">
             
-            <!-- Tarjeta de Bienvenida / Shack -->
-            <div class="card card-gradient-1">
-                <h2><i class="fa-solid fa-microchip"></i> El Shack & Equipamiento</h2>
-                <p class="section-desc">Estación principal optimizada para alta eficiencia en HF, concursos y modos digitales.</p>
-                
-                <div class="gear-grid">
-                    <div class="gear-card">
-                        <span class="badge hf">HF Transceiver</span>
-                        <h3>Equipo Principal</h3>
-                        <p>SDR de altas prestaciones con excelente filtrado dinámico.</p>
+            <!-- Sección Equipos -->
+            <article id="shack" class="card card-pink">
+                <h2><i class="fa-solid fa-headset"></i> Equipamiento (The Shack)</h2>
+                <div class="equip-grid">
+                    <div class="equip-item">
+                        <span class="tag hf">HF / 50 MHz</span>
+                        <h3>Transceptor SDR</h3>
+                        <p>Alta potencia y filtrado dinámico optimizado para concursos.</p>
                     </div>
-                    <div class="gear-card">
-                        <span class="badge digital">Digital / Interfaces</span>
-                        <h3>Modos Digitales</h3>
-                        <p>Configuración optimizada para FT8, RTTY y WSJT-X.</p>
+                    <div class="equip-item">
+                        <span class="tag vhf">VHF / UHF</span>
+                        <h3>Banda Cruzada</h3>
+                        <p>Equipamiento all-mode para estaciones base y repetidores.</p>
+                    </div>
+                    <div class="equip-item">
+                        <span class="tag digital">Digital / WSJT-X</span>
+                        <h3>Interface TNC</h3>
+                        <p>Control automatizado para FT8, RTTY y modos digitales.</p>
                     </div>
                 </div>
-            </div>
+            </article>
 
-            <!-- Tarjeta de Antenas -->
-            <div class="card card-gradient-2">
-                <h2><i class="fa-solid fa-tower-broadcast"></i> Sistema Radiante</h2>
-                <ul class="antenna-list">
-                    <li>
-                        <i class="fa-solid fa-bolt icon-highlight"></i>
-                        <div>
-                            <strong>Direccionales HF:</strong> Yagi multibanda para máxima directividad y ganancia.
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-bolt icon-highlight"></i>
-                        <div>
-                            <strong>Antenas de hilo:</strong> Dipolos en V invertida para bandas bajas y WARC.
-                        </div>
-                    </li>
+            <!-- Sección Antenas -->
+            <article id="antennas" class="card card-cyan">
+                <h2><i class="fa-solid fa-tower-cell"></i> Sistema Radiante & Antenas</h2>
+                <ul class="spec-list">
+                    <li><strong>HF Multibanda:</strong> Yagi direccional de alta ganancia en torre autosoportada.</li>
+                    <li><strong>Bandas Bajas:</strong> Dipolos y dipolos en V invertida para 40m / 80m.</li>
+                    <li><strong>V/UHF:</strong> Antena colineal omnidireccional de gran alcance.</li>
                 </ul>
-            </div>
+            </article>
 
-            <!-- Widget de Búsqueda de Logbook -->
-            <div class="card card-gradient-3">
-                <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Verificación de QSO (ClubLog)</h2>
-                <p>Verifica instantáneamente el estado de nuestro contacto en el libro de guardia:</p>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="search-form">
-                    <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Tu indicativo (ej. LU1XYZ)" required autocomplete="off">
-                    <button type="submit"><i class="fa-solid fa-search"></i> Buscar QSO</button>
-                </form>
-            </div>
+            <!-- Búsqueda en Logbook (Widget de ClubLog) -->
+            <article id="logbook" class="card card-green">
+                <h2><i class="fa-solid fa-search"></i> Verificación de QSO (ClubLog)</h2>
+                <p>Ingresa tu indicativo para comprobar el estado de nuestro contacto en el libro de guardia:</p>
+                
+                <div class="search-box">
+                    <form action="https://clublog.org/logsearch.php" method="get" target="_blank" style="display:flex; width:100%; gap:10px;">
+                        <input type="hidden" name="call" value="CX3DW">
+                        <input type="text" name="target" placeholder="Tu indicativo (ej. LU1XYZ)" required autocomplete="off">
+                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    </form>
+                </div>
+            </article>
 
         </section>
 
-        <!-- Columna Derecha -->
-        <aside class="sidebar-col">
+        <!-- Barra Lateral -->
+        <aside class="sidebar">
             
-            <!-- Ubicación y Grid Locator -->
-            <div class="card highlight-card">
-                <h3><i class="fa-solid fa-location-crosshairs"></i> Ubicación</h3>
-                <div class="grid-stats">
-                    <div class="stat-item">
-                        <span class="label">QTH</span>
-                        <span class="value">Uruguay</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="label">Locator</span>
-                        <span class="value mono">GF15</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="label">CQ Zone</span>
-                        <span class="value">11</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="label">ITU Zone</span>
-                        <span class="value">14</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QSL Policy -->
-            <div class="card">
-                <h3><i class="fa-solid fa-envelope-open-text"></i> Política QSL</h3>
-                <ul class="qsl-policy">
-                    <li><i class="fa-solid fa-check text-green"></i> <strong>LoTW:</strong> Sincronización automática.</li>
+            <!-- Tarjeta QSL -->
+            <div id="qsl" class="card card-pink">
+                <h3><i class="fa-solid fa-paper-plane"></i> Información QSL</h3>
+                <ul class="qsl-status">
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>LoTW:</strong> Carga y sincronización periódica.</li>
                     <li><i class="fa-solid fa-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
                     <li><i class="fa-solid fa-check text-green"></i> <strong>Bureau / Directa:</strong> Vía URCU.</li>
                 </ul>
+            </div>
+
+            <!-- Datos de Estación -->
+            <div class="card card-cyan">
+                <h3><i class="fa-solid fa-location-dot"></i> Datos de Estación</h3>
+                <p><strong>Operador:</strong> CX3DW</p>
+                <p><strong>CQ Zone:</strong> 11</p>
+                <p><strong>ITU Zone:</strong> 14</p>
+                <p><strong>Grid Square:</strong> GF15</p>
             </div>
 
         </aside>
 
     </main>
 
-    <!-- Footer con Derechos de Autor Explícitos -->
+    <!-- Footer con Derechos de CX3DW -->
     <footer class="footer">
-        <div class="container footer-flex">
-            <p>&copy; 2026 <strong>CX3DW</strong>. Todos los derechos reservados.</p>
-            <p class="tech-credit">Sitio diseñado y desarrollado por <strong>CX3DW</strong> • GitHub Pages</p>
+        <div class="container">
+            <p class="footer-rights">&copy; 2026 CX3DW — Todos los derechos reservados.</p>
+            <p class="footer-sub">Sitio web oficial de la estación <strong>CX3DW</strong> • Creado y diseñado por CX3DW para GitHub Pages</p>
         </div>
     </footer>
 

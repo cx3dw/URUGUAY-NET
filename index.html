@@ -98,12 +98,13 @@
         .chat-form input { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--neon-purple); padding: 0.7rem; border-radius: 8px; color: #fff; }
         .chat-form button { background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink)); color: #fff; border: none; padding: 0 1.4rem; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-        .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .sub-box { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 10px; }
-        .sub-box h4 { font-size: 1.1rem; color: #fff; margin: 6px 0; }
+        .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        .sub-box { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .sub-box h4 { font-size: 1.05rem; color: #fff; }
         .sub-box h4 a { color: var(--neon-cyan); text-decoration: none; }
         .sub-box h4 a:hover { text-decoration: underline; }
-        .sub-box p { font-size: 0.85rem; color: var(--text-muted); }
+        .sub-box p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        
         .list-clean { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem; color: var(--text-muted); }
         .data-table { display: flex; flex-direction: column; gap: 10px; }
         .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
@@ -165,6 +166,7 @@
                 <a href="#control"><i class="fa-solid fa-sliders"></i> Registro mi estado</a>
                 <a href="#weather-sec"><i class="fa-solid fa-cloud-sun"></i> Clima QTH</a>
                 <a href="#rcu-news"><i class="fa-solid fa-newspaper"></i> Noticias RCU</a>
+                <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack CX3DW</a>
                 <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
                 <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
                 <a href="#operators"><i class="fa-solid fa-users-viewfinder"></i> Operadores En Línea</a>
@@ -295,39 +297,59 @@
                 </div>
             </section>
 
-            <!-- Noticias & Novedades Radio Club Uruguayo (RCU / CX1AA) -->
+            <!-- Noticias & Novedades Radio Club Uruguayo (RCU / CX1AA) con lectura completa e interactiva -->
             <section id="rcu-news" class="card card-cyan">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fa-solid fa-newspaper"></i> Noticias & Novedades — Radio Club Uruguayo (CX1AA)</h2>
                     <span class="card-tag tag-cyan">Oficial RCU</span>
                 </div>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Haz clic en cualquier titular para acceder directamente a la noticia completa en la web oficial:</p>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Información institucional en vivo del RCU y la radioafición nacional con acceso directo al portal oficial:</p>
                 <div class="sub-grid">
                     <div class="sub-box">
                         <span class="card-tag tag-pink">Aeroespacial & SSTV</span>
-                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Globo Pichón IV</a></h4>
-                        <p>Exitoso vuelo de telemetría e imágenes SSTV integrando a radioaficionados de todo el país y la región.</p>
+                        <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Lanzamiento Globo Pichón IV</a></h4>
+                        <p>Exitoso vuelo experimental de alta atmósfera coordinado por el RCU, transmitiendo telemetría en bandas de VHF/UHF e imágenes SSTV recibidas por radioaficionados de todo el país.</p>
                     </div>
                     <div class="sub-box">
                         <span class="card-tag tag-purple">Patrimonio Histórico</span>
                         <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Convenio MNA & RCU</a></h4>
-                        <p>Acuerdo con el Museo Nacional de Antropología para la preservación e historia de la radioafición uruguaya.</p>
+                        <p>Nuevo acuerdo estratégico firmado con el Museo Nacional de Antropología enfocado en la exhibición permanente y preservación del acervo histórico de la radiofonía uruguaya.</p>
                     </div>
                     <div class="sub-box">
                         <span class="card-tag tag-green">Exámenes URSEC</span>
                         <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> Mesas de Examen & Permisos</a></h4>
-                        <p>Apertura periódica de convocatorias para aspirantes e ingresos en la sede de Simón Bolívar 1195.</p>
+                        <p>Se encuentran abiertas las inscripciones para las próximas convocatorias de exámenes de suficiencia para aspirantes a licencias de radioaficionado en la sede de Simón Bolívar.</p>
                     </div>
                     <div class="sub-box">
                         <span class="card-tag tag-yellow">Actividades DX</span>
                         <h4><a href="https://www.cx1aa.org/" target="_blank"><i class="fa-solid fa-external-link-alt" style="font-size:0.8rem;"></i> JOTA & Concursos CX</a></h4>
-                        <p>Participación activa junto al movimiento Scout y activaciones especiales con la señal distintiva oficial CX1AA.</p>
+                        <p>Intensa actividad nacional e internacional con motivo del Jamboree en el Aire (JOTA-JOTI) y los tradicionales concursos de diplomados organizados por la estación patrón CX1AA.</p>
                     </div>
                 </div>
-                <div style="margin-top:18px; text-align:right;">
+                <div style="margin-top:20px; text-align:right;">
                     <a href="https://www.cx1aa.org/" target="_blank" style="background:var(--neon-cyan); color:#000; padding:8px 16px; border-radius:6px; font-weight:800; text-decoration:none; font-size:0.85rem; display:inline-block;">
-                        <i class="fa-solid fa-globe"></i> Visitar Portal Oficial CX1AA.org
+                        <i class="fa-solid fa-globe"></i> Ver Todas en el Portal Oficial CX1AA.org
                     </a>
+                </div>
+            </section>
+
+            <!-- Shack Principal CX3DW -->
+            <section id="shack" class="card card-cyan">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-headset"></i> Shack Principal CX3DW</h2>
+                    <span class="card-tag tag-cyan">Estación Base</span>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-box">
+                        <span class="card-tag tag-pink">HF / 50 MHz</span>
+                        <h4>Transceptor SDR</h4>
+                        <p>Procesamiento digital de señales débiles y filtrado DSP activo.</p>
+                    </div>
+                    <div class="sub-box">
+                        <span class="card-tag tag-purple">Redes Digitales</span>
+                        <h4>SvxReflector & HBLink</h4>
+                        <p>Enrutamiento multi-protocolo IP e interconexión de nodos digital/analógico.</p>
+                    </div>
                 </div>
             </section>
 

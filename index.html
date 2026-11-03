@@ -366,7 +366,7 @@
     <footer class="footer">
         <div class="container">
             <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Integración Total PubNub + Clima</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Sincronización Inmediata</p>
         </div>
     </footer>
 
@@ -381,19 +381,19 @@
             userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v3";
-        const CHANNEL_STATUS = "operators_cx3dw_v3";
+        const CHANNEL_CHAT = "chat_cx3dw_v4";
+        const CHANNEL_STATUS = "operators_cx3dw_v4";
 
         pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
 
-        // Consulta de Clima en Tiempo Real (Open-Meteo API)
+        // Consulta de Clima segura (Open-Meteo API)
         async function fetchRealtimeWeather(cityName) {
             try {
                 const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
                 const geoData = await geoRes.json();
                 
                 if (!geoData.results || geoData.results.length === 0) {
-                    return { temp: "-- °C", condition: "Sin datos", wind: "-- km/h" };
+                    return { temp: "-- °C", condition: "Clima no disponible", wind: "-- km/h" };
                 }
 
                 const { latitude, longitude, name, country } = geoData.results[0];
@@ -406,26 +406,18 @@
                 const wind = `${Math.round(current.windspeed)} km/h`;
 
                 const weatherCodes = {
-                    0: "Despejado ☀️",
-                    1: "Mayormente Despejado 🌤️",
-                    2: "Parcialmente Nublado ⛅",
-                    3: "Nublado ☁️",
-                    45: "Niebla 🌫️",
-                    61: "Lluvia Ligera 🌧️",
-                    63: "Lluvia Moderada 🌧️",
-                    80: "Chubascos 🌦️",
-                    95: "Tormenta ⛈️"
+                    0: "Despejado ☀️", 1: "Mayormente Despejado 🌤️", 2: "Parcialmente Nublado ⛅", 3: "Nublado ☁️",
+                    45: "Niebla 🌫️", 61: "Lluvia Ligera 🌧️", 63: "Lluvia Moderada 🌧️", 80: "Chubascos 🌦️", 95: "Tormenta ⛈️"
                 };
                 const condition = weatherCodes[current.weathercode] || "Tiempo Variable 🌤️";
 
                 return { temp, condition, wind, locationName: `${name}, ${country}` };
             } catch (err) {
-                console.error("Error obteniendo clima:", err);
-                return { temp: "-- °C", condition: "Error consulta", wind: "-- km/h" };
+                return { temp: "-- °C", condition: "Sin datos clima", wind: "-- km/h" };
             }
         }
 
-        // Clima principal de la estación CX3DW
+        // Clima estación CX3DW
         async function loadStationWeather() {
             const data = await fetchRealtimeWeather("Montevideo");
             document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
@@ -437,151 +429,3 @@
         function updateClocks() {
             const now = new Date();
             document.getElementById('local-time').textContent = now.toLocaleTimeString();
-            const utcHours = String(now.getUTCHours()).padStart(2, '0');
-            const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-            const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-            document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
-        }
-        setInterval(updateClocks, 1000);
-        updateClocks();
-
-        // Chat Directo
-        const chatMessages = document.getElementById('chat-messages');
-
-        function renderMensaje(callsign, text, time) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
-            msgDiv.style.padding = "8px 12px";
-            msgDiv.style.borderRadius = "6px";
-            msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
-            msgDiv.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${callsign}]</strong>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${time}</span>
-                </div>
-                <div style="color:#fff;">${text}</div>
-            `;
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Renderizado en Lista de Operadores En Línea
-        const onlineOperators = {};
-
-        function renderOperatorList() {
-            const opListDiv = document.getElementById('operator-list');
-            opListDiv.innerHTML = '';
-
-            if (!onlineOperators['CX3DW']) {
-                onlineOperators['CX3DW'] = {
-                    city: "Montevideo, Uruguay",
-                    rig: "SDR Multi-Modo",
-                    platform: "145.200 MHz / TG 748",
-                    weatherStr: "Cargando clima..."
-                };
-                fetchRealtimeWeather("Montevideo").then(w => {
-                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
-                    renderOperatorList();
-                });
-            }
-
-            Object.keys(onlineOperators).forEach(call => {
-                const op = onlineOperators[call];
-                const card = document.createElement('div');
-                card.className = 'operator-card';
-                card.innerHTML = `
-                    <div class="op-header">
-                        <div class="op-callsign mono">${call}</div>
-                        <div class="op-status">${op.platform}</div>
-                    </div>
-                    <div class="op-details">QTH: <strong>${op.city || 'Desconocido'}</strong> • Rig: ${op.rig || 'Estándar'}</div>
-                    <div class="op-weather"><i class="fa-solid fa-cloud-sun"></i> ${op.weatherStr || 'Consultando clima...'}</div>
-                `;
-                opListDiv.appendChild(card);
-            });
-        }
-
-        // Recepción PubNub en tiempo real
-        pubnub.addListener({
-            message: function(event) {
-                if (event.channel === CHANNEL_CHAT) {
-                    const data = event.message;
-                    renderMensaje(data.callsign, data.text, data.time);
-                } else if (event.channel === CHANNEL_STATUS) {
-                    const op = event.message;
-                    onlineOperators[op.callsign] = op;
-                    renderOperatorList();
-                }
-            }
-        });
-
-        // Enviar mensaje al chat
-        const chatForm = document.getElementById('chat-form');
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const callsignInput = document.getElementById('chat-callsign');
-            const textInput = document.getElementById('chat-text');
-
-            const callsign = callsignInput.value.toUpperCase();
-            const text = textInput.value;
-
-            if (callsign && text) {
-                document.getElementById('my-callsign').value = callsign;
-                pubnub.publish({
-                    channel: CHANNEL_CHAT,
-                    message: { callsign, text, time: new Date().toLocaleTimeString() }
-                }).then(() => { textInput.value = ''; });
-            }
-        });
-
-        // VINCULACIÓN DIRECTA: Formulario -> Operadores En Línea (Inmediata)
-        const statusForm = document.getElementById('op-status-form');
-
-        statusForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const callsign = document.getElementById('my-callsign').value.toUpperCase().trim();
-            const city = document.getElementById('my-city').value.trim();
-            const platform = document.getElementById('my-platform').value;
-            const rig = document.getElementById('my-rig').value.trim();
-
-            if (callsign && city) {
-                // 1. Mostrar de inmediato en pantalla
-                const opData = { 
-                    callsign: callsign, 
-                    city: city, 
-                    platform: platform, 
-                    rig: rig, 
-                    weatherStr: "Consultando clima..." 
-                };
-
-                onlineOperators[callsign] = opData;
-                renderOperatorList();
-
-                // 2. Transmitir por PubNub a los demás radioaficionados conectados
-                pubnub.publish({
-                    channel: CHANNEL_STATUS,
-                    message: opData
-                });
-
-                // 3. Consultar clima en segundo plano y actualizar cuando esté listo
-                fetchRealtimeWeather(city).then(w => {
-                    const updatedWeatherStr = `${w.temp} (${w.condition})`;
-                    opData.weatherStr = updatedWeatherStr;
-                    opData.city = w.locationName || city;
-
-                    onlineOperators[callsign] = opData;
-                    renderOperatorList();
-
-                    pubnub.publish({
-                        channel: CHANNEL_STATUS,
-                        message: opData
-                    });
-                });
-            }
-        });
-
-        renderOperatorList();
-    </script>
-</body>
-</html>

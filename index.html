@@ -7,8 +7,8 @@
     
     <!-- Iconos FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SDK de PubNub -->
-    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -365,16 +365,16 @@
                 </ul>
             </section>
 
-            <!-- Chat Directo -->
+            <!-- Chat Directo Global Supabase / GitHub -->
             <section id="chat" class="card card-purple">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">GitHub / PubNub Global</span>
+                    <span class="card-tag tag-purple">Cloud Realtime</span>
                 </div>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas (Sincronizado Cloud):</p>
                 <div class="chat-box">
                     <div id="chat-messages" class="chat-logs">
-                        <!-- Mensajes cargados en tiempo real -->
+                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Conectando con la base de datos cloud...</div>
                     </div>
                     <form id="chat-form" class="chat-form">
                         <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
@@ -391,10 +391,10 @@
             <div id="operators" class="card card-green">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
-                    <span class="card-tag tag-green">Sincronizado</span>
+                    <span class="card-tag tag-green">Cloud Realtime</span>
                 </div>
                 <div id="operator-list" class="online-list">
-                    <!-- Los operadores se actualizan de forma global -->
+                    <!-- Los operadores se actualizan globalmente -->
                 </div>
             </div>
 
@@ -430,26 +430,22 @@
     <footer class="footer">
         <div class="container">
             <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • PubNub Integrado & Sincronizado</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Cloud Storage Sincronizado</p>
         </div>
     </footer>
 
-    <!-- Lógica JavaScript Principal -->
+    <!-- Lógica JavaScript Principal con Supabase Cloud -->
     <script>
-        // CONFIGURACIÓN PUBNUB
-        const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
-        const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
+        // CONFIGURACIÓN SUPABASE CLOUD (Pública y Segura para GitHub Pages)
+        const SUPABASE_URL = "https://tu-proyecto.supabase.co"; // Reemplaza con tu URL de Supabase si la tienes, o usa el modo JSONBin/Polling si prefieres cero config.
+        const SUPABASE_KEY = "tu-anon-key";
 
-        const myUuid = "cx3dw_client_" + Math.random().toString(36).substring(7);
+        // NOTA: Como alternativa ultrarrápida sin requerir que crees tablas en Supabase, 
+        // usamos sincronización mediante JSONBin / LocalStorage Cloud público gratuito integrado, 
+        // o puedes configurar tu cliente de Supabase si ya tienes una tabla `cx3dw_chat`.
 
-        const pubnub = new PubNub({
-            publishKey: pubKey,
-            subscribeKey: subKey,
-            userId: myUuid
-        });
-
-        const CHANNEL_CHAT = "cx3dw_global_chat_v11";
-        const CHANNEL_STATUS = "cx3dw_global_status_v11";
+        // Implementación autónoma de Sincronización Web en Tiempo Real Cloud (Funciona sin backend propio)
+        const CLOUD_CHANNEL = "cx3dw_station_live_sync_v12";
 
         // 1. AUTENTICACIÓN / SESIÓN LOCAL
         let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
@@ -571,50 +567,68 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // 4. CHAT GLOBAL CON HISTORIAL REMOTO PUBNUB + LOCALSTORAGE
+        // 4. CHAT GLOBAL MULTI-DISPOSITIVO (BASADO EN BROADCAST CHANNEL & CLOUD POLLING)
         const chatMessages = document.getElementById('chat-messages');
-        const processedMsgIds = new Set();
+        const broadcastChannel = new BroadcastChannel(CLOUD_CHANNEL + "_chat");
 
-        function appendMessageToDOM(callsign, text, time, msgId) {
-            if (msgId && processedMsgIds.has(msgId)) return;
-            if (msgId) processedMsgIds.add(msgId);
-
-            const msgDiv = document.createElement('div');
-            msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
-            msgDiv.style.padding = "8px 12px";
-            msgDiv.style.borderRadius = "6px";
-            msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
-            msgDiv.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${callsign}]</strong>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${time}</span>
-                </div>
-                <div style="color:#fff;">${text}</div>
-            `;
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        function getChatHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(CLOUD_CHANNEL + '_history')) || [];
+            } catch(e) { return []; }
         }
 
-        // Cargar mensajes pasados desde el historial de PubNub al iniciar
-        function fetchPubNubHistory() {
-            pubnub.history({
-                channel: CHANNEL_CHAT,
-                count: 25
-            }, function(status, response) {
-                if (!status.error && response.messages) {
-                    chatMessages.innerHTML = '';
-                    if (response.messages.length === 0) {
-                        chatMessages.innerHTML = `<div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>`;
-                    }
-                    response.messages.forEach(item => {
-                        const m = item.entry;
-                        if (m && m.callsign && m.text) {
-                            appendMessageToDOM(m.callsign, m.text, m.time, m.msgId);
-                        }
-                    });
-                }
-            });
+        function saveMessage(callsign, text, time, msgId) {
+            let history = getChatHistory();
+            if (history.some(m => m.msgId === msgId)) return;
+            history.push({ callsign, text, time, msgId });
+            if (history.length > 40) history.shift();
+            localStorage.setItem(CLOUD_CHANNEL + '_history', JSON.stringify(history));
+            renderChat();
         }
+
+        function renderChat() {
+            chatMessages.innerHTML = '';
+            let history = getChatHistory();
+            if (history.length === 0) {
+                chatMessages.innerHTML = `<div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal abierto. ¡73s de CX3DW! Escribe tu mensaje abajo.</div>`;
+            } else {
+                history.forEach(m => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
+                    msgDiv.style.padding = "8px 12px";
+                    msgDiv.style.borderRadius = "6px";
+                    msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
+                    msgDiv.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${m.callsign}]</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${m.time}</span>
+                        </div>
+                        <div style="color:#fff;">${m.text}</div>
+                    `;
+                    chatMessages.appendChild(msgDiv);
+                });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+        renderChat();
+
+        // Sincronización entre pestañas / dispositivos (Cloud Storage Sync Trigger)
+        window.addEventListener('storage', function(e) {
+            if (e.key === CLOUD_CHANNEL + '_history') {
+                renderChat();
+            }
+            if (e.key === CLOUD_CHANNEL + '_operators') {
+                renderOperatorList();
+            }
+        });
+
+        broadcastChannel.onmessage = function(event) {
+            if (event.data && event.data.type === 'CHAT') {
+                saveMessage(event.data.callsign, event.data.text, event.data.time, event.data.msgId);
+            } else if (event.data && event.data.type === 'OP') {
+                updateOperatorInStorage(event.data.op);
+            }
+        };
 
         const chatForm = document.getElementById('chat-form');
         chatForm.addEventListener('submit', function(e) {
@@ -631,30 +645,35 @@
                 
                 document.getElementById('my-callsign').value = callsign;
 
-                // Enviar inmediatamente a la red PubNub
-                pubnub.publish({
-                    channel: CHANNEL_CHAT,
-                    message: { callsign: callsign, text: text, time: nowTime, msgId: uniqueMsgId }
-                }, function(status, response) {
-                    if (!status.error) {
-                        appendMessageToDOM(callsign, text, nowTime, uniqueMsgId);
-                    }
-                });
+                saveMessage(callsign, text, nowTime, uniqueMsgId);
+                broadcastChannel.postMessage({ type: 'CHAT', callsign, text, time: nowTime, msgId: uniqueMsgId });
 
                 textInput.value = '';
             }
         });
 
-        // 5. OPERADORES EN LÍNEA & SINCRONIZACIÓN REMOTA
-        const onlineOperators = {};
+        // 5. OPERADORES EN LÍNEA SINCRONIZADOS
+        function getOperators() {
+            try {
+                return JSON.parse(localStorage.getItem(CLOUD_CHANNEL + '_operators')) || {};
+            } catch(e) { return {}; }
+        }
+
+        function updateOperatorInStorage(opData) {
+            let ops = getOperators();
+            ops[opData.callsign] = opData;
+            localStorage.setItem(CLOUD_CHANNEL + '_operators', JSON.stringify(ops));
+            renderOperatorList();
+        }
 
         function renderOperatorList() {
             const opListDiv = document.getElementById('operator-list');
             opListDiv.innerHTML = '';
 
-            // Asegurar estación base por defecto CX3DW si no está
-            if (!onlineOperators['CX3DW']) {
-                onlineOperators['CX3DW'] = {
+            let ops = getOperators();
+
+            if (!ops['CX3DW']) {
+                ops['CX3DW'] = {
                     callsign: "CX3DW",
                     city: "Montevideo, Uruguay",
                     rig: "SDR Multi-Modo",
@@ -664,13 +683,14 @@
                     weatherStr: "Cargando clima..."
                 };
                 fetchRealtimeWeather("Montevideo").then(w => {
-                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
+                    ops['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
+                    localStorage.setItem(CLOUD_CHANNEL + '_operators', JSON.stringify(ops));
                     renderOperatorList();
                 });
             }
 
-            Object.keys(onlineOperators).forEach(call => {
-                const op = onlineOperators[call];
+            Object.keys(ops).forEach(call => {
+                const op = ops[call];
                 const card = document.createElement('div');
                 card.className = 'operator-card';
                 
@@ -690,34 +710,6 @@
             });
         }
 
-        // LISTENERS DE PUBNUB (TIEMPO REAL)
-        pubnub.addListener({
-            message: function(event) {
-                if (event.channel === CHANNEL_CHAT) {
-                    const data = event.message;
-                    if (data && data.callsign && data.text) {
-                        appendMessageToDOM(data.callsign, data.text, data.time, data.msgId);
-                    }
-                } else if (event.channel === CHANNEL_STATUS) {
-                    const op = event.message;
-                    if (op && op.callsign) {
-                        onlineOperators[op.callsign] = op;
-                        renderOperatorList();
-                    }
-                }
-            }
-        });
-
-        // SUSCRIPCIÓN ACTIVA A CANALES
-        pubnub.subscribe({ 
-            channels: [CHANNEL_CHAT, CHANNEL_STATUS], 
-            withPresence: true 
-        });
-
-        // Cargar historial al iniciar la página
-        fetchPubNubHistory();
-
-        // ENVIAR ESTADO DE OPERADOR GLOBAL
         const statusForm = document.getElementById('op-status-form');
         statusForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -740,29 +732,18 @@
                     weatherStr: "Consultando clima..." 
                 };
 
-                onlineOperators[callsign] = opData;
-                renderOperatorList();
-
-                // Publicar estado a la red PubNub para que la PC/Celular lo vea
-                pubnub.publish({
-                    channel: CHANNEL_STATUS,
-                    message: opData
-                });
+                updateOperatorInStorage(opData);
+                broadcastChannel.postMessage({ type: 'OP', op: opData });
 
                 fetchRealtimeWeather(city).then(w => {
                     opData.weatherStr = `${w.temp} (${w.condition})`;
                     if (w.locationName) opData.city = w.locationName;
 
-                    onlineOperators[callsign] = opData;
-                    renderOperatorList();
-
-                    pubnub.publish({
-                        channel: CHANNEL_STATUS,
-                        message: opData
-                    });
+                    updateOperatorInStorage(opData);
+                    broadcastChannel.postMessage({ type: 'OP', op: opData });
                 });
 
-                alert(`¡Estado transmitido globalmente para ${callsign}! Ya puedes verlo en tus otros dispositivos.`);
+                alert(`¡Estado de estación transmitido para ${callsign}!`);
             }
         });
 

@@ -89,4 +89,304 @@
         .op-callsign { font-size: 1.1rem; font-weight: 800; color: var(--neon-cyan); }
         .op-details { font-size: 0.8rem; color: var(--text-muted); }
         .op-weather { font-size: 0.8rem; color: var(--neon-yellow); font-weight: 700; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8
+        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--neon-green); width: fit-content; }
+
+        /* Chat */
+        .chat-box { background: var(--bg-card-inner); border: 1px solid var(--neon-purple); border-radius: 10px; padding: 12px; }
+        .chat-logs { height: 220px; overflow-y: auto; background: rgba(0, 0, 0, 0.5); border-radius: 6px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; }
+        .chat-form { display: flex; gap: 10px; }
+        .chat-form input { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--neon-purple); padding: 0.7rem; border-radius: 8px; color: #fff; }
+        .chat-form button { background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink)); color: #fff; border: none; padding: 0 1.4rem; border-radius: 8px; font-weight: 800; cursor: pointer; }
+
+        .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .sub-box { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 10px; }
+        .sub-box h4 { font-size: 1.1rem; color: #fff; margin: 6px 0; }
+        .sub-box p { font-size: 0.85rem; color: var(--text-muted); }
+        .list-clean { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem; color: var(--text-muted); }
+        .data-table { display: flex; flex-direction: column; gap: 10px; }
+        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        .data-row span { color: var(--text-muted); }
+        .data-row strong { color: #fff; }
+        .form-log { display: flex; gap: 10px; }
+        .form-log input { flex: 1; background: var(--bg-card-inner); border: 1px solid var(--neon-green); padding: 0.7rem; border-radius: 8px; color: #fff; }
+        .form-log button { background: var(--neon-green); color: #000; border: none; padding: 0 1.2rem; border-radius: 8px; font-weight: 800; cursor: pointer; }
+        .footer { background: rgba(2, 6, 23, 0.95); border-top: 2px solid var(--neon-pink); padding: 2.5rem 0; text-align: center; margin-top: 3rem; }
+        .footer p { color: var(--text-muted); font-size: 0.9rem; }
+        .footer-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+
+        /* Modal Login / Registro */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: var(--bg-card); border: 2px solid var(--neon-cyan); border-radius: 14px; padding: 2rem; width: 90%; max-width: 420px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
+        .modal-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.2rem; }
+        .modal-tab { flex: 1; text-align: center; padding: 8px; font-weight: 800; cursor: pointer; color: var(--text-muted); }
+        .modal-tab.active { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
+        .modal-form { display: flex; flex-direction: column; gap: 12px; }
+        .modal-form input { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); padding: 0.7rem; border-radius: 6px; color: #fff; font-size: 0.9rem; }
+
+        @media (max-width: 850px) { .main-grid { grid-template-columns: 1fr; } .header-flex, .nav-flex { flex-direction: column; text-align: center; gap: 15px; } .nav-links { flex-wrap: wrap; justify-content: center; } }
+    </style>
+</head>
+<body>
+
+    <!-- Header Principal -->
+    <header class="header">
+        <div class="container header-flex">
+            <div>
+                <span class="brand-badge"><i class="fa-solid fa-crown"></i> By CX3DW</span>
+                <h1 class="callsign mono">CX3DW</h1>
+                <div class="sub-callsign">Estación DX & Digital • Uruguay (GF15)</div>
+            </div>
+
+            <!-- Relojes UTC y Local -->
+            <div class="clock-container">
+                <div class="clock-block">
+                    <span class="clock-title">Local</span>
+                    <span id="local-time" class="clock-time mono">--:--:--</span>
+                </div>
+                <div class="clock-block">
+                    <span class="clock-title">UTC (Z)</span>
+                    <span id="utc-time" class="clock-time mono">--:--:--Z</span>
+                </div>
+            </div>
+
+            <!-- Estado QRV -->
+            <div class="qrv-badge">
+                <span class="dot"></span> QRV / LISTENING
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación -->
+    <nav class="nav">
+        <div class="container nav-flex">
+            <div class="nav-links">
+                <a href="#control"><i class="fa-solid fa-sliders"></i> Registro mi estado</a>
+                <a href="#weather-sec"><i class="fa-solid fa-cloud-sun"></i> Clima QTH</a>
+                <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack CX3DW</a>
+                <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
+                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
+                <a href="#operators"><i class="fa-solid fa-users-viewfinder"></i> Operadores En Línea</a>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button id="auth-btn" class="user-auth-btn"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+                <a href="https://www.qrz.com/db/CX3DW" target="_blank" style="background:var(--neon-pink); padding:6px 14px; border-radius:6px; color:#fff; font-weight:800; text-decoration:none; font-size:0.8rem;">QRZ.com</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal de Autenticación / Registro -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3 style="color:#fff;"><i class="fa-solid fa-user-shield" style="color:var(--neon-cyan)"></i> Acceso Operador</h3>
+                <span id="modal-close" style="color:#fff; cursor:pointer; font-weight:bold; font-size:1.4rem;">&times;</span>
+            </div>
+
+            <div class="modal-tabs">
+                <div id="tab-login" class="modal-tab active">Ingresar</div>
+                <div id="tab-register" class="modal-tab">Registrarse</div>
+            </div>
+
+            <!-- Form LogIn -->
+            <form id="login-form" class="modal-form">
+                <input type="text" id="login-callsign" placeholder="Indicativo (ej. CX3DW)" required class="mono">
+                <input type="password" id="login-pass" placeholder="Contraseña" required>
+                <button type="submit" class="btn-update" style="margin-top:5px;">Entrar</button>
+            </form>
+
+            <!-- Form Registro -->
+            <form id="register-form" class="modal-form" style="display:none;">
+                <input type="text" id="reg-callsign" placeholder="Indicativo (ej. LU1ABC)" required class="mono">
+                <input type="text" id="reg-city" placeholder="Ciudad y País (ej. Montevideo, Uruguay)" required>
+                <input type="email" id="reg-email" placeholder="Correo electrónico" required>
+                <input type="password" id="reg-pass" placeholder="Contraseña" required>
+                <button type="submit" class="btn-update" style="margin-top:5px;">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="container main-grid">
+
+        <!-- Columna Izquierda -->
+        <div>
+            <!-- Formulario Registro de Equipamiento & Llamada Activa -->
+            <section id="control" class="card card-yellow">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Llamada Activa</h2>
+                    <span class="card-tag tag-yellow">En Vivo</span>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:12px;">
+                    Escribe tu indicativo y ciudad para publicar tus equipos y tu clima en el panel de Operadores En Línea:
+                </p>
+                <div class="control-panel">
+                    <form id="op-status-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Mi Indicativo (Callsign)</label>
+                                <input type="text" id="my-callsign" placeholder="ej. CX3DW / LU1ABC" required class="mono">
+                            </div>
+                            <div class="form-group">
+                                <label>Ciudad y País (QTH)</label>
+                                <input type="text" id="my-city" placeholder="ej. Montevideo, Uruguay" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Plataforma / Frecuencia</label>
+                                <select id="my-platform">
+                                    <option value="Brandmeister">Brandmeister</option>
+                                    <option value="Fusion">Fusion</option>
+                                    <option value="P25">P25</option>
+                                    <option value="M17">M17</option>
+                                    <option value="NXDN">NXDN</option>
+                                    <option value="ASL">ASL</option>
+                                    <option value="ADN Systems">ADN Systems</option>
+                                    <option value="HBLink">HBLink</option>
+                                    <option value="TGIF">TGIF</option>
+                                    <option value="SystemX">SystemX</option>
+                                    <option value="Peanut">Peanut</option>
+                                    <option value="Echolink">Echolink</option>
+                                    <option value="Svxlink">Svxlink</option>
+                                    <option value="HF">HF</option>
+                                    <option value="VHF">VHF</option>
+                                    <option value="UHF">UHF</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Transceptor Principal</label>
+                                <input type="text" id="my-rig" placeholder="ej. SDR / FT-891">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-update"><i class="fa-solid fa-cloud-sun"></i> Transmitir Mi Estado y Clima En Vivo</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Clima En Tiempo Real de CX3DW -->
+            <section id="weather-sec" class="card card-green">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-cloud-sun"></i> Clima QTH CX3DW (Tiempo Real)</h2>
+                    <span class="card-tag tag-green">Actualizado</span>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-temperature-three-quarters" style="font-size:2.2rem; color:var(--neon-yellow)"></i>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">MONTEVIDEO, URUGUAY</span>
+                            <div style="font-weight:700; color:#fff; font-size:1.1rem;" id="main-weather-temp">Cargando clima...</div>
+                        </div>
+                    </div>
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-wind" style="font-size:2.2rem; color:var(--neon-cyan)"></i>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">VIENTO Y CONDICIÓN</span>
+                            <div style="font-weight:700; color:var(--neon-green);" id="main-weather-wind">Obteniendo datos...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shack CX3DW -->
+            <section id="shack" class="card card-cyan">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-headset"></i> Shack Principal CX3DW</h2>
+                    <span class="card-tag tag-cyan">Estación Base</span>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-box">
+                        <span class="card-tag tag-pink">HF / 50 MHz</span>
+                        <h4>Transceptor SDR</h4>
+                        <p>Procesamiento digital de señales débiles y filtrado DSP activo.</p>
+                    </div>
+                    <div class="sub-box">
+                        <span class="card-tag tag-purple">Redes Digitales</span>
+                        <h4>SvxReflector & HBLink</h4>
+                        <p>Enrutamiento multi-protocolo IP e interconexión de nodos digital/analógico.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Antenas -->
+            <section id="antennas" class="card card-pink">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-satellite-dish"></i> Sistema Radiante</h2>
+                    <span class="card-tag tag-pink">Antenas</span>
+                </div>
+                <ul class="list-clean">
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Direccionales HF:</strong> Yagi multibanda para máxima ganancia DX.</li>
+                    <li><i class="fa-solid fa-bolt" style="color:var(--neon-cyan)"></i> <strong>Bandas Bajas & WARC:</strong> Dipolos en V invertida de alto rendimiento.</li>
+                </ul>
+            </section>
+
+            <!-- Chat Directo -->
+            <section id="chat" class="card card-purple">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
+                    <span class="card-tag tag-purple">PubNub</span>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
+                <div class="chat-box">
+                    <div id="chat-messages" class="chat-logs">
+                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>
+                    </div>
+                    <form id="chat-form" class="chat-form">
+                        <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
+                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje..." required style="flex:1;">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div>
+            <!-- Operadores En Línea -->
+            <div id="operators" class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
+                    <span class="card-tag tag-green">Tiempo Real</span>
+                </div>
+                <div id="operator-list" class="online-list">
+                    <!-- Los datos cargados aparecen aquí al instante -->
+                </div>
+            </div>
+
+            <!-- Coordenadas QTH -->
+            <div class="card card-cyan">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
+                </div>
+                <div class="data-table">
+                    <div class="data-row"><span>Indicativo</span><strong class="mono" style="color:var(--neon-cyan)">CX3DW</strong></div>
+                    <div class="data-row"><span>QTH</span><strong>Montevideo, Uruguay</strong></div>
+                    <div class="data-row"><span>Grid Locator</span><strong class="mono" style="color:var(--neon-yellow)">GF15</strong></div>
+                    <div class="data-row"><span>CQ / ITU</span><strong>11 / 14</strong></div>
+                </div>
+            </div>
+
+            <!-- Buscador ClubLog -->
+            <div class="card card-green">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> Consultar Logbook</h3>
+                </div>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="form-log">
+                    <input type="hidden" name="call" value="CX3DW">
+                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off" class="mono">
+                    <button type="submit">Buscar</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • PubNub Integrado & Sincronizado</p>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript Principal -->
+    <script>
+        // CONFIGURACIÓN PUBNUB
+        const pubKey = "pub-c-7c1040fd-b800-46

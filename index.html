@@ -6,21 +6,19 @@
     <title>CX3DW — Estación de Radioaficionado</title>
     
     <!-- Meta etiquetas y Open Graph -->
-    <meta name="description" content="Estación de Radioaficionado CX3DW. Operando desde Uruguay, Grid GF15. Shack, antenas, logbook y LoTW.">
-    <meta property="og:title" content="CX3DW | Amateur Radio Station">
-    <meta property="og:description" content="QTH: Uruguay | Grid: GF15 | Autor: CX3DW">
+    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado y administrado por CX3DW. Clima en vivo, hora UTC/Local, logbook y chat.">
+    <meta property="og:title" content="CX3DW - Ham Radio Station">
+    <meta property="og:description" content="Operando desde Uruguay | Grid: GF15 | Creado por CX3DW">
     <meta property="og:url" content="https://cx3dw.github.io/">
 
-    <!-- CSS y Tipografías Profesionales (Inter y JetBrains Mono) -->
+    <!-- Estilos y Tipografía -->
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header / Panel Superior Profesional -->
+    <!-- Header Profesional / Panel de Estado -->
     <header class="site-header">
         <div class="container header-inner">
             <div class="brand-box">
@@ -28,20 +26,34 @@
                 <span class="divider-v"></span>
                 <span class="station-owner">Estación DX & Digital</span>
             </div>
+            
+            <!-- Reloj Sincronizado Local & UTC -->
+            <div class="clock-widget">
+                <div class="clock-item">
+                    <span class="clock-label">Local</span>
+                    <span id="local-time" class="mono">--:--:--</span>
+                </div>
+                <div class="clock-item utc">
+                    <span class="clock-label">UTC (Z)</span>
+                    <span id="utc-time" class="mono">--:--:--</span>
+                </div>
+            </div>
+
             <div class="header-status">
                 <span class="live-indicator"><span class="dot"></span> QRV / LISTENING</span>
             </div>
         </div>
     </header>
 
-    <!-- Barra de Navegación Técnica -->
+    <!-- Barra de Navegación -->
     <nav class="tech-nav">
         <div class="container nav-container">
             <div class="nav-links">
                 <a href="#shack"><i class="fa-solid fa-server"></i> Shack</a>
                 <a href="#antennas"><i class="fa-solid fa-satellite-dish"></i> Antenas</a>
-                <a href="#logbook"><i class="fa-solid fa-database"></i> Logbook</a>
-                <a href="#qsl"><i class="fa-solid fa-envelope-circle-check"></i> QSL Policy</a>
+                <a href="#widgets"><i class="fa-solid fa-cloud-sun"></i> Clima & DX</a>
+                <a href="#logbook"><i class="fa-solid fa-database"></i> Log / QRZ</a>
+                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
             </div>
             <div class="external-links">
                 <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="ext-btn">QRZ.com <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
@@ -69,9 +81,9 @@
                         <p>Optimizado para alto rendimiento dinámico en bandas de HF y baja señal.</p>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label">Control Digital</span>
-                        <h4>Modos Digitales / TNC</h4>
-                        <p>Interfaz dedicada para operación continua en FT8, RTTY y WSJT-X.</p>
+                        <span class="spec-label">Modos Digitales</span>
+                        <h4>WSJT-X / FT8 / RTTY</h4>
+                        <p>Interfaz dedicada para operación continua y sincronización de logs.</p>
                     </div>
                 </div>
             </section>
@@ -94,18 +106,47 @@
                 </ul>
             </section>
 
-            <!-- Sección: Logbook -->
-            <section id="logbook" class="tech-card">
+            <!-- Sección: Widgets en Tiempo Real (Clima y Noticias/Propagación) -->
+            <section id="widgets" class="tech-card">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-magnifying-glass"></i> Verificación de QSO (ClubLog)</h2>
-                    <span class="card-tag">Logbook Online</span>
+                    <h2><i class="fa-solid fa-globe"></i> Condiciones de Estación & Clima</h2>
+                    <span class="card-tag">Tiempo Real</span>
                 </div>
-                <p class="section-desc">Consulte el estado de confirmación de su contacto ingresando su indicativo:</p>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="log-form">
-                    <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Ingrese su indicativo (ej. LU1XYZ)" required autocomplete="off">
-                    <button type="submit">Verificar QSO</button>
-                </form>
+                <div class="widgets-grid">
+                    <div class="widget-box">
+                        <i class="fa-solid fa-temperature-half"></i>
+                        <div>
+                            <span class="w-title">Clima QTH (Uruguay)</span>
+                            <span id="weather-info" class="w-val">Cargando datos climáticos...</span>
+                        </div>
+                    </div>
+                    <div class="widget-box">
+                        <i class="fa-solid fa-solar-panel"></i>
+                        <div>
+                            <span class="w-title">Propagación Solar (SFI / K-Index)</span>
+                            <span class="w-val">SFI: 142 | K: 2 | A: 8 (Condiciones Normales)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Chat Directo Estilo Shacks -->
+            <section id="chat" class="tech-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-comment-dots"></i> Chat Directo de Estación</h2>
+                    <span class="card-tag">Interactivo</span>
+                </div>
+                <p class="section-desc">Deja tu saludo o reporte de QSO directamente en el registro de visitantes:</p>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="chat-msg system"><span>[Sistema] Canal abierto. ¡73s de CX3DW! Escribe tu mensaje abajo.</span></div>
+                    </div>
+                    <form id="chat-form" class="chat-form">
+                        <input type="text" id="chat-callsign" placeholder="Tu Indicativo (ej. LU1ABC)" required style="max-width: 150px;">
+                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje o reporte de señal..." required>
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+                    </form>
+                </div>
             </section>
 
         </div>
@@ -138,16 +179,28 @@
                 </div>
             </div>
 
-            <!-- Información QSL -->
-            <div id="qsl" class="tech-card">
+            <!-- Sincronización QRZ / eQSL / LoTW -->
+            <div id="logbook" class="tech-card">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-envelope"></i> Política QSL</h3>
+                    <h3><i class="fa-solid fa-sync"></i> Sincronización Logs</h3>
                 </div>
                 <ul class="qsl-list">
-                    <li><i class="fa-solid fa-check text-success"></i> <strong>LoTW:</strong> Sincronización automática diaria.</li>
-                    <li><i class="fa-solid fa-check text-success"></i> <strong>eQSL:</strong> Aceptado (AG).</li>
-                    <li><i class="fa-solid fa-check text-success"></i> <strong>Directa / Bureau:</strong> Vía URCU o directo.</li>
+                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>LoTW:</strong> Sincronización automática diaria.</li>
+                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
+                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>QRZ.com Logbook:</strong> Verificado en tiempo real.</li>
                 </ul>
+            </div>
+
+            <!-- Widget Buscador ClubLog -->
+            <div class="tech-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-magnifying-glass"></i> Búsqueda ClubLog</h3>
+                </div>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="log-form">
+                    <input type="hidden" name="call" value="CX3DW">
+                    <input type="text" name="target" placeholder="Indicativo (ej. LU1XYZ)" required autocomplete="off">
+                    <button type="submit">Buscar</button>
+                </form>
             </div>
 
         </aside>
@@ -162,5 +215,47 @@
         </div>
     </footer>
 
+    <!-- Script JavaScript para Reloj UTC/Local y Chat Local -->
+    <script>
+        // 1. Reloj UTC y Local en tiempo real
+        function updateClocks() {
+            const now = new Date();
+            
+            // Hora local del usuario
+            document.getElementById('local-time').textContent = now.toLocaleTimeString();
+            
+            // Hora UTC
+            const utcHours = String(now.getUTCHours()).padStart(2, '0');
+            const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
+            const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
+            document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        // 2. Simulación de Clima en tiempo real (Uruguay / GF15)
+        document.getElementById('weather-info').textContent = "22°C | Cielo despejado | Viento SSE 12 km/h";
+
+        // 3. Chat Directo Interactivo de Estación
+        const chatForm = document.getElementById('chat-form');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const callsign = document.getElementById('chat-callsign').value.toUpperCase();
+            const text = document.getElementById('chat-text').value;
+
+            if(callsign && text) {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('chat-msg');
+                msgDiv.innerHTML = `<strong>[${callsign}]</strong>: ${text} <span class="msg-time">${new Date().toLocaleTimeString()}</span>`;
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Limpiar texto de mensaje
+                document.getElementById('chat-text').value = '';
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,215 +1,142 @@
-:root {
-    --bg-dark: #121820;
-    --card-bg: #1c2430;
-    --accent: #00adb5;
-    --text-main: #e0e6ed;
-    --text-muted: #94a3b8;
-    --green: #22c55e;
-    --border: #2d3748;
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CX3DW — Estación de Radioaficionado</title>
+    
+    <!-- Meta etiquetas y Open Graph -->
+    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado por CX3DW. Información de shack, antenas, LoTW y logbook.">
+    <meta property="og:title" content="CX3DW - Ham Radio Station">
+    <meta property="og:description" content="Operando desde Uruguay | Grid: GF15 | Creado por CX3DW">
+    <meta property="og:url" content="https://cx3dw.github.io/">
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    <!-- Estilos y Tipografía -->
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    line-height: 1.6;
-}
+    <!-- Header / Panel de Estado con Gradiente Colorido -->
+    <header class="header">
+        <div class="container header-container">
+            <div class="brand">
+                <span class="callsign">CX3DW</span>
+                <span class="creator-tag">By CX3DW</span>
+                <span class="status-indicator"><span class="pulse"></span> QRV / En Frecuencia</span>
+            </div>
+            <div class="quick-nav">
+                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="btn-glow"><i class="fa-solid fa-id-card"></i> QRZ.com</a>
+                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="btn-glow"><i class="fa-solid fa-book-atlas"></i> ClubLog</a>
+            </div>
+        </div>
+    </header>
 
-.container {
-    width: 90%;
-    max-width: 1100px;
-    margin: 0 auto;
-}
+    <!-- Contenido Principal -->
+    <main class="container main-grid">
+        
+        <!-- Columna Izquierda -->
+        <section class="content-col">
+            
+            <!-- Tarjeta de Bienvenida / Shack -->
+            <div class="card card-gradient-1">
+                <h2><i class="fa-solid fa-microchip"></i> El Shack & Equipamiento</h2>
+                <p class="section-desc">Estación principal optimizada para alta eficiencia en HF, concursos y modos digitales.</p>
+                
+                <div class="gear-grid">
+                    <div class="gear-card">
+                        <span class="badge hf">HF Transceiver</span>
+                        <h3>Equipo Principal</h3>
+                        <p>SDR de altas prestaciones con excelente filtrado dinámico.</p>
+                    </div>
+                    <div class="gear-card">
+                        <span class="badge digital">Digital / Interfaces</span>
+                        <h3>Modos Digitales</h3>
+                        <p>Configuración optimizada para FT8, RTTY y WSJT-X.</p>
+                    </div>
+                </div>
+            </div>
 
-/* Header / Hero */
-.hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    padding: 3rem 0;
-    border-bottom: 3px solid var(--accent);
-    text-align: center;
-}
+            <!-- Tarjeta de Antenas -->
+            <div class="card card-gradient-2">
+                <h2><i class="fa-solid fa-tower-broadcast"></i> Sistema Radiante</h2>
+                <ul class="antenna-list">
+                    <li>
+                        <i class="fa-solid fa-bolt icon-highlight"></i>
+                        <div>
+                            <strong>Direccionales HF:</strong> Yagi multibanda para máxima directividad y ganancia.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-bolt icon-highlight"></i>
+                        <div>
+                            <strong>Antenas de hilo:</strong> Dipolos en V invertida para bandas bajas y WARC.
+                        </div>
+                    </li>
+                </ul>
+            </div>
 
-.callsign {
-    font-size: 3.5rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #ffffff;
-}
+            <!-- Widget de Búsqueda de Logbook -->
+            <div class="card card-gradient-3">
+                <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Verificación de QSO (ClubLog)</h2>
+                <p>Verifica instantáneamente el estado de nuestro contacto en el libro de guardia:</p>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="search-form">
+                    <input type="hidden" name="call" value="CX3DW">
+                    <input type="text" name="target" placeholder="Tu indicativo (ej. LU1XYZ)" required autocomplete="off">
+                    <button type="submit"><i class="fa-solid fa-search"></i> Buscar QSO</button>
+                </form>
+            </div>
 
-.subtitle {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-}
+        </section>
 
-.badge {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
+        <!-- Columna Derecha -->
+        <aside class="sidebar-col">
+            
+            <!-- Ubicación y Grid Locator -->
+            <div class="card highlight-card">
+                <h3><i class="fa-solid fa-location-crosshairs"></i> Ubicación</h3>
+                <div class="grid-stats">
+                    <div class="stat-item">
+                        <span class="label">QTH</span>
+                        <span class="value">Uruguay</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Locator</span>
+                        <span class="value mono">GF15</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">CQ Zone</span>
+                        <span class="value">11</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">ITU Zone</span>
+                        <span class="value">14</span>
+                    </div>
+                </div>
+            </div>
 
-.badge.qrv {
-    background-color: rgba(34, 197, 94, 0.2);
-    color: var(--green);
-    border: 1px solid var(--green);
-}
+            <!-- QSL Policy -->
+            <div class="card">
+                <h3><i class="fa-solid fa-envelope-open-text"></i> Política QSL</h3>
+                <ul class="qsl-policy">
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>LoTW:</strong> Sincronización automática.</li>
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
+                    <li><i class="fa-solid fa-check text-green"></i> <strong>Bureau / Directa:</strong> Vía URCU.</li>
+                </ul>
+            </div>
 
-.quick-links a {
-    color: var(--accent);
-    text-decoration: none;
-    margin: 0 10px;
-    font-weight: 600;
-}
+        </aside>
 
-.quick-links a:hover {
-    text-decoration: underline;
-}
+    </main>
 
-/* Navbar */
-.navbar {
-    background-color: #0f172a;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
+    <!-- Footer con Derechos de Autor Explícitos -->
+    <footer class="footer">
+        <div class="container footer-flex">
+            <p>&copy; 2026 <strong>CX3DW</strong>. Todos los derechos reservados.</p>
+            <p class="tech-credit">Sitio diseñado y desarrollado por <strong>CX3DW</strong> • GitHub Pages</p>
+        </div>
+    </footer>
 
-.nav-flex {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    padding: 0.8rem 0;
-}
-
-.nav-flex a {
-    color: var(--text-main);
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.nav-flex a:hover {
-    color: var(--accent);
-}
-
-/* Layout Grid */
-.grid-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    margin: 2rem auto;
-}
-
-.card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.card h2, .card h3 {
-    color: var(--accent);
-    margin-bottom: 1rem;
-}
-
-/* Equipos & Antenas */
-.equip-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.equip-item {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 1rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-}
-
-.tag {
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-.tag.hf { background: #3b82f6; color: #fff; }
-.tag.vhf { background: #8b5cf6; color: #fff; }
-.tag.digital { background: #ec4899; color: #fff; }
-
-.spec-list {
-    list-style: none;
-}
-.spec-list li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--border);
-}
-
-/* Formulario ClubLog */
-.search-box {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.search-box input {
-    flex: 1;
-    padding: 0.6rem;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: #0f172a;
-    color: #fff;
-}
-
-.search-box button {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.search-box button:hover {
-    opacity: 0.9;
-}
-
-/* Sidebar & QSL */
-.qsl-status {
-    list-style: none;
-}
-.qsl-status li {
-    margin-bottom: 0.8rem;
-}
-.text-green { color: var(--green); }
-.text-blue { color: #3b82f6; }
-
-/* Footer */
-.footer {
-    text-align: center;
-    padding: 2rem 0;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border);
-    font-size: 0.9rem;
-}
-.footer a { color: var(--accent); text-decoration: none; }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .grid-layout {
-        grid-template-columns: 1fr;
-    }
-    .callsign {
-        font-size: 2.5rem;
-    }
-}
+</body>
+</html>

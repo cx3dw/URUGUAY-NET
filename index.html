@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CX3DW — Dashboard de Estación DX & Digital</title>
+    <title>CX3DW — Estación de Radioaficionado DX & Digital</title>
     
-    <!-- FontAwesome Iconos -->
+    <!-- Iconos FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- SDK Oficial de PubNub -->
+    <!-- SDK de PubNub -->
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
 
     <style>
@@ -16,89 +15,56 @@
             --bg-dark: #05070f;
             --bg-card: rgba(15, 23, 42, 0.92);
             --bg-card-inner: rgba(2, 6, 23, 0.85);
-            
             --neon-cyan: #00f0ff;
             --neon-pink: #ff2a85;
             --neon-green: #10b981;
             --neon-yellow: #ffcc00;
             --neon-purple: #a855f7;
-            
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.12);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(255, 42, 133, 0.12) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(255, 42, 133, 0.12) 0%, transparent 40%);
             background-attachment: fixed;
             color: var(--text-main);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             line-height: 1.5;
             min-height: 100vh;
         }
-
         .mono { font-family: 'Consolas', 'Courier New', monospace; }
         .container { width: 92%; max-width: 1250px; margin: 0 auto; }
-
-        .header {
-            background: rgba(10, 15, 29, 0.95);
-            border-bottom: 2px solid var(--neon-cyan);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
-            padding: 1.2rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
+        
+        /* Header & Nav */
+        .header { background: rgba(10, 15, 29, 0.95); border-bottom: 2px solid var(--neon-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.25); padding: 1.2rem 0; position: sticky; top: 0; z-index: 100; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-
-        .brand-badge {
-            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
-            color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
-        }
-
+        .brand-badge { background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
         .callsign { font-size: 3rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-shadow: 0 0 20px var(--neon-cyan); }
         .sub-callsign { color: var(--neon-cyan); font-size: 0.95rem; font-weight: 600; }
-
-        .clock-container {
-            display: flex; gap: 20px; background: rgba(0, 0, 0, 0.6); border: 1px solid var(--neon-cyan); padding: 8px 18px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
-        }
+        .clock-container { display: flex; gap: 20px; background: rgba(0, 0, 0, 0.6); border: 1px solid var(--neon-cyan); padding: 8px 18px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
         .clock-block { text-align: center; }
         .clock-title { font-size: 0.65rem; text-transform: uppercase; color: var(--neon-pink); font-weight: 800; display: block; }
         .clock-time { font-size: 1.1rem; font-weight: 700; color: var(--neon-yellow); }
-
-        .qrv-badge {
-            background: rgba(16, 185, 129, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 6px 16px; border-radius: 30px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
-        }
+        .qrv-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 6px 16px; border-radius: 30px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
         .dot { width: 8px; height: 8px; background-color: var(--neon-green); border-radius: 50%; box-shadow: 0 0 8px var(--neon-green); }
-
+        
         .nav { background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--border-color); padding: 0.8rem 0; }
         .nav-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
         .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
         .nav-links a:hover { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+        .user-auth-btn { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); color: #000; font-weight: 900; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; }
 
-        .user-auth-btn {
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-            color: #000; font-weight: 900; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; text-transform: uppercase;
-        }
-
+        /* Structural Cards */
         .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 25px; margin: 2.5rem auto; }
-
-        .card {
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.8rem; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.8rem; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
         .card-cyan { border-left: 5px solid var(--neon-cyan); }
         .card-pink { border-left: 5px solid var(--neon-pink); }
         .card-green { border-left: 5px solid var(--neon-green); }
         .card-purple { border-left: 5px solid var(--neon-purple); }
         .card-yellow { border-left: 5px solid var(--neon-yellow); }
-
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; }
         .card-title { font-size: 1.3rem; font-weight: 800; color: var(--neon-yellow); display: flex; align-items: center; gap: 10px; }
         .card-tag { font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; text-transform: uppercase; }
@@ -108,589 +74,19 @@
         .tag-purple { background: var(--neon-purple); color: #fff; }
         .tag-yellow { background: var(--neon-yellow); color: #000; }
 
-        /* Formulario de Estado */
+        /* Control Panel Form */
         .control-panel { background: var(--bg-card-inner); border: 1px solid var(--neon-cyan); border-radius: 10px; padding: 1.2rem; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; }
-        .form-group input, .form-group select {
-            background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); padding: 0.6rem; border-radius: 6px; color: #fff; font-size: 0.9rem;
-        }
-        .btn-update {
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); color: #000; font-weight: 900; border: none; padding: 0.7rem 1.4rem; border-radius: 6px; cursor: pointer; margin-top: 12px; width: 100%; text-transform: uppercase; letter-spacing: 1px;
-        }
+        .form-group input, .form-group select { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); padding: 0.6rem; border-radius: 6px; color: #fff; font-size: 0.9rem; }
+        .btn-update { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); color: #000; font-weight: 900; border: none; padding: 0.7rem 1.4rem; border-radius: 6px; cursor: pointer; margin-top: 12px; width: 100%; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Lista de Operadores En Línea */
+        /* Online Operators List */
         .online-list { display: flex; flex-direction: column; gap: 12px; }
-        .operator-card {
-            background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;
-        }
+        .operator-card { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px; }
         .op-header { display: flex; justify-content: space-between; align-items: center; }
         .op-callsign { font-size: 1.1rem; font-weight: 800; color: var(--neon-cyan); }
         .op-details { font-size: 0.8rem; color: var(--text-muted); }
         .op-weather { font-size: 0.8rem; color: var(--neon-yellow); font-weight: 700; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--neon-green); width: fit-content; }
-
-        /* Chat */
-        .chat-box { background: var(--bg-card-inner); border: 1px solid var(--neon-purple); border-radius: 10px; padding: 12px; }
-        .chat-logs {
-            height: 220px; overflow-y: auto; background: rgba(0, 0, 0, 0.5); border-radius: 6px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;
-        }
-        .chat-form { display: flex; gap: 10px; }
-        .chat-form input { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--neon-purple); padding: 0.7rem; border-radius: 8px; color: #fff; }
-        .chat-form button {
-            background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink)); color: #fff; border: none; padding: 0 1.4rem; border-radius: 8px; font-weight: 800; cursor: pointer;
-        }
-
-        .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .sub-box { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 1.2rem; border-radius: 10px; }
-        .sub-box h4 { font-size: 1.1rem; color: #fff; margin: 6px 0; }
-        .sub-box p { font-size: 0.85rem; color: var(--text-muted); }
-
-        .list-clean { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem; color: var(--text-muted); }
-        .data-table { display: flex; flex-direction: column; gap: 10px; }
-        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
-        .data-row span { color: var(--text-muted); }
-        .data-row strong { color: #fff; }
-
-        .form-log { display: flex; gap: 10px; }
-        .form-log input { flex: 1; background: var(--bg-card-inner); border: 1px solid var(--neon-green); padding: 0.7rem; border-radius: 8px; color: #fff; }
-        .form-log button { background: var(--neon-green); color: #000; border: none; padding: 0 1.2rem; border-radius: 8px; font-weight: 800; cursor: pointer; }
-
-        .footer { background: rgba(2, 6, 23, 0.95); border-top: 2px solid var(--neon-pink); padding: 2.5rem 0; text-align: center; margin-top: 3rem; }
-        .footer p { color: var(--text-muted); font-size: 0.9rem; }
-        .footer-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
-
-        /* Modal Login / Registro */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-card {
-            background: var(--bg-card); border: 2px solid var(--neon-cyan);
-            border-radius: 14px; padding: 2rem; width: 90%; max-width: 420px;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
-        }
-        .modal-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.2rem; }
-        .modal-tab { flex: 1; text-align: center; padding: 8px; font-weight: 800; cursor: pointer; color: var(--text-muted); }
-        .modal-tab.active { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
-        .modal-form { display: flex; flex-direction: column; gap: 12px; }
-        .modal-form input {
-            background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color);
-            padding: 0.7rem; border-radius: 6px; color: #fff; font-size: 0.9rem;
-        }
-
-        @media (max-width: 850px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .header-flex, .nav-flex { flex-direction: column; text-align: center; gap: 15px; }
-            .nav-links { flex-wrap: wrap; justify-content: center; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Header Principal -->
-    <header class="header">
-        <div class="container header-flex">
-            <div>
-                <span class="brand-badge"><i class="fa-solid fa-crown"></i> By CX3DW</span>
-                <h1 class="callsign mono">CX3DW</h1>
-                <div class="sub-callsign">Estación DX & Digital • Uruguay (GF15)</div>
-            </div>
-
-            <!-- Relojes UTC y Local -->
-            <div class="clock-container">
-                <div class="clock-block">
-                    <span class="clock-title">Local</span>
-                    <span id="local-time" class="clock-time mono">--:--:--</span>
-                </div>
-                <div class="clock-block">
-                    <span class="clock-title">UTC (Z)</span>
-                    <span id="utc-time" class="clock-time mono">--:--:--Z</span>
-                </div>
-            </div>
-
-            <!-- Estado QRV -->
-            <div class="qrv-badge">
-                <span class="dot"></span> QRV / LISTENING
-            </div>
-        </div>
-    </header>
-
-    <!-- Navegación -->
-    <nav class="nav">
-        <div class="container nav-flex">
-            <div class="nav-links">
-                <a href="#control"><i class="fa-solid fa-sliders"></i> Registro mi estado</a>
-                <a href="#weather-sec"><i class="fa-solid fa-cloud-sun"></i> Clima QTH</a>
-                <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack CX3DW</a>
-                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
-                <a href="#operators"><i class="fa-solid fa-users-viewfinder"></i> Operadores En Línea</a>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button id="auth-btn" class="user-auth-btn" onclick="openModal()"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
-                <a href="https://www.qrz.com/db/CX3DW" target="_blank" style="background:var(--neon-pink); padding:6px 14px; border-radius:6px; color:#fff; font-weight:800; text-decoration:none; font-size:0.8rem;">QRZ.com</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Modal de Autenticación / Registro -->
-    <div id="auth-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <h3 style="color:#fff;"><i class="fa-solid fa-user-shield" style="color:var(--neon-cyan)"></i> Acceso Operador</h3>
-                <span onclick="closeModal()" style="color:#fff; cursor:pointer; font-weight:bold;">&times;</span>
-            </div>
-
-            <div class="modal-tabs">
-                <div id="tab-login" class="modal-tab active" onclick="switchTab('login')">Ingresar</div>
-                <div id="tab-register" class="modal-tab" onclick="switchTab('register')">Registrarse</div>
-            </div>
-
-            <!-- Form LogIn -->
-            <form id="login-form" class="modal-form">
-                <input type="text" id="login-callsign" placeholder="Indicativo (ej. CX3DW)" required class="mono">
-                <input type="password" id="login-pass" placeholder="Contraseña" required>
-                <button type="submit" class="btn-update" style="margin-top:5px;">Entrar</button>
-            </form>
-
-            <!-- Form Registro -->
-            <form id="register-form" class="modal-form" style="display:none;">
-                <input type="text" id="reg-callsign" placeholder="Indicativo (ej. LU1ABC)" required class="mono">
-                <input type="text" id="reg-city" placeholder="Ciudad y País (ej. Montevideo, Uruguay)" required>
-                <input type="email" id="reg-email" placeholder="Correo electrónico" required>
-                <input type="password" id="reg-pass" placeholder="Contraseña" required>
-                <button type="submit" class="btn-update" style="margin-top:5px;">Crear Cuenta</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Contenido Principal -->
-    <main class="container main-grid">
-
-        <!-- Columna Izquierda -->
-        <div>
-            <!-- Formulario Registro de Equipamiento & Llamada Activa -->
-            <section id="control" class="card card-yellow">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Llamada Activa</h2>
-                    <span class="card-tag tag-yellow">En Vivo</span>
-                </div>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:12px;">
-                    Escribe tu indicativo y ciudad para publicar tus equipos y tu clima en el panel de Operadores En Línea:
-                </p>
-                <div class="control-panel">
-                    <form id="op-status-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Mi Indicativo (Callsign)</label>
-                                <input type="text" id="my-callsign" placeholder="ej. CX3DW / LU1ABC" required class="mono">
-                            </div>
-                            <div class="form-group">
-                                <label>Ciudad y País (QTH)</label>
-                                <input type="text" id="my-city" placeholder="ej. Montevideo, Uruguay" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Plataforma / Frecuencia</label>
-                                <select id="my-platform">
-                                    <option value="20m FT8 / WSJT-X">20m FT8 / WSJT-X</option>
-                                    <option value="40m LSB (Voz HF)">40m LSB (Voz HF)</option>
-                                    <option value="10m USB (Voz HF)">10m USB (Voz HF)</option>
-                                    <option value="145.200 MHz FM (VHF)">145.200 MHz FM (VHF)</option>
-                                    <option value="SvxReflector TG 748">SvxReflector TG 748</option>
-                                    <option value="BrandMeister DMR">BrandMeister DMR</option>
-                                    <option value="DVSwitch / Node">DVSwitch / Node</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Transceptor Principal</label>
-                                <input type="text" id="my-rig" placeholder="ej. SDR / FT-891">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-update"><i class="fa-solid fa-cloud-sun"></i> Transmitir Mi Estado y Clima En Vivo</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Clima En Tiempo Real de CX3DW -->
-            <section id="weather-sec" class="card card-green">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-cloud-sun"></i> Clima QTH CX3DW (Tiempo Real)</h2>
-                    <span class="card-tag tag-green" id="weather-status-tag">Actualizado</span>
-                </div>
-                <div class="sub-grid">
-                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
-                        <i class="fa-solid fa-temperature-three-quarters" style="font-size:2.2rem; color:var(--neon-yellow)"></i>
-                        <div>
-                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">MONTEVIDEO, URUGUAY</span>
-                            <div style="font-weight:700; color:#fff; font-size:1.1rem;" id="main-weather-temp">Cargando clima...</div>
-                        </div>
-                    </div>
-                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
-                        <i class="fa-solid fa-wind" style="font-size:2.2rem; color:var(--neon-cyan)"></i>
-                        <div>
-                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">VIENTO Y CONDICIÓN</span>
-                            <div style="font-weight:700; color:var(--neon-green);" id="main-weather-wind">Obteniendo datos meteorológicos...</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Shack CX3DW -->
-            <section id="shack" class="card card-cyan">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-headset"></i> Shack Principal CX3DW</h2>
-                    <span class="card-tag tag-cyan">Estación Base</span>
-                </div>
-                <div class="sub-grid">
-                    <div class="sub-box">
-                        <span class="card-tag tag-pink">HF / 50 MHz</span>
-                        <h4>Transceptor SDR</h4>
-                        <p>Procesamiento digital de señales débiles y filtrado DSP activo.</p>
-                    </div>
-                    <div class="sub-box">
-                        <span class="card-tag tag-purple">Redes Digitales</span>
-                        <h4>SvxReflector & HBLink</h4>
-                        <p>Enrutamiento multi-protocolo IP e interconexión de nodos digital/analógico.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Chat Directo -->
-            <section id="chat" class="card card-purple">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">PubNub</span>
-                </div>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
-                <div class="chat-box">
-                    <div id="chat-messages" class="chat-logs">
-                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>
-                    </div>
-                    <form id="chat-form" class="chat-form">
-                        <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
-                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje..." required style="flex:1;">
-                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-                    </form>
-                </div>
-            </section>
-        </div>
-
-        <!-- Columna Derecha -->
-        <div>
-            <!-- Operadores En Línea -->
-            <div id="operators" class="card card-green">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
-                    <span class="card-tag tag-green">Tiempo Real</span>
-                </div>
-                <div id="operator-list" class="online-list">
-                    <!-- Los datos del formulario ingresado aparecen aquí dinámicamente -->
-                </div>
-            </div>
-
-            <!-- Coordenadas QTH -->
-            <div class="card card-cyan">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
-                </div>
-                <div class="data-table">
-                    <div class="data-row"><span>Indicativo</span><strong class="mono" style="color:var(--neon-cyan)">CX3DW</strong></div>
-                    <div class="data-row"><span>QTH</span><strong>Montevideo, Uruguay</strong></div>
-                    <div class="data-row"><span>Grid Locator</span><strong class="mono" style="color:var(--neon-yellow)">GF15</strong></div>
-                    <div class="data-row"><span>CQ / ITU</span><strong>11 / 14</strong></div>
-                </div>
-            </div>
-
-            <!-- Buscador ClubLog -->
-            <div class="card card-green">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> Consultar Logbook</h3>
-                </div>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="form-log">
-                    <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off" class="mono">
-                    <button type="submit">Buscar</button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Login Integrado & PubNub</p>
-        </div>
-    </footer>
-
-    <!-- Lógica JavaScript Integrada -->
-    <script>
-        const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
-        const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
-
-        const pubnub = new PubNub({
-            publishKey: pubKey,
-            subscribeKey: subKey,
-            userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
-        });
-
-        const CHANNEL_CHAT = "chat_cx3dw_v5";
-        const CHANNEL_STATUS = "operators_cx3dw_v5";
-
-        pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
-
-        // LÓGICA DE AUTENTICACIÓN / REGISTRO LOCAL
-        let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
-
-        function updateAuthUI() {
-            const btn = document.getElementById('auth-btn');
-            if (currentUser) {
-                btn.innerHTML = `<i class="fa-solid fa-user"></i> ${currentUser.callsign} (Salir)`;
-                btn.onclick = logout;
-                document.getElementById('my-callsign').value = currentUser.callsign;
-                document.getElementById('chat-callsign').value = currentUser.callsign;
-                if(currentUser.city) document.getElementById('my-city').value = currentUser.city;
-            } else {
-                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión`;
-                btn.onclick = openModal;
-            }
-        }
-
-        function openModal() { document.getElementById('auth-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
-        function switchTab(tab) {
-            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-            document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
-            document.getElementById('register-form').style.display = tab === 'register' ? 'flex' : 'none';
-        }
-
-        document.getElementById('register-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const callsign = document.getElementById('reg-callsign').value.toUpperCase().trim();
-            const city = document.getElementById('reg-city').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const pass = document.getElementById('reg-pass').value;
-
-            const users = JSON.parse(localStorage.getItem('cx3dw_users')) || {};
-            users[callsign] = { callsign, city, email, pass };
-            localStorage.setItem('cx3dw_users', JSON.stringify(users));
-
-            currentUser = users[callsign];
-            localStorage.setItem('cx3dw_session', JSON.stringify(currentUser));
-            updateAuthUI();
-            closeModal();
-            alert(`¡Bienvenido ${callsign}! Sesión iniciada.`);
-        });
-
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const callsign = document.getElementById('login-callsign').value.toUpperCase().trim();
-            const pass = document.getElementById('login-pass').value;
-
-            const users = JSON.parse(localStorage.getItem('cx3dw_users')) || {};
-            if (users[callsign] && users[callsign].pass === pass) {
-                currentUser = users[callsign];
-                localStorage.setItem('cx3dw_session', JSON.stringify(currentUser));
-                updateAuthUI();
-                closeModal();
-            } else {
-                alert('Indicativo o contraseña incorrectos.');
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem('cx3dw_session');
-            currentUser = null;
-            updateAuthUI();
-        }
-
-        // Consulta de Clima (Open-Meteo API)
-        async function fetchRealtimeWeather(cityName) {
-            try {
-                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
-                const geoData = await geoRes.json();
-                
-                if (!geoData.results || geoData.results.length === 0) {
-                    return { temp: "-- °C", condition: "Sin datos", wind: "-- km/h" };
-                }
-
-                const { latitude, longitude, name, country } = geoData.results[0];
-
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
-                const weatherData = await weatherRes.json();
-
-                const current = weatherData.current_weather;
-                const temp = `${Math.round(current.temperature)}°C`;
-                const wind = `${Math.round(current.windspeed)} km/h`;
-
-                const weatherCodes = {
-                    0: "Despejado ☀️", 1: "Mayormente Despejado 🌤️", 2: "Parcialmente Nublado ⛅", 3: "Nublado ☁️",
-                    45: "Niebla 🌫️", 61: "Lluvia Ligera 🌧️", 63: "Lluvia Moderada 🌧️", 80: "Chubascos 🌦️", 95: "Tormenta ⛈️"
-                };
-                const condition = weatherCodes[current.weathercode] || "Tiempo Variable 🌤️";
-
-                return { temp, condition, wind, locationName: `${name}, ${country}` };
-            } catch (err) {
-                return { temp: "-- °C", condition: "Sin clima", wind: "-- km/h" };
-            }
-        }
-
-        async function loadStationWeather() {
-            const data = await fetchRealtimeWeather("Montevideo");
-            document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
-            document.getElementById('main-weather-wind').textContent = `Viento: ${data.wind}`;
-        }
-        loadStationWeather();
-
-        // Relojes UTC y Local
-        function updateClocks() {
-            const now = new Date();
-            document.getElementById('local-time').textContent = now.toLocaleTimeString();
-            const utcHours = String(now.getUTCHours()).padStart(2, '0');
-            const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-            const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-            document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}Z`;
-        }
-        setInterval(updateClocks, 1000);
-        updateClocks();
-
-        // Chat
-        const chatMessages = document.getElementById('chat-messages');
-
-        function renderMensaje(callsign, text, time) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
-            msgDiv.style.padding = "8px 12px";
-            msgDiv.style.borderRadius = "6px";
-            msgDiv.style.border = "1px solid rgba(255,255,255,0.1)";
-            msgDiv.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <strong class="mono" style="color:var(--neon-cyan); font-size:0.85rem;">[${callsign}]</strong>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${time}</span>
-                </div>
-                <div style="color:#fff;">${text}</div>
-            `;
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Operadores En Línea
-        const onlineOperators = {};
-
-        function renderOperatorList() {
-            const opListDiv = document.getElementById('operator-list');
-            opListDiv.innerHTML = '';
-
-            if (!onlineOperators['CX3DW']) {
-                onlineOperators['CX3DW'] = {
-                    city: "Montevideo, Uruguay",
-                    rig: "SDR Multi-Modo",
-                    platform: "145.200 MHz / TG 748",
-                    weatherStr: "Cargando clima..."
-                };
-                fetchRealtimeWeather("Montevideo").then(w => {
-                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
-                    renderOperatorList();
-                });
-            }
-
-            Object.keys(onlineOperators).forEach(call => {
-                const op = onlineOperators[call];
-                const card = document.createElement('div');
-                card.className = 'operator-card';
-                card.innerHTML = `
-                    <div class="op-header">
-                        <div class="op-callsign mono">${call}</div>
-                        <div class="op-status">${op.platform}</div>
-                    </div>
-                    <div class="op-details">QTH: <strong>${op.city || 'Desconocido'}</strong> • Rig: ${op.rig || 'Estándar'}</div>
-                    <div class="op-weather"><i class="fa-solid fa-cloud-sun"></i> ${op.weatherStr || 'Consultando clima...'}</div>
-                `;
-                opListDiv.appendChild(card);
-            });
-        }
-
-        pubnub.addListener({
-            message: function(event) {
-                if (event.channel === CHANNEL_CHAT) {
-                    const data = event.message;
-                    renderMensaje(data.callsign, data.text, data.time);
-                } else if (event.channel === CHANNEL_STATUS) {
-                    const op = event.message;
-                    onlineOperators[op.callsign] = op;
-                    renderOperatorList();
-                }
-            }
-        });
-
-        // Submit Chat
-        const chatForm = document.getElementById('chat-form');
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const callsignInput = document.getElementById('chat-callsign');
-            const textInput = document.getElementById('chat-text');
-
-            const callsign = callsignInput.value.toUpperCase();
-            const text = textInput.value;
-
-            if (callsign && text) {
-                document.getElementById('my-callsign').value = callsign;
-                pubnub.publish({
-                    channel: CHANNEL_CHAT,
-                    message: { callsign, text, time: new Date().toLocaleTimeString() }
-                }).then(() => { textInput.value = ''; });
-            }
-        });
-
-        // Submit Formulario Registro de Estado e inserción en vivo
-        const statusForm = document.getElementById('op-status-form');
-
-        statusForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const callsign = document.getElementById('my-callsign').value.toUpperCase().trim();
-            const city = document.getElementById('my-city').value.trim();
-            const platform = document.getElementById('my-platform').value;
-            const rig = document.getElementById('my-rig').value.trim() || 'Estándar';
-
-            if (callsign && city) {
-                const opData = { 
-                    callsign: callsign, 
-                    city: city, 
-                    platform: platform, 
-                    rig: rig, 
-                    weatherStr: "Consultando clima..." 
-                };
-
-                onlineOperators[callsign] = opData;
-                renderOperatorList();
-
-                pubnub.publish({
-                    channel: CHANNEL_STATUS,
-                    message: opData
-                });
-
-                fetchRealtimeWeather(city).then(w => {
-                    opData.weatherStr = `${w.temp} (${w.condition})`;
-                    if (w.locationName) opData.city = w.locationName;
-
-                    onlineOperators[callsign] = opData;
-                    renderOperatorList();
-
-                    pubnub.publish({
-                        channel: CHANNEL_STATUS,
-                        message: opData
-                    });
-                });
-            }
-        });
-
-        updateAuthUI();
-        renderOperatorList();
-    </script>
-</body>
-</html>
+        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8

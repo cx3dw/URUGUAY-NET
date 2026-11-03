@@ -217,7 +217,7 @@
                     <span class="card-tag tag-yellow">En Vivo</span>
                 </div>
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:12px;">
-                    Escribe tu indicativo y ciudad para publicar tus equipos y tu clima en el panel de Operadores En Línea:
+                    Escribe tu indicativo y ciudad para publicar tus equipos, frecuencia y clima en el panel de Operadores En Línea:
                 </p>
                 <div class="control-panel">
                     <form id="op-status-form">
@@ -231,7 +231,7 @@
                                 <input type="text" id="my-city" placeholder="ej. Montevideo, Uruguay" required>
                             </div>
                             <div class="form-group">
-                                <label>Plataforma / Frecuencia</label>
+                                <label>Plataforma</label>
                                 <select id="my-platform">
                                     <option value="Brandmeister">Brandmeister</option>
                                     <option value="Fusion">Fusion</option>
@@ -253,7 +253,15 @@
                             </div>
                             <div class="form-group">
                                 <label>Transceptor Principal</label>
-                                <input type="text" id="my-rig" placeholder="ej. SDR / FT-891">
+                                <input type="text" id="my-rig" placeholder="ej. SDR / FT-891 / UV-K5">
+                            </div>
+                            <div class="form-group">
+                                <label>Frecuencia Radio (MHz)</label>
+                                <input type="text" id="my-freq" placeholder="ej. 145.200 / 433.500" class="mono">
+                            </div>
+                            <div class="form-group">
+                                <label>TalkGroup (TG)</label>
+                                <input type="text" id="my-tg" placeholder="ej. TG 748 / TG 91" class="mono">
                             </div>
                         </div>
                         <button type="submit" class="btn-update"><i class="fa-solid fa-cloud-sun"></i> Transmitir Mi Estado y Clima En Vivo</button>
@@ -398,8 +406,8 @@
             userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v6";
-        const CHANNEL_STATUS = "operators_cx3dw_v6";
+        const CHANNEL_CHAT = "chat_cx3dw_v7";
+        const CHANNEL_STATUS = "operators_cx3dw_v7";
 
         pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
 
@@ -574,7 +582,9 @@
                 onlineOperators['CX3DW'] = {
                     city: "Montevideo, Uruguay",
                     rig: "SDR Multi-Modo",
-                    platform: "HF",
+                    platform: "Svxlink",
+                    freq: "145.200 MHz",
+                    tg: "TG 748",
                     weatherStr: "Cargando clima..."
                 };
                 fetchRealtimeWeather("Montevideo").then(w => {
@@ -587,10 +597,16 @@
                 const op = onlineOperators[call];
                 const card = document.createElement('div');
                 card.className = 'operator-card';
+                
+                // Formatear etiqueta de estado (Plataforma + Frecuencia + TG)
+                let statusLabel = op.platform || 'HF';
+                if (op.freq) statusLabel += ` | ${op.freq}`;
+                if (op.tg) statusLabel += ` | ${op.tg}`;
+
                 card.innerHTML = `
                     <div class="op-header">
                         <div class="op-callsign mono">${call}</div>
-                        <div class="op-status">${op.platform}</div>
+                        <div class="op-status">${statusLabel}</div>
                     </div>
                     <div class="op-details">QTH: <strong>${op.city || 'Desconocido'}</strong> • Rig: ${op.rig || 'Estándar'}</div>
                     <div class="op-weather"><i class="fa-solid fa-cloud-sun"></i> ${op.weatherStr || 'Consultando clima...'}</div>
@@ -622,14 +638,18 @@
             const city = document.getElementById('my-city').value.trim();
             const platform = document.getElementById('my-platform').value;
             const rig = document.getElementById('my-rig').value.trim() || 'Estándar';
+            const freq = document.getElementById('my-freq').value.trim();
+            const tg = document.getElementById('my-tg').value.trim();
 
             if (callsign && city) {
-                // Objeto inmediato
+                // Objeto inmediato con la frecuencia y el TG
                 const opData = { 
                     callsign: callsign, 
                     city: city, 
                     platform: platform, 
-                    rig: rig, 
+                    rig: rig,
+                    freq: freq,
+                    tg: tg,
                     weatherStr: "Consultando clima..." 
                 };
 

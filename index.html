@@ -83,6 +83,11 @@
         .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
         .nav-links a:hover { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
 
+        .user-auth-btn {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            color: #000; font-weight: 900; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; text-transform: uppercase;
+        }
+
         .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 25px; margin: 2.5rem auto; }
 
         .card {
@@ -156,6 +161,26 @@
         .footer p { color: var(--text-muted); font-size: 0.9rem; }
         .footer-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
 
+        /* Modal Login / Registro */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-card {
+            background: var(--bg-card); border: 2px solid var(--neon-cyan);
+            border-radius: 14px; padding: 2rem; width: 90%; max-width: 420px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
+        .modal-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.2rem; }
+        .modal-tab { flex: 1; text-align: center; padding: 8px; font-weight: 800; cursor: pointer; color: var(--text-muted); }
+        .modal-tab.active { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
+        .modal-form { display: flex; flex-direction: column; gap: 12px; }
+        .modal-form input {
+            background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color);
+            padding: 0.7rem; border-radius: 6px; color: #fff; font-size: 0.9rem;
+        }
+
         @media (max-width: 850px) {
             .main-grid { grid-template-columns: 1fr; }
             .header-flex, .nav-flex { flex-direction: column; text-align: center; gap: 15px; }
@@ -203,12 +228,43 @@
                 <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
                 <a href="#operators"><i class="fa-solid fa-users-viewfinder"></i> Operadores En Línea</a>
             </div>
-            <div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button id="auth-btn" class="user-auth-btn" onclick="openModal()"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
                 <a href="https://www.qrz.com/db/CX3DW" target="_blank" style="background:var(--neon-pink); padding:6px 14px; border-radius:6px; color:#fff; font-weight:800; text-decoration:none; font-size:0.8rem;">QRZ.com</a>
-                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" style="background:var(--neon-purple); padding:6px 14px; border-radius:6px; color:#fff; font-weight:800; text-decoration:none; font-size:0.8rem; margin-left:8px;">ClubLog</a>
             </div>
         </div>
     </nav>
+
+    <!-- Modal de Autenticación / Registro -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3 style="color:#fff;"><i class="fa-solid fa-user-shield" style="color:var(--neon-cyan)"></i> Acceso Operador</h3>
+                <span onclick="closeModal()" style="color:#fff; cursor:pointer; font-weight:bold;">&times;</span>
+            </div>
+
+            <div class="modal-tabs">
+                <div id="tab-login" class="modal-tab active" onclick="switchTab('login')">Ingresar</div>
+                <div id="tab-register" class="modal-tab" onclick="switchTab('register')">Registrarse</div>
+            </div>
+
+            <!-- Form LogIn -->
+            <form id="login-form" class="modal-form">
+                <input type="text" id="login-callsign" placeholder="Indicativo (ej. CX3DW)" required class="mono">
+                <input type="password" id="login-pass" placeholder="Contraseña" required>
+                <button type="submit" class="btn-update" style="margin-top:5px;">Entrar</button>
+            </form>
+
+            <!-- Form Registro -->
+            <form id="register-form" class="modal-form" style="display:none;">
+                <input type="text" id="reg-callsign" placeholder="Indicativo (ej. LU1ABC)" required class="mono">
+                <input type="text" id="reg-city" placeholder="Ciudad y País (ej. Montevideo, Uruguay)" required>
+                <input type="email" id="reg-email" placeholder="Correo electrónico" required>
+                <input type="password" id="reg-pass" placeholder="Contraseña" required>
+                <button type="submit" class="btn-update" style="margin-top:5px;">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Contenido Principal -->
     <main class="container main-grid">
@@ -275,157 +331,4 @@
                         <i class="fa-solid fa-wind" style="font-size:2.2rem; color:var(--neon-cyan)"></i>
                         <div>
                             <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">VIENTO Y CONDICIÓN</span>
-                            <div style="font-weight:700; color:var(--neon-green);" id="main-weather-wind">Obteniendo datos meteorológicos...</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Shack CX3DW -->
-            <section id="shack" class="card card-cyan">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-headset"></i> Shack Principal CX3DW</h2>
-                    <span class="card-tag tag-cyan">Estación Base</span>
-                </div>
-                <div class="sub-grid">
-                    <div class="sub-box">
-                        <span class="card-tag tag-pink">HF / 50 MHz</span>
-                        <h4>Transceptor SDR</h4>
-                        <p>Procesamiento digital de señales débiles y filtrado DSP activo.</p>
-                    </div>
-                    <div class="sub-box">
-                        <span class="card-tag tag-purple">Redes Digitales</span>
-                        <h4>SvxReflector & HBLink</h4>
-                        <p>Enrutamiento multi-protocolo IP e interconexión de nodos digital/analógico.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Chat Directo -->
-            <section id="chat" class="card card-purple">
-                <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">PubNub</span>
-                </div>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
-                <div class="chat-box">
-                    <div id="chat-messages" class="chat-logs">
-                        <div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>
-                    </div>
-                    <form id="chat-form" class="chat-form">
-                        <input type="text" id="chat-callsign" placeholder="Indicativo" required style="width: 140px;" class="mono">
-                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje..." required style="flex:1;">
-                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-                    </form>
-                </div>
-            </section>
-        </div>
-
-        <!-- Columna Derecha -->
-        <div>
-            <!-- Operadores En Línea -->
-            <div id="operators" class="card card-green">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
-                    <span class="card-tag tag-green">Tiempo Real</span>
-                </div>
-                <div id="operator-list" class="online-list">
-                    <!-- Los datos del formulario ingresado aparecen aquí dinámicamente -->
-                </div>
-            </div>
-
-            <!-- Coordenadas QTH -->
-            <div class="card card-cyan">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
-                </div>
-                <div class="data-table">
-                    <div class="data-row"><span>Indicativo</span><strong class="mono" style="color:var(--neon-cyan)">CX3DW</strong></div>
-                    <div class="data-row"><span>QTH</span><strong>Montevideo, Uruguay</strong></div>
-                    <div class="data-row"><span>Grid Locator</span><strong class="mono" style="color:var(--neon-yellow)">GF15</strong></div>
-                    <div class="data-row"><span>CQ / ITU</span><strong>11 / 14</strong></div>
-                </div>
-            </div>
-
-            <!-- Buscador ClubLog -->
-            <div class="card card-green">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> Consultar Logbook</h3>
-                </div>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="form-log">
-                    <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off" class="mono">
-                    <button type="submit">Buscar</button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Sincronización Inmediata</p>
-        </div>
-    </footer>
-
-    <!-- Lógica JavaScript Integrada -->
-    <script>
-        const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
-        const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
-
-        const pubnub = new PubNub({
-            publishKey: pubKey,
-            subscribeKey: subKey,
-            userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
-        });
-
-        const CHANNEL_CHAT = "chat_cx3dw_v4";
-        const CHANNEL_STATUS = "operators_cx3dw_v4";
-
-        pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
-
-        // Consulta de Clima segura (Open-Meteo API)
-        async function fetchRealtimeWeather(cityName) {
-            try {
-                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
-                const geoData = await geoRes.json();
-                
-                if (!geoData.results || geoData.results.length === 0) {
-                    return { temp: "-- °C", condition: "Clima no disponible", wind: "-- km/h" };
-                }
-
-                const { latitude, longitude, name, country } = geoData.results[0];
-
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
-                const weatherData = await weatherRes.json();
-
-                const current = weatherData.current_weather;
-                const temp = `${Math.round(current.temperature)}°C`;
-                const wind = `${Math.round(current.windspeed)} km/h`;
-
-                const weatherCodes = {
-                    0: "Despejado ☀️", 1: "Mayormente Despejado 🌤️", 2: "Parcialmente Nublado ⛅", 3: "Nublado ☁️",
-                    45: "Niebla 🌫️", 61: "Lluvia Ligera 🌧️", 63: "Lluvia Moderada 🌧️", 80: "Chubascos 🌦️", 95: "Tormenta ⛈️"
-                };
-                const condition = weatherCodes[current.weathercode] || "Tiempo Variable 🌤️";
-
-                return { temp, condition, wind, locationName: `${name}, ${country}` };
-            } catch (err) {
-                return { temp: "-- °C", condition: "Sin datos clima", wind: "-- km/h" };
-            }
-        }
-
-        // Clima estación CX3DW
-        async function loadStationWeather() {
-            const data = await fetchRealtimeWeather("Montevideo");
-            document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
-            document.getElementById('main-weather-wind').textContent = `Viento: ${data.wind}`;
-        }
-        loadStationWeather();
-
-        // Relojes UTC y Local
-        function updateClocks() {
-            const now = new Date();
-            document.getElementById('local-time').textContent = now.toLocaleTimeString();
+                            <div style="font-weight:700; color:var(--

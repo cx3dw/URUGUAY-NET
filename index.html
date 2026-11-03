@@ -440,7 +440,7 @@
         const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
         const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
 
-        const myUuid = "cx3dw_op_" + Math.random().toString(36).substring(7);
+        const myUuid = "cx3dw_client_" + Math.random().toString(36).substring(7);
 
         const pubnub = new PubNub({
             publishKey: pubKey,
@@ -448,8 +448,8 @@
             userId: myUuid
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v8";
-        const CHANNEL_STATUS = "operators_cx3dw_v8";
+        const CHANNEL_CHAT = "chat_cx3dw_v9";
+        const CHANNEL_STATUS = "operators_cx3dw_v9";
 
         // 1. AUTENTICACIÓN / SESIÓN LOCAL
         let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
@@ -571,10 +571,14 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // 4. CHAT DIRECTO
+        // 4. CHAT DIRECTO Y CONTROL DE DUPLICADOS
         const chatMessages = document.getElementById('chat-messages');
+        const renderedMessageIds = new Set();
 
-        function renderMensaje(callsign, text, time) {
+        function renderMensaje(callsign, text, time, msgId) {
+            if (msgId && renderedMessageIds.has(msgId)) return;
+            if (msgId) renderedMessageIds.add(msgId);
+
             const msgDiv = document.createElement('div');
             msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
             msgDiv.style.padding = "8px 12px";
@@ -602,15 +606,16 @@
 
             if (callsign && text) {
                 const nowTime = new Date().toLocaleTimeString();
+                const uniqueMsgId = 'msg_' + Math.random().toString(36).substring(2) + Date.now();
                 
-                // Mostrar al instante de forma local
-                renderMensaje(callsign, text, nowTime);
+                // Renderizar inmediatamente en el dispositivo propio
+                renderMensaje(callsign, text, nowTime, uniqueMsgId);
                 document.getElementById('my-callsign').value = callsign;
 
-                // Transmitir a la red PubNub
+                // Transmitir a todos los dispositivos conectados (PC ⇄ Celular)
                 pubnub.publish({
                     channel: CHANNEL_CHAT,
-                    message: { callsign: callsign, text: text, time: nowTime, senderUuid: myUuid }
+                    message: { callsign: callsign, text: text, time: nowTime, msgId: uniqueMsgId }
                 });
 
                 textInput.value = '';
@@ -661,15 +666,13 @@
             });
         }
 
-        // LISTENERS DE PUBNUB (MENSAJES Y PRESENCIA DE USUARIOS)
+        // LISTENERS DE PUBNUB
         pubnub.addListener({
             message: function(event) {
                 if (event.channel === CHANNEL_CHAT) {
                     const data = event.message;
-                    // Renderizar si el mensaje proviene de otro dispositivo
-                    if (data.senderUuid !== myUuid) {
-                        renderMensaje(data.callsign, data.text, data.time);
-                    }
+                    // Mostrar mensaje recibido desde otro dispositivo
+                    renderMensaje(data.callsign, data.text, data.time, data.msgId);
                 } else if (event.channel === CHANNEL_STATUS) {
                     const op = event.message;
                     onlineOperators[op.callsign] = op;
@@ -723,7 +726,6 @@
                 onlineOperators[callsign] = opData;
                 renderOperatorList();
 
-                // Publicar mensaje y establecer estado de presencia en PubNub
                 pubnub.publish({
                     channel: CHANNEL_STATUS,
                     message: opData

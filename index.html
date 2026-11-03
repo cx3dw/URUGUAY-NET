@@ -197,7 +197,7 @@
     <nav class="nav">
         <div class="container nav-flex">
             <div class="nav-links">
-                <a href="#control"><i class="fa-solid fa-sliders"></i> Mi Estado</a>
+                <a href="#control"><i class="fa-solid fa-sliders"></i> Registro mi estado</a>
                 <a href="#weather-sec"><i class="fa-solid fa-cloud-sun"></i> Clima QTH</a>
                 <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack CX3DW</a>
                 <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
@@ -215,14 +215,14 @@
 
         <!-- Columna Izquierda -->
         <div>
-            <!-- Panel de Registro con Ciudad para Clima -->
+            <!-- Formulario Registro de Equipamiento & Llamada Activa -->
             <section id="control" class="card card-yellow">
                 <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Ubicación</h2>
+                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Llamada Activa</h2>
                     <span class="card-tag tag-yellow">En Vivo</span>
                 </div>
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:12px;">
-                    Escribe tu indicativo y ciudad para calcular el clima local en tiempo real y mostrar tus equipos:
+                    Escribe tu indicativo y ciudad para publicar tus equipos y tu clima en el panel de Operadores En Línea:
                 </p>
                 <div class="control-panel">
                     <form id="op-status-form">
@@ -323,14 +323,14 @@
 
         <!-- Columna Derecha -->
         <div>
-            <!-- Operadores En Línea con Clima de su Ciudad -->
+            <!-- Operadores En Línea -->
             <div id="operators" class="card card-green">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
                     <span class="card-tag tag-green">Tiempo Real</span>
                 </div>
                 <div id="operator-list" class="online-list">
-                    <!-- Generado dinámicamente -->
+                    <!-- Los datos del formulario ingresado aparecen aquí dinámicamente -->
                 </div>
             </div>
 
@@ -366,11 +366,11 @@
     <footer class="footer">
         <div class="container">
             <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Clima Global en Tiempo Real</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Integración Total PubNub + Clima</p>
         </div>
     </footer>
 
-    <!-- Lógica de Clima en Tiempo Real & PubNub -->
+    <!-- Lógica JavaScript Integrada -->
     <script>
         const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
         const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
@@ -386,20 +386,18 @@
 
         pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
 
-        // Función para consultar clima en tiempo real mediante Open-Meteo API
+        // Consulta de Clima en Tiempo Real (Open-Meteo API)
         async function fetchRealtimeWeather(cityName) {
             try {
-                // 1. Geolocalizar la ciudad
                 const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
                 const geoData = await geoRes.json();
                 
                 if (!geoData.results || geoData.results.length === 0) {
-                    return { temp: "-- °C", condition: "Ciudad no encontrada", wind: "-- km/h" };
+                    return { temp: "-- °C", condition: "Sin datos", wind: "-- km/h" };
                 }
 
                 const { latitude, longitude, name, country } = geoData.results[0];
 
-                // 2. Obtener variables meteorológicas actuales
                 const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
                 const weatherData = await weatherRes.json();
 
@@ -407,7 +405,6 @@
                 const temp = `${Math.round(current.temperature)}°C`;
                 const wind = `${Math.round(current.windspeed)} km/h`;
 
-                // Interpretar WMO Weather Code
                 const weatherCodes = {
                     0: "Despejado ☀️",
                     1: "Mayormente Despejado 🌤️",
@@ -423,12 +420,12 @@
 
                 return { temp, condition, wind, locationName: `${name}, ${country}` };
             } catch (err) {
-                console.error("Error al obtener clima:", err);
-                return { temp: "-- °C", condition: "Error de consulta", wind: "-- km/h" };
+                console.error("Error obteniendo clima:", err);
+                return { temp: "-- °C", condition: "Error consulta", wind: "-- km/h" };
             }
         }
 
-        // Cargar clima por defecto para la estación CX3DW (Montevideo)
+        // Clima principal de la estación CX3DW
         async function loadStationWeather() {
             const data = await fetchRealtimeWeather("Montevideo");
             document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
@@ -436,7 +433,7 @@
         }
         loadStationWeather();
 
-        // Relojes
+        // Relojes UTC y Local
         function updateClocks() {
             const now = new Date();
             document.getElementById('local-time').textContent = now.toLocaleTimeString();
@@ -448,8 +445,9 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // Renderizado del Chat
+        // Chat Directo
         const chatMessages = document.getElementById('chat-messages');
+
         function renderMensaje(callsign, text, time) {
             const msgDiv = document.createElement('div');
             msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
@@ -467,7 +465,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Operadores en línea
+        // Renderizado en Lista de Operadores En Línea
         const onlineOperators = {};
 
         function renderOperatorList() {
@@ -503,6 +501,7 @@
             });
         }
 
+        // Recepción PubNub en tiempo real
         pubnub.addListener({
             message: function(event) {
                 if (event.channel === CHANNEL_CHAT) {
@@ -516,7 +515,7 @@
             }
         });
 
-        // Enviar Chat
+        // Enviar mensaje al chat
         const chatForm = document.getElementById('chat-form');
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -535,29 +534,49 @@
             }
         });
 
-        // Enviar Estado + Clima en Tiempo Real
+        // VINCULACIÓN DIRECTA: Formulario -> Operadores En Línea (Inmediata)
         const statusForm = document.getElementById('op-status-form');
-        statusForm.addEventListener('submit', async function(e) {
+
+        statusForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const callsign = document.getElementById('my-callsign').value.toUpperCase();
-            const city = document.getElementById('my-city').value;
+            
+            const callsign = document.getElementById('my-callsign').value.toUpperCase().trim();
+            const city = document.getElementById('my-city').value.trim();
             const platform = document.getElementById('my-platform').value;
-            const rig = document.getElementById('my-rig').value;
+            const rig = document.getElementById('my-rig').value.trim();
 
             if (callsign && city) {
-                // Consultar clima en tiempo real de la ciudad ingresada
-                const w = await fetchRealtimeWeather(city);
-                const weatherStr = `${w.temp} (${w.condition})`;
+                // 1. Mostrar de inmediato en pantalla
+                const opData = { 
+                    callsign: callsign, 
+                    city: city, 
+                    platform: platform, 
+                    rig: rig, 
+                    weatherStr: "Consultando clima..." 
+                };
 
-                const opData = { callsign, city: w.locationName || city, platform, rig, weatherStr };
-                
+                onlineOperators[callsign] = opData;
+                renderOperatorList();
+
+                // 2. Transmitir por PubNub a los demás radioaficionados conectados
                 pubnub.publish({
                     channel: CHANNEL_STATUS,
                     message: opData
-                }).then(() => {
+                });
+
+                // 3. Consultar clima en segundo plano y actualizar cuando esté listo
+                fetchRealtimeWeather(city).then(w => {
+                    const updatedWeatherStr = `${w.temp} (${w.condition})`;
+                    opData.weatherStr = updatedWeatherStr;
+                    opData.city = w.locationName || city;
+
                     onlineOperators[callsign] = opData;
                     renderOperatorList();
-                    alert(`¡Estado y clima de ${callsign} (${city}) actualizados en vivo!`);
+
+                    pubnub.publish({
+                        channel: CHANNEL_STATUS,
+                        message: opData
+                    });
                 });
             }
         });

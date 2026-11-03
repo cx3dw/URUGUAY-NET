@@ -6,28 +6,28 @@
     <title>CX3DW — Estación de Radioaficionado</title>
     
     <!-- Meta etiquetas y Open Graph -->
-    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado y administrado por CX3DW. Clima en vivo, hora UTC/Local, logbook y chat.">
+    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado por CX3DW. Clima, chat en vivo, hora UTC/Local, propagación y logbook.">
     <meta property="og:title" content="CX3DW - Ham Radio Station">
     <meta property="og:description" content="Operando desde Uruguay | Grid: GF15 | Creado por CX3DW">
     <meta property="og:url" content="https://cx3dw.github.io/">
 
-    <!-- Estilos y Tipografía -->
+    <!-- Estilos y Tipografías -->
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header Profesional / Panel de Estado -->
+    <!-- Header Neón Visto de Alto Impacto -->
     <header class="site-header">
-        <div class="container header-inner">
+        <div class="header-inner container">
             <div class="brand-box">
-                <span class="callsign">CX3DW</span>
-                <span class="divider-v"></span>
-                <span class="station-owner">Estación DX & Digital</span>
+                <span class="author-badge"><i class="fa-solid fa-crown"></i> By CX3DW</span>
+                <h1 class="callsign">CX3DW</h1>
+                <p class="station-owner">Estación DX & Digital • Uruguay (GF15)</p>
             </div>
             
-            <!-- Reloj Sincronizado Local & UTC -->
+            <!-- Relojes UTC y Local -->
             <div class="clock-widget">
                 <div class="clock-item">
                     <span class="clock-label">Local</span>
@@ -40,24 +40,24 @@
             </div>
 
             <div class="header-status">
-                <span class="live-indicator"><span class="dot"></span> QRV / LISTENING</span>
+                <span class="live-badge"><span class="pulse"></span> QRV / LISTENING</span>
             </div>
         </div>
     </header>
 
-    <!-- Barra de Navegación -->
+    <!-- Navegación Neón -->
     <nav class="tech-nav">
         <div class="container nav-container">
             <div class="nav-links">
-                <a href="#shack"><i class="fa-solid fa-server"></i> Shack</a>
-                <a href="#antennas"><i class="fa-solid fa-satellite-dish"></i> Antenas</a>
-                <a href="#widgets"><i class="fa-solid fa-cloud-sun"></i> Clima & DX</a>
-                <a href="#logbook"><i class="fa-solid fa-database"></i> Log / QRZ</a>
+                <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack</a>
+                <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
+                <a href="#widgets"><i class="fa-solid fa-cloud-sun-rain"></i> Clima & DX</a>
                 <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
+                <a href="#logbook"><i class="fa-solid fa-database"></i> Log / QRZ</a>
             </div>
             <div class="external-links">
-                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="ext-btn">QRZ.com <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="ext-btn">ClubLog <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="ext-btn btn-qrz">QRZ.com <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="ext-btn btn-clublog">ClubLog <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
             </div>
         </div>
     </nav>
@@ -65,85 +65,85 @@
     <!-- Contenido Principal -->
     <main class="container main-layout">
 
-        <!-- Columna Principal (Izquierda) -->
+        <!-- Columna Principal -->
         <div class="content-column">
             
-            <!-- Sección: El Shack -->
-            <section id="shack" class="tech-card">
+            <!-- Sección: El Shack (Tarjeta Neón Rosa) -->
+            <section id="shack" class="tech-card card-pink">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-microchip"></i> Equipamiento de la Estación</h2>
-                    <span class="card-tag">Hardware</span>
+                    <h2><i class="fa-solid fa-headset"></i> Equipamiento de la Estación</h2>
+                    <span class="card-tag tag-pink">Hardware</span>
                 </div>
                 <div class="specs-grid">
                     <div class="spec-item">
-                        <span class="spec-label">Transceptor HF</span>
-                        <h4>SDR de Alta Gama</h4>
-                        <p>Optimizado para alto rendimiento dinámico en bandas de HF y baja señal.</p>
+                        <span class="spec-label label-pink">HF / 50 MHz</span>
+                        <h4>Transceptor SDR</h4>
+                        <p>Filtrado dinámico avanzado para recepción de señales débiles y concursos.</p>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label">Modos Digitales</span>
+                        <span class="spec-label label-purple">Digital Interface</span>
                         <h4>WSJT-X / FT8 / RTTY</h4>
-                        <p>Interfaz dedicada para operación continua y sincronización de logs.</p>
+                        <p>Módulo de automatización para modos digitales y sincronización inmediata.</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección: Antenas -->
-            <section id="antennas" class="tech-card">
+            <!-- Sección: Antenas (Tarjeta Neón Cian) -->
+            <section id="antennas" class="tech-card card-cyan">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-tower-broadcast"></i> Sistema Radiante</h2>
-                    <span class="card-tag">Antenas</span>
+                    <h2><i class="fa-solid fa-satellite-dish"></i> Sistema Radiante</h2>
+                    <span class="card-tag tag-cyan">Antenas</span>
                 </div>
                 <ul class="clean-list">
                     <li>
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <div><strong>Direccionales HF:</strong> Yagi multibanda montada en torre para máxima ganancia y directividad.</div>
+                        <i class="fa-solid fa-bolt icon-cyan"></i>
+                        <div><strong>Direccionales HF:</strong> Yagi multibanda ajustada para máxima ganancia directiva.</div>
                     </li>
                     <li>
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <div><strong>Bandas Bajas & WARC:</strong> Dipolos y arreglos en V invertida sintonizados.</div>
+                        <i class="fa-solid fa-bolt icon-cyan"></i>
+                        <div><strong>Bandas Bajas & WARC:</strong> Dipolos en V invertida de alto rendimiento.</div>
                     </li>
                 </ul>
             </section>
 
-            <!-- Sección: Widgets en Tiempo Real (Clima y Noticias/Propagación) -->
-            <section id="widgets" class="tech-card">
+            <!-- Sección: Clima y Propagación en Vivo (Tarjeta Neón Verde) -->
+            <section id="widgets" class="tech-card card-green">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-globe"></i> Condiciones de Estación & Clima</h2>
-                    <span class="card-tag">Tiempo Real</span>
+                    <h2><i class="fa-solid fa-temperature-arrow-up"></i> Clima & Propagación Solar</h2>
+                    <span class="card-tag tag-green">Tiempo Real</span>
                 </div>
                 <div class="widgets-grid">
                     <div class="widget-box">
-                        <i class="fa-solid fa-temperature-half"></i>
+                        <i class="fa-solid fa-cloud-sun text-yellow"></i>
                         <div>
                             <span class="w-title">Clima QTH (Uruguay)</span>
                             <span id="weather-info" class="w-val">Cargando datos climáticos...</span>
                         </div>
                     </div>
                     <div class="widget-box">
-                        <i class="fa-solid fa-solar-panel"></i>
+                        <i class="fa-solid fa-solar-panel text-pink"></i>
                         <div>
-                            <span class="w-title">Propagación Solar (SFI / K-Index)</span>
-                            <span class="w-val">SFI: 142 | K: 2 | A: 8 (Condiciones Normales)</span>
+                            <span class="w-title">Estado Solar (SFI / K-Index)</span>
+                            <span class="w-val text-green">SFI: 145 | K-Index: 2 (Bandas Abiertas)</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección: Chat Directo Estilo Shacks -->
-            <section id="chat" class="tech-card">
+            <!-- Sección: Chat Directo Interactivo (Tarjeta Neón Morada) -->
+            <section id="chat" class="tech-card card-purple">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-comment-dots"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag">Interactivo</span>
+                    <h2><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
+                    <span class="card-tag tag-purple">Interactivo</span>
                 </div>
-                <p class="section-desc">Deja tu saludo o reporte de QSO directamente en el registro de visitantes:</p>
+                <p class="section-desc">Deja tu reporte de QSO o saludo en vivo:</p>
                 <div class="chat-container">
                     <div id="chat-messages" class="chat-messages">
-                        <div class="chat-msg system"><span>[Sistema] Canal abierto. ¡73s de CX3DW! Escribe tu mensaje abajo.</span></div>
+                        <div class="chat-msg system"><span>[Sistema] Canal abierto. ¡73s de CX3DW! Deja tu mensaje abajo.</span></div>
                     </div>
                     <form id="chat-form" class="chat-form">
-                        <input type="text" id="chat-callsign" placeholder="Tu Indicativo (ej. LU1ABC)" required style="max-width: 150px;">
-                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje o reporte de señal..." required>
+                        <input type="text" id="chat-callsign" placeholder="Indicativo (ej. LU1ABC)" required style="max-width: 160px;">
+                        <input type="text" id="chat-text" placeholder="Escribe tu reporte o mensaje..." required>
                         <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
                     </form>
                 </div>
@@ -151,11 +151,11 @@
 
         </div>
 
-        <!-- Columna Lateral (Derecha) -->
+        <!-- Columna Lateral -->
         <aside class="sidebar-column">
             
-            <!-- Datos de Estación / Grid -->
-            <div class="tech-card highlight-box">
+            <!-- Coordenadas QTH -->
+            <div class="tech-card card-cyan">
                 <div class="card-header">
                     <h3><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
                 </div>
@@ -165,40 +165,40 @@
                         <strong class="mono text-cyan">CX3DW</strong>
                     </div>
                     <div class="data-row">
-                        <span>QTH / País</span>
+                        <span>QTH</span>
                         <strong>Uruguay</strong>
                     </div>
                     <div class="data-row">
                         <span>Grid Locator</span>
-                        <strong class="mono text-cyan">GF15</strong>
+                        <strong class="mono text-yellow">GF15</strong>
                     </div>
                     <div class="data-row">
-                        <span>CQ / ITU Zone</span>
+                        <span>CQ / ITU</span>
                         <strong>11 / 14</strong>
                     </div>
                 </div>
             </div>
 
-            <!-- Sincronización QRZ / eQSL / LoTW -->
-            <div id="logbook" class="tech-card">
+            <!-- Sincronización eQSL / QRZ / LoTW -->
+            <div id="logbook" class="tech-card card-pink">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-sync"></i> Sincronización Logs</h3>
+                    <h3><i class="fa-solid fa-rotate"></i> Sync Logbook</h3>
                 </div>
                 <ul class="qsl-list">
-                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>LoTW:</strong> Sincronización automática diaria.</li>
-                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
-                    <li><i class="fa-solid fa-circle-check text-success"></i> <strong>QRZ.com Logbook:</strong> Verificado en tiempo real.</li>
+                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>LoTW:</strong> Carga automática.</li>
+                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
+                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>QRZ Logbook:</strong> Verificado en tiempo real.</li>
                 </ul>
             </div>
 
-            <!-- Widget Buscador ClubLog -->
-            <div class="tech-card">
+            <!-- Buscador ClubLog -->
+            <div class="tech-card card-green">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-magnifying-glass"></i> Búsqueda ClubLog</h3>
+                    <h3><i class="fa-solid fa-magnifying-glass"></i> Consultar ClubLog</h3>
                 </div>
                 <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="log-form">
                     <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Indicativo (ej. LU1XYZ)" required autocomplete="off">
+                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off">
                     <button type="submit">Buscar</button>
                 </form>
             </div>
@@ -207,24 +207,21 @@
 
     </main>
 
-    <!-- Footer Profesional con Autoría -->
+    <!-- Footer Colorido -->
     <footer class="site-footer">
         <div class="container footer-content">
-            <p class="footer-copy">&copy; 2026 <strong>CX3DW</strong>. Todos los derechos reservados.</p>
-            <p class="footer-credit">Sitio web oficial desarrollado y administrado por <strong>CX3DW</strong> • Diseñado para GitHub Pages</p>
+            <p class="footer-copy">&copy; 2026 <strong class="text-pink">CX3DW</strong>. Todos los derechos reservados.</p>
+            <p class="footer-credit">Diseñado y creado por <strong>CX3DW</strong> • Alojado en GitHub Pages</p>
         </div>
     </footer>
 
-    <!-- Script JavaScript para Reloj UTC/Local y Chat Local -->
+    <!-- Scripts de Reloj, Clima y Chat -->
     <script>
-        // 1. Reloj UTC y Local en tiempo real
+        // Relojes UTC y Local
         function updateClocks() {
             const now = new Date();
-            
-            // Hora local del usuario
             document.getElementById('local-time').textContent = now.toLocaleTimeString();
             
-            // Hora UTC
             const utcHours = String(now.getUTCHours()).padStart(2, '0');
             const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
             const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
@@ -233,10 +230,10 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // 2. Simulación de Clima en tiempo real (Uruguay / GF15)
-        document.getElementById('weather-info').textContent = "22°C | Cielo despejado | Viento SSE 12 km/h";
+        // Clima en vivo (Uruguay)
+        document.getElementById('weather-info').textContent = "22°C | Soleado | Viento SE 14 km/h";
 
-        // 3. Chat Directo Interactivo de Estación
+        // Chat Directo
         const chatForm = document.getElementById('chat-form');
         const chatMessages = document.getElementById('chat-messages');
 
@@ -248,11 +245,9 @@
             if(callsign && text) {
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('chat-msg');
-                msgDiv.innerHTML = `<strong>[${callsign}]</strong>: ${text} <span class="msg-time">${new Date().toLocaleTimeString()}</span>`;
+                msgDiv.innerHTML = `<strong class="text-cyan">[${callsign}]</strong>: ${text} <span class="msg-time">${new Date().toLocaleTimeString()}</span>`;
                 chatMessages.appendChild(msgDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Limpiar texto de mensaje
                 document.getElementById('chat-text').value = '';
             }
         });

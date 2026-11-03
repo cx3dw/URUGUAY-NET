@@ -103,9 +103,9 @@
         .tag-purple { background: var(--neon-purple); color: #fff; }
         .tag-yellow { background: var(--neon-yellow); color: #000; }
 
-        /* Panel de Control Operador */
+        /* Formulario de Estado */
         .control-panel { background: var(--bg-card-inner); border: 1px solid var(--neon-cyan); border-radius: 10px; padding: 1.2rem; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; }
         .form-group input, .form-group select {
@@ -116,13 +116,15 @@
         }
 
         /* Lista de Operadores En Línea */
-        .online-list { display: flex; flex-direction: column; gap: 10px; }
+        .online-list { display: flex; flex-direction: column; gap: 12px; }
         .operator-card {
-            background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;
         }
+        .op-header { display: flex; justify-content: space-between; align-items: center; }
         .op-callsign { font-size: 1.1rem; font-weight: 800; color: var(--neon-cyan); }
         .op-details { font-size: 0.8rem; color: var(--text-muted); }
-        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--neon-green); }
+        .op-weather { font-size: 0.8rem; color: var(--neon-yellow); font-weight: 700; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .op-status { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--neon-green); width: fit-content; }
 
         /* Chat */
         .chat-box { background: var(--bg-card-inner); border: 1px solid var(--neon-purple); border-radius: 10px; padding: 12px; }
@@ -196,6 +198,7 @@
         <div class="container nav-flex">
             <div class="nav-links">
                 <a href="#control"><i class="fa-solid fa-sliders"></i> Mi Estado</a>
+                <a href="#weather-sec"><i class="fa-solid fa-cloud-sun"></i> Clima QTH</a>
                 <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack CX3DW</a>
                 <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
                 <a href="#operators"><i class="fa-solid fa-users-viewfinder"></i> Operadores En Línea</a>
@@ -212,27 +215,31 @@
 
         <!-- Columna Izquierda -->
         <div>
-            <!-- Panel de Registro de Equipos y Llamada Activa -->
+            <!-- Panel de Registro con Ciudad para Clima -->
             <section id="control" class="card card-yellow">
                 <div class="card-header">
-                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Llamada Activa</h2>
+                    <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Registro de Equipamiento & Ubicación</h2>
                     <span class="card-tag tag-yellow">En Vivo</span>
                 </div>
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:12px;">
-                    Indica tu indicativo y plataforma actual para aparecer en la lista de operadores activos en tiempo real:
+                    Escribe tu indicativo y ciudad para calcular el clima local en tiempo real y mostrar tus equipos:
                 </p>
                 <div class="control-panel">
                     <form id="op-status-form">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Mi Indicativo (Callsign)</label>
-                                <input type="text" id="my-callsign" placeholder="ej. CX3DW" required class="mono">
+                                <input type="text" id="my-callsign" placeholder="ej. CX3DW / LU1ABC" required class="mono">
                             </div>
                             <div class="form-group">
-                                <label>Plataforma / Frecuencia Activa</label>
+                                <label>Ciudad y País (QTH)</label>
+                                <input type="text" id="my-city" placeholder="ej. Montevideo, Uruguay" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Plataforma / Frecuencia</label>
                                 <select id="my-platform">
                                     <option value="20m FT8 / WSJT-X">20m FT8 / WSJT-X</option>
-                                    <option value="40m LSB (HF Voice)">40m LSB (Voz HF)</option>
+                                    <option value="40m LSB (Voz HF)">40m LSB (Voz HF)</option>
                                     <option value="10m USB (Voz HF)">10m USB (Voz HF)</option>
                                     <option value="145.200 MHz FM (VHF)">145.200 MHz FM (VHF)</option>
                                     <option value="SvxReflector TG 748">SvxReflector TG 748</option>
@@ -241,16 +248,36 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Transceptor</label>
+                                <label>Transceptor Principal</label>
                                 <input type="text" id="my-rig" placeholder="ej. SDR / FT-891">
                             </div>
-                            <div class="form-group">
-                                <label>Antena</label>
-                                <input type="text" id="my-antenna" placeholder="ej. Yagi / Dipolo">
-                            </div>
                         </div>
-                        <button type="submit" class="btn-update"><i class="fa-solid fa-broadcast-tower"></i> Transmitir Mi Estado En Vivo</button>
+                        <button type="submit" class="btn-update"><i class="fa-solid fa-cloud-sun"></i> Transmitir Mi Estado y Clima En Vivo</button>
                     </form>
+                </div>
+            </section>
+
+            <!-- Clima En Tiempo Real de CX3DW -->
+            <section id="weather-sec" class="card card-green">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-cloud-sun"></i> Clima QTH CX3DW (Tiempo Real)</h2>
+                    <span class="card-tag tag-green" id="weather-status-tag">Actualizado</span>
+                </div>
+                <div class="sub-grid">
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-temperature-three-quarters" style="font-size:2.2rem; color:var(--neon-yellow)"></i>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">MONTEVIDEO, URUGUAY</span>
+                            <div style="font-weight:700; color:#fff; font-size:1.1rem;" id="main-weather-temp">Cargando clima...</div>
+                        </div>
+                    </div>
+                    <div class="sub-box" style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-wind" style="font-size:2.2rem; color:var(--neon-cyan)"></i>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">VIENTO Y CONDICIÓN</span>
+                            <div style="font-weight:700; color:var(--neon-green);" id="main-weather-wind">Obteniendo datos meteorológicos...</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -296,20 +323,14 @@
 
         <!-- Columna Derecha -->
         <div>
-            <!-- Operadores En Línea -->
+            <!-- Operadores En Línea con Clima de su Ciudad -->
             <div id="operators" class="card card-green">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa-solid fa-users-line"></i> Operadores En Línea</h3>
-                    <span class="card-tag tag-green">En Vivo</span>
+                    <span class="card-tag tag-green">Tiempo Real</span>
                 </div>
                 <div id="operator-list" class="online-list">
-                    <div class="operator-card">
-                        <div>
-                            <div class="op-callsign mono">CX3DW</div>
-                            <div class="op-details">Equipos: SDR • Antena: Yagi HF</div>
-                        </div>
-                        <div class="op-status">145.200 / TG 748</div>
-                    </div>
+                    <!-- Generado dinámicamente -->
                 </div>
             </div>
 
@@ -345,11 +366,11 @@
     <footer class="footer">
         <div class="container">
             <p class="footer-title">&copy; 2026 <span style="color:var(--neon-pink)">CX3DW</span>. Todos los derechos reservados.</p>
-            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • PubNub Directo</p>
+            <p>Sitio web oficial de la estación <strong>CX3DW</strong> • Clima Global en Tiempo Real</p>
         </div>
     </footer>
 
-    <!-- Lógica JavaScript (PubNub 100% puro) -->
+    <!-- Lógica de Clima en Tiempo Real & PubNub -->
     <script>
         const pubKey = "pub-c-7c1040fd-b800-460f-9ef6-ba8b3e1f38eb";
         const subKey = "sub-c-5f82c40c-1b77-4fa5-a740-9b4e5486e9aa"; 
@@ -360,13 +381,60 @@
             userId: "cx3dw_op_" + Math.random().toString(36).substring(7)
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v2";
-        const CHANNEL_STATUS = "operators_cx3dw_v2";
+        const CHANNEL_CHAT = "chat_cx3dw_v3";
+        const CHANNEL_STATUS = "operators_cx3dw_v3";
 
-        pubnub.subscribe({ 
-            channels: [CHANNEL_CHAT, CHANNEL_STATUS],
-            withPresence: true 
-        });
+        pubnub.subscribe({ channels: [CHANNEL_CHAT, CHANNEL_STATUS], withPresence: true });
+
+        // Función para consultar clima en tiempo real mediante Open-Meteo API
+        async function fetchRealtimeWeather(cityName) {
+            try {
+                // 1. Geolocalizar la ciudad
+                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`);
+                const geoData = await geoRes.json();
+                
+                if (!geoData.results || geoData.results.length === 0) {
+                    return { temp: "-- °C", condition: "Ciudad no encontrada", wind: "-- km/h" };
+                }
+
+                const { latitude, longitude, name, country } = geoData.results[0];
+
+                // 2. Obtener variables meteorológicas actuales
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                const weatherData = await weatherRes.json();
+
+                const current = weatherData.current_weather;
+                const temp = `${Math.round(current.temperature)}°C`;
+                const wind = `${Math.round(current.windspeed)} km/h`;
+
+                // Interpretar WMO Weather Code
+                const weatherCodes = {
+                    0: "Despejado ☀️",
+                    1: "Mayormente Despejado 🌤️",
+                    2: "Parcialmente Nublado ⛅",
+                    3: "Nublado ☁️",
+                    45: "Niebla 🌫️",
+                    61: "Lluvia Ligera 🌧️",
+                    63: "Lluvia Moderada 🌧️",
+                    80: "Chubascos 🌦️",
+                    95: "Tormenta ⛈️"
+                };
+                const condition = weatherCodes[current.weathercode] || "Tiempo Variable 🌤️";
+
+                return { temp, condition, wind, locationName: `${name}, ${country}` };
+            } catch (err) {
+                console.error("Error al obtener clima:", err);
+                return { temp: "-- °C", condition: "Error de consulta", wind: "-- km/h" };
+            }
+        }
+
+        // Cargar clima por defecto para la estación CX3DW (Montevideo)
+        async function loadStationWeather() {
+            const data = await fetchRealtimeWeather("Montevideo");
+            document.getElementById('main-weather-temp').textContent = `${data.temp} | ${data.condition}`;
+            document.getElementById('main-weather-wind').textContent = `Viento: ${data.wind}`;
+        }
+        loadStationWeather();
 
         // Relojes
         function updateClocks() {
@@ -380,9 +448,8 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // Chat
+        // Renderizado del Chat
         const chatMessages = document.getElementById('chat-messages');
-
         function renderMensaje(callsign, text, time) {
             const msgDiv = document.createElement('div');
             msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
@@ -400,19 +467,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Historial de chat
-        pubnub.fetchMessages({
-            channels: [CHANNEL_CHAT],
-            count: 20
-        }, function(status, response) {
-            if (response && response.channels && response.channels[CHANNEL_CHAT]) {
-                response.channels[CHANNEL_CHAT].forEach(item => {
-                    const data = item.message;
-                    if(data) renderMensaje(data.callsign, data.text, data.time);
-                });
-            }
-        });
-
         // Operadores en línea
         const onlineOperators = {};
 
@@ -422,10 +476,15 @@
 
             if (!onlineOperators['CX3DW']) {
                 onlineOperators['CX3DW'] = {
+                    city: "Montevideo, Uruguay",
                     rig: "SDR Multi-Modo",
-                    antenna: "Yagi HF",
-                    platform: "145.200 MHz / TG 748"
+                    platform: "145.200 MHz / TG 748",
+                    weatherStr: "Cargando clima..."
                 };
+                fetchRealtimeWeather("Montevideo").then(w => {
+                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
+                    renderOperatorList();
+                });
             }
 
             Object.keys(onlineOperators).forEach(call => {
@@ -433,11 +492,12 @@
                 const card = document.createElement('div');
                 card.className = 'operator-card';
                 card.innerHTML = `
-                    <div>
+                    <div class="op-header">
                         <div class="op-callsign mono">${call}</div>
-                        <div class="op-details">Equipos: ${op.rig || 'Estándar'} • Antena: ${op.antenna || 'Dipolo'}</div>
+                        <div class="op-status">${op.platform}</div>
                     </div>
-                    <div class="op-status">${op.platform}</div>
+                    <div class="op-details">QTH: <strong>${op.city || 'Desconocido'}</strong> • Rig: ${op.rig || 'Estándar'}</div>
+                    <div class="op-weather"><i class="fa-solid fa-cloud-sun"></i> ${op.weatherStr || 'Consultando clima...'}</div>
                 `;
                 opListDiv.appendChild(card);
             });
@@ -475,24 +535,29 @@
             }
         });
 
-        // Enviar Estado
+        // Enviar Estado + Clima en Tiempo Real
         const statusForm = document.getElementById('op-status-form');
-        statusForm.addEventListener('submit', function(e) {
+        statusForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const callsign = document.getElementById('my-callsign').value.toUpperCase();
+            const city = document.getElementById('my-city').value;
             const platform = document.getElementById('my-platform').value;
             const rig = document.getElementById('my-rig').value;
-            const antenna = document.getElementById('my-antenna').value;
 
-            if (callsign) {
-                const opData = { callsign, platform, rig, antenna };
+            if (callsign && city) {
+                // Consultar clima en tiempo real de la ciudad ingresada
+                const w = await fetchRealtimeWeather(city);
+                const weatherStr = `${w.temp} (${w.condition})`;
+
+                const opData = { callsign, city: w.locationName || city, platform, rig, weatherStr };
+                
                 pubnub.publish({
                     channel: CHANNEL_STATUS,
                     message: opData
                 }).then(() => {
                     onlineOperators[callsign] = opData;
                     renderOperatorList();
-                    alert(`¡Estado de ${callsign} actualizado y transmitido en vivo!`);
+                    alert(`¡Estado y clima de ${callsign} (${city}) actualizados en vivo!`);
                 });
             }
         });

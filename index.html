@@ -369,7 +369,7 @@
             <section id="chat" class="card card-purple">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">PubNub En Vivo</span>
+                    <span class="card-tag tag-purple">GitHub / PubNub Global</span>
                 </div>
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Deja tu reporte de QSO o saludo a los colegas:</p>
                 <div class="chat-box">
@@ -448,8 +448,8 @@
             userId: myUuid
         });
 
-        const CHANNEL_CHAT = "chat_cx3dw_v10";
-        const CHANNEL_STATUS = "operators_cx3dw_v10";
+        const CHANNEL_CHAT = "cx3dw_global_chat_v11";
+        const CHANNEL_STATUS = "cx3dw_global_status_v11";
 
         // 1. AUTENTICACIÓN / SESIÓN LOCAL
         let currentUser = JSON.parse(localStorage.getItem('cx3dw_session')) || null;
@@ -571,30 +571,14 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // 4. CHAT GLOBAL CON PERSISTENCIA EN LOCALSTORAGE Y PUBNUB
+        // 4. CHAT GLOBAL CON HISTORIAL REMOTO PUBNUB + LOCALSTORAGE
         const chatMessages = document.getElementById('chat-messages');
+        const processedMsgIds = new Set();
 
-        function getStoredMessages() {
-            try {
-                return JSON.parse(localStorage.getItem('cx3dw_chat_history')) || [];
-            } catch(e) { return []; }
-        }
+        function appendMessageToDOM(callsign, text, time, msgId) {
+            if (msgId && processedMsgIds.has(msgId)) return;
+            if (msgId) processedMsgIds.add(msgId);
 
-        function saveAndRenderMessage(callsign, text, time, msgId) {
-            let history = getStoredMessages();
-            // Evitar duplicados por ID único
-            if (history.some(m => m.msgId === msgId)) return;
-
-            const messageObj = { callsign, text, time, msgId };
-            history.push(messageObj);
-            // Mantener solo los últimos 30 mensajes
-            if (history.length > 30) history.shift();
-            localStorage.setItem('cx3dw_chat_history', JSON.stringify(history));
-
-            appendMessageToDOM(callsign, text, time);
-        }
-
-        function appendMessageToDOM(callsign, text, time) {
             const msgDiv = document.createElement('div');
             msgDiv.style.background = "rgba(15, 23, 42, 0.8)";
             msgDiv.style.padding = "8px 12px";
@@ -611,17 +595,26 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Cargar historial al iniciar
-        function loadChatHistory() {
-            chatMessages.innerHTML = '';
-            const history = getStoredMessages();
-            if (history.length === 0) {
-                chatMessages.innerHTML = `<div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>`;
-            } else {
-                history.forEach(m => appendMessageToDOM(m.callsign, m.text, m.time));
-            }
+        // Cargar mensajes pasados desde el historial de PubNub al iniciar
+        function fetchPubNubHistory() {
+            pubnub.history({
+                channel: CHANNEL_CHAT,
+                count: 25
+            }, function(status, response) {
+                if (!status.error && response.messages) {
+                    chatMessages.innerHTML = '';
+                    if (response.messages.length === 0) {
+                        chatMessages.innerHTML = `<div style="color:var(--text-muted); font-style:italic;">[Sistema] Canal conectado. ¡73s de CX3DW! Deja tu mensaje abajo.</div>`;
+                    }
+                    response.messages.forEach(item => {
+                        const m = item.entry;
+                        if (m && m.callsign && m.text) {
+                            appendMessageToDOM(m.callsign, m.text, m.time, m.msgId);
+                        }
+                    });
+                }
+            });
         }
-        loadChatHistory();
 
         const chatForm = document.getElementById('chat-form');
         chatForm.addEventListener('submit', function(e) {
@@ -638,42 +631,30 @@
                 
                 document.getElementById('my-callsign').value = callsign;
 
-                // Guardar y mostrar localmente
-                saveAndRenderMessage(callsign, text, nowTime, uniqueMsgId);
-
-                // Enviar por red PubNub
+                // Enviar inmediatamente a la red PubNub
                 pubnub.publish({
                     channel: CHANNEL_CHAT,
                     message: { callsign: callsign, text: text, time: nowTime, msgId: uniqueMsgId }
+                }, function(status, response) {
+                    if (!status.error) {
+                        appendMessageToDOM(callsign, text, nowTime, uniqueMsgId);
+                    }
                 });
 
                 textInput.value = '';
             }
         });
 
-        // 5. OPERADORES EN LÍNEA & PERSISTENCIA GLOBAL
-        function getStoredOperators() {
-            try {
-                return JSON.parse(localStorage.getItem('cx3dw_active_operators')) || {};
-            } catch(e) { return {}; }
-        }
-
-        function saveOperatorToStorage(opData) {
-            let ops = getStoredOperators();
-            ops[opData.callsign] = opData;
-            localStorage.setItem('cx3dw_active_operators', JSON.stringify(ops));
-            renderOperatorList();
-        }
+        // 5. OPERADORES EN LÍNEA & SINCRONIZACIÓN REMOTA
+        const onlineOperators = {};
 
         function renderOperatorList() {
             const opListDiv = document.getElementById('operator-list');
             opListDiv.innerHTML = '';
 
-            let ops = getStoredOperators();
-
             // Asegurar estación base por defecto CX3DW si no está
-            if (!ops['CX3DW']) {
-                ops['CX3DW'] = {
+            if (!onlineOperators['CX3DW']) {
+                onlineOperators['CX3DW'] = {
                     callsign: "CX3DW",
                     city: "Montevideo, Uruguay",
                     rig: "SDR Multi-Modo",
@@ -682,10 +663,14 @@
                     tg: "TG 748",
                     weatherStr: "Cargando clima..."
                 };
+                fetchRealtimeWeather("Montevideo").then(w => {
+                    onlineOperators['CX3DW'].weatherStr = `${w.temp} (${w.condition})`;
+                    renderOperatorList();
+                });
             }
 
-            Object.keys(ops).forEach(call => {
-                const op = ops[call];
+            Object.keys(onlineOperators).forEach(call => {
+                const op = onlineOperators[call];
                 const card = document.createElement('div');
                 card.className = 'operator-card';
                 
@@ -705,33 +690,34 @@
             });
         }
 
-        // LISTENERS DE PUBNUB
+        // LISTENERS DE PUBNUB (TIEMPO REAL)
         pubnub.addListener({
             message: function(event) {
                 if (event.channel === CHANNEL_CHAT) {
                     const data = event.message;
-                    if (data && data.msgId && data.callsign && data.text) {
-                        saveAndRenderMessage(data.callsign, data.text, data.time, data.msgId);
+                    if (data && data.callsign && data.text) {
+                        appendMessageToDOM(data.callsign, data.text, data.time, data.msgId);
                     }
                 } else if (event.channel === CHANNEL_STATUS) {
                     const op = event.message;
                     if (op && op.callsign) {
-                        let ops = getStoredOperators();
-                        ops[op.callsign] = op;
-                        localStorage.setItem('cx3dw_active_operators', JSON.stringify(ops));
+                        onlineOperators[op.callsign] = op;
                         renderOperatorList();
                     }
                 }
             }
         });
 
-        // SUSCRIPCIÓN ACTIVA
+        // SUSCRIPCIÓN ACTIVA A CANALES
         pubnub.subscribe({ 
             channels: [CHANNEL_CHAT, CHANNEL_STATUS], 
             withPresence: true 
         });
 
-        // ENVIAR ESTADO DE OPERADOR
+        // Cargar historial al iniciar la página
+        fetchPubNubHistory();
+
+        // ENVIAR ESTADO DE OPERADOR GLOBAL
         const statusForm = document.getElementById('op-status-form');
         statusForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -754,9 +740,10 @@
                     weatherStr: "Consultando clima..." 
                 };
 
-                saveOperatorToStorage(opData);
+                onlineOperators[callsign] = opData;
+                renderOperatorList();
 
-                // Publicar estado a la red
+                // Publicar estado a la red PubNub para que la PC/Celular lo vea
                 pubnub.publish({
                     channel: CHANNEL_STATUS,
                     message: opData
@@ -766,7 +753,8 @@
                     opData.weatherStr = `${w.temp} (${w.condition})`;
                     if (w.locationName) opData.city = w.locationName;
 
-                    saveOperatorToStorage(opData);
+                    onlineOperators[callsign] = opData;
+                    renderOperatorList();
 
                     pubnub.publish({
                         channel: CHANNEL_STATUS,
@@ -774,7 +762,7 @@
                     });
                 });
 
-                alert(`¡Estado transmitido con éxito para ${callsign} en todo el canal!`);
+                alert(`¡Estado transmitido globalmente para ${callsign}! Ya puedes verlo en tus otros dispositivos.`);
             }
         });
 

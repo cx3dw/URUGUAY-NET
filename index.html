@@ -1,221 +1,265 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CX3DW — Estación de Radioaficionado</title>
+    <title>CX3DW — Estación de Radioaficionado DX & Digital</title>
     
-    <!-- Meta etiquetas y Open Graph -->
-    <meta name="description" content="Sitio oficial de la estación CX3DW. Creado por CX3DW. Clima, chat en vivo, hora UTC/Local, propagación y logbook.">
-    <meta property="og:title" content="CX3DW - Ham Radio Station">
-    <meta property="og:description" content="Operando desde Uruguay | Grid: GF15 | Creado por CX3DW">
-    <meta property="og:url" content="https://cx3dw.github.io/">
-
-    <!-- Estilos y Tipografías -->
-    <link rel="stylesheet" href="./style.css">
+    <!-- Tailwind CSS (Diseño moderno garantizado sin fallos de estilo) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#05070e',
+                        cardbg: '#0f172a',
+                        neoncyan: '#06b6d4',
+                        neonpink: '#ec4899',
+                        neongreen: '#10b981',
+                        neonpurple: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .glow-text {
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-darkbg text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-black">
 
-    <!-- Header Neón Visto de Alto Impacto -->
-    <header class="site-header">
-        <div class="header-inner container">
-            <div class="brand-box">
-                <span class="author-badge"><i class="fa-solid fa-crown"></i> By CX3DW</span>
-                <h1 class="callsign">CX3DW</h1>
-                <p class="station-owner">Estación DX & Digital • Uruguay (GF15)</p>
-            </div>
-            
-            <!-- Relojes UTC y Local -->
-            <div class="clock-widget">
-                <div class="clock-item">
-                    <span class="clock-label">Local</span>
-                    <span id="local-time" class="mono">--:--:--</span>
+    <!-- Header Estilo Panel DX -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="bg-gradient-to-tr from-cyan-500 to-purple-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-tower-broadcast text-2xl text-white"></i>
                 </div>
-                <div class="clock-item utc">
-                    <span class="clock-label">UTC (Z)</span>
-                    <span id="utc-time" class="mono">--:--:--</span>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-widest px-2 py-0.5 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-full">By CX3DW</span>
+                    </div>
+                    <h1 class="text-3xl font-black tracking-wider glow-text mono text-white">CX3DW</h1>
                 </div>
             </div>
 
-            <div class="header-status">
-                <span class="live-badge"><span class="pulse"></span> QRV / LISTENING</span>
+            <!-- Relojes UTC / Local -->
+            <div class="hidden md:flex items-center space-x-6 bg-slate-900/90 border border-slate-800 px-5 py-2.5 rounded-2xl">
+                <div class="text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Local</span>
+                    <div id="local-time" class="mono text-sm font-bold text-cyan-400">--:--:--</div>
+                </div>
+                <div class="h-6 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">UTC (Z)</span>
+                    <div id="utc-time" class="mono text-sm font-bold text-yellow-400">--:--:--Z</div>
+                </div>
+            </div>
+
+            <!-- Estado QRV -->
+            <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-full">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-bold text-emerald-400 tracking-wide">QRV / LISTENING</span>
             </div>
         </div>
     </header>
 
-    <!-- Navegación Neón -->
-    <nav class="tech-nav">
-        <div class="container nav-container">
-            <div class="nav-links">
-                <a href="#shack"><i class="fa-solid fa-microchip"></i> Shack</a>
-                <a href="#antennas"><i class="fa-solid fa-tower-broadcast"></i> Antenas</a>
-                <a href="#widgets"><i class="fa-solid fa-cloud-sun-rain"></i> Clima & DX</a>
-                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat Directo</a>
-                <a href="#logbook"><i class="fa-solid fa-database"></i> Log / QRZ</a>
+    <!-- Navegación Moderna -->
+    <nav class="bg-slate-950/50 border-b border-slate-800/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+            <div class="flex space-x-6 overflow-x-auto text-sm font-semibold text-slate-300">
+                <a href="#shack" class="hover:text-cyan-400 transition flex items-center space-x-2"><i class="fa-solid fa-microchip text-cyan-400"></i><span>Shack</span></a>
+                <a href="#antennas" class="hover:text-cyan-400 transition flex items-center space-x-2"><i class="fa-solid fa-satellite-dish text-cyan-400"></i><span>Antenas</span></a>
+                <a href="#widgets" class="hover:text-cyan-400 transition flex items-center space-x-2"><i class="fa-solid fa-cloud-sun text-cyan-400"></i><span>Clima & DX</span></a>
+                <a href="#chat" class="hover:text-cyan-400 transition flex items-center space-x-2"><i class="fa-solid fa-comments text-cyan-400"></i><span>Chat Directo</span></a>
             </div>
-            <div class="external-links">
-                <a href="https://www.qrz.com/db/CX3DW" target="_blank" rel="noopener" class="ext-btn btn-qrz">QRZ.com <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" rel="noopener" class="ext-btn btn-clublog">ClubLog <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            <div class="hidden sm:flex items-center space-x-3">
+                <a href="https://www.qrz.com/db/CX3DW" target="_blank" class="text-xs font-bold bg-pink-600 hover:bg-pink-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-lg shadow-pink-600/20">QRZ.com</a>
+                <a href="https://clublog.org/logsearch/CX3DW" target="_blank" class="text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/20">ClubLog</a>
             </div>
         </div>
     </nav>
 
-    <!-- Contenido Principal -->
-    <main class="container main-layout">
-
-        <!-- Columna Principal -->
-        <div class="content-column">
+    <!-- Contenido Principal Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Columna Izquierda (2 Franjas) -->
+        <div class="lg:col-span-2 space-y-8">
             
-            <!-- Sección: El Shack (Tarjeta Neón Rosa) -->
-            <section id="shack" class="tech-card card-pink">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-headset"></i> Equipamiento de la Estación</h2>
-                    <span class="card-tag tag-pink">Hardware</span>
+            <!-- Tarjeta Equipamiento -->
+            <section id="shack" class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-500">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <h2 class="text-xl font-bold flex items-center space-x-3 text-white">
+                        <i class="fa-solid fa-headset text-cyan-400"></i>
+                        <span>Equipamiento de la Estación</span>
+                    </h2>
+                    <span class="text-xs font-mono uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-1 rounded-md">Hardware</span>
                 </div>
-                <div class="specs-grid">
-                    <div class="spec-item">
-                        <span class="spec-label label-pink">HF / 50 MHz</span>
-                        <h4>Transceptor SDR</h4>
-                        <p>Filtrado dinámico avanzado para recepción de señales débiles y concursos.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl">
+                        <span class="text-[10px] font-bold uppercase text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded">HF / 50 MHz</span>
+                        <h4 class="font-bold text-base mt-2 text-white">Transceptor SDR</h4>
+                        <p class="text-xs text-slate-400 mt-1">Filtrado dinámico avanzado para señales débiles y alto rendimiento en concursos.</p>
                     </div>
-                    <div class="spec-item">
-                        <span class="spec-label label-purple">Digital Interface</span>
-                        <h4>WSJT-X / FT8 / RTTY</h4>
-                        <p>Módulo de automatización para modos digitales y sincronización inmediata.</p>
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl">
+                        <span class="text-[10px] font-bold uppercase text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Digital Interface</span>
+                        <h4 class="font-bold text-base mt-2 text-white">WSJT-X / FT8 / RTTY</h4>
+                        <p class="text-xs text-slate-400 mt-1">Automatización completa para modos digitales y sincronización de registros.</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección: Antenas (Tarjeta Neón Cian) -->
-            <section id="antennas" class="tech-card card-cyan">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-satellite-dish"></i> Sistema Radiante</h2>
-                    <span class="card-tag tag-cyan">Antenas</span>
+            <!-- Tarjeta Antenas -->
+            <section id="antennas" class="glass-card rounded-2xl p-6 border-l-4 border-l-pink-500">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <h2 class="text-xl font-bold flex items-center space-x-3 text-white">
+                        <i class="fa-solid fa-satellite-dish text-pink-400"></i>
+                        <span>Sistema Radiante</span>
+                    </h2>
+                    <span class="text-xs font-mono uppercase bg-pink-500/10 text-pink-400 border border-pink-500/20 px-2.5 py-1 rounded-md">Antenas</span>
                 </div>
-                <ul class="clean-list">
-                    <li>
-                        <i class="fa-solid fa-bolt icon-cyan"></i>
-                        <div><strong>Direccionales HF:</strong> Yagi multibanda ajustada para máxima ganancia directiva.</div>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex items-start space-x-3 bg-slate-900/50 p-3 rounded-xl border border-slate-800/50">
+                        <i class="fa-solid fa-bolt text-cyan-400 mt-1"></i>
+                        <div><strong class="text-white">Direccionales HF:</strong> Yagi multibanda en torre autosoportada para máxima ganancia frontal.</div>
                     </li>
-                    <li>
-                        <i class="fa-solid fa-bolt icon-cyan"></i>
-                        <div><strong>Bandas Bajas & WARC:</strong> Dipolos en V invertida de alto rendimiento.</div>
+                    <li class="flex items-start space-x-3 bg-slate-900/50 p-3 rounded-xl border border-slate-800/50">
+                        <i class="fa-solid fa-bolt text-cyan-400 mt-1"></i>
+                        <div><strong class="text-white">Bandas Bajas & WARC:</strong> Dipolos y arreglos en V invertida de alta eficiencia.</div>
                     </li>
                 </ul>
             </section>
 
-            <!-- Sección: Clima y Propagación en Vivo (Tarjeta Neón Verde) -->
-            <section id="widgets" class="tech-card card-green">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-temperature-arrow-up"></i> Clima & Propagación Solar</h2>
-                    <span class="card-tag tag-green">Tiempo Real</span>
+            <!-- Clima y Propagación -->
+            <section id="widgets" class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <h2 class="text-xl font-bold flex items-center space-x-3 text-white">
+                        <i class="fa-solid fa-temperature-arrow-up text-emerald-400"></i>
+                        <span>Clima & Propagación Solar</span>
+                    </h2>
+                    <span class="text-xs font-mono uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md">Tiempo Real</span>
                 </div>
-                <div class="widgets-grid">
-                    <div class="widget-box">
-                        <i class="fa-solid fa-cloud-sun text-yellow"></i>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl flex items-center space-x-4">
+                        <i class="fa-solid fa-cloud-sun text-3xl text-yellow-400"></i>
                         <div>
-                            <span class="w-title">Clima QTH (Uruguay)</span>
-                            <span id="weather-info" class="w-val">Cargando datos climáticos...</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Clima QTH (Uruguay)</span>
+                            <div id="weather-info" class="text-sm font-bold text-white mt-0.5">22°C | Soleado | V 14 km/h</div>
                         </div>
                     </div>
-                    <div class="widget-box">
-                        <i class="fa-solid fa-solar-panel text-pink"></i>
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl flex items-center space-x-4">
+                        <i class="fa-solid fa-solar-panel text-3xl text-pink-400"></i>
                         <div>
-                            <span class="w-title">Estado Solar (SFI / K-Index)</span>
-                            <span class="w-val text-green">SFI: 145 | K-Index: 2 (Bandas Abiertas)</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Estado Solar</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">SFI: 145 | K: 2 (Abierto)</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Sección: Chat Directo Interactivo (Tarjeta Neón Morada) -->
-            <section id="chat" class="tech-card card-purple">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-comments"></i> Chat Directo de Estación</h2>
-                    <span class="card-tag tag-purple">Interactivo</span>
+            <!-- Chat Interactivo de Estación -->
+            <section id="chat" class="glass-card rounded-2xl p-6 border-l-4 border-l-purple-500">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <h2 class="text-xl font-bold flex items-center space-x-3 text-white">
+                        <i class="fa-solid fa-comments text-purple-400"></i>
+                        <span>Chat Directo de Estación</span>
+                    </h2>
+                    <span class="text-xs font-mono uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-md">Interactivo</span>
                 </div>
-                <p class="section-desc">Deja tu reporte de QSO o saludo en vivo:</p>
-                <div class="chat-container">
-                    <div id="chat-messages" class="chat-messages">
-                        <div class="chat-msg system"><span>[Sistema] Canal abierto. ¡73s de CX3DW! Deja tu mensaje abajo.</span></div>
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+                    <div id="chat-messages" class="h-48 overflow-y-auto space-y-2 mb-4 pr-2 text-sm">
+                        <div class="text-slate-500 italic text-xs">[Sistema] Canal abierto. ¡73s de CX3DW! Deja tu reporte o saludo abajo.</div>
                     </div>
-                    <form id="chat-form" class="chat-form">
-                        <input type="text" id="chat-callsign" placeholder="Indicativo (ej. LU1ABC)" required style="max-width: 160px;">
-                        <input type="text" id="chat-text" placeholder="Escribe tu reporte o mensaje..." required>
-                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+                    <form id="chat-form" class="flex gap-2">
+                        <input type="text" id="chat-callsign" placeholder="Indicativo" required class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white w-28 uppercase focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="chat-text" placeholder="Escribe tu mensaje o reporte de señal..." required class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white flex-1 focus:outline-none focus:border-cyan-500">
+                        <button type="submit" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-purple-600/30">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
                     </form>
                 </div>
             </section>
 
         </div>
 
-        <!-- Columna Lateral -->
-        <aside class="sidebar-column">
+        <!-- Columna Derecha (Sidebar) -->
+        <div class="space-y-8">
             
             <!-- Coordenadas QTH -->
-            <div class="tech-card card-cyan">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-location-dot"></i> Coordenadas</h3>
-                </div>
-                <div class="data-table">
-                    <div class="data-row">
-                        <span>Indicativo</span>
-                        <strong class="mono text-cyan">CX3DW</strong>
-                    </div>
-                    <div class="data-row">
-                        <span>QTH</span>
-                        <strong>Uruguay</strong>
-                    </div>
-                    <div class="data-row">
-                        <span>Grid Locator</span>
-                        <strong class="mono text-yellow">GF15</strong>
-                    </div>
-                    <div class="data-row">
-                        <span>CQ / ITU</span>
-                        <strong>11 / 14</strong>
-                    </div>
+            <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500">
+                <h3 class="text-lg font-bold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
+                    <i class="fa-solid fa-location-dot text-cyan-400"></i>
+                    <span>Coordenadas Estación</span>
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between py-1.5 border-b border-slate-800/60"><span class="text-slate-400">Indicativo</span><strong class="mono text-cyan-400">CX3DW</strong></div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-800/60"><span class="text-slate-400">QTH / País</span><strong class="text-white">Uruguay</strong></div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-800/60"><span class="text-slate-400">Grid Locator</span><strong class="mono text-yellow-400">GF15</strong></div>
+                    <div class="flex justify-between py-1.5"><span class="text-slate-400">CQ / ITU Zone</span><strong class="text-white">11 / 14</strong></div>
                 </div>
             </div>
 
-            <!-- Sincronización eQSL / QRZ / LoTW -->
-            <div id="logbook" class="tech-card card-pink">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-rotate"></i> Sync Logbook</h3>
-                </div>
-                <ul class="qsl-list">
-                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>LoTW:</strong> Carga automática.</li>
-                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>eQSL:</strong> AG (Authenticity Guaranteed).</li>
-                    <li><i class="fa-solid fa-circle-check text-green"></i> <strong>QRZ Logbook:</strong> Verificado en tiempo real.</li>
+            <!-- Sync Logbook -->
+            <div class="glass-card rounded-2xl p-6 border-t-4 border-t-pink-500">
+                <h3 class="text-lg font-bold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
+                    <i class="fa-solid fa-rotate text-pink-400"></i>
+                    <span>Sync Logbook</span>
+                </h3>
+                <ul class="space-y-3 text-xs text-slate-300">
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>LoTW:</strong> Sincronización automática</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>eQSL:</strong> AG (Authenticity Guaranteed)</span></li>
+                    <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-400"></i><span><strong>QRZ Logbook:</strong> Verificado en tiempo real</span></li>
                 </ul>
             </div>
 
             <!-- Buscador ClubLog -->
-            <div class="tech-card card-green">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-magnifying-glass"></i> Consultar ClubLog</h3>
-                </div>
-                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="log-form">
+            <div class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-500">
+                <h3 class="text-lg font-bold flex items-center space-x-2 text-white mb-4 pb-3 border-b border-slate-800">
+                    <i class="fa-solid fa-magnifying-glass text-emerald-400"></i>
+                    <span>Consultar ClubLog</span>
+                </h3>
+                <form action="https://clublog.org/logsearch.php" method="get" target="_blank" class="space-y-3">
                     <input type="hidden" name="call" value="CX3DW">
-                    <input type="text" name="target" placeholder="Tu indicativo..." required autocomplete="off">
-                    <button type="submit">Buscar</button>
+                    <input type="text" name="target" placeholder="Tu indicativo (ej. LU1XYZ)" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-bold py-2 rounded-lg text-sm transition shadow-lg shadow-emerald-600/20">
+                        Buscar en Logbook
+                    </button>
                 </form>
             </div>
 
-        </aside>
+        </div>
 
     </main>
 
-    <!-- Footer Colorido -->
-    <footer class="site-footer">
-        <div class="container footer-content">
-            <p class="footer-copy">&copy; 2026 <strong class="text-pink">CX3DW</strong>. Todos los derechos reservados.</p>
-            <p class="footer-credit">Diseñado y creado por <strong>CX3DW</strong> • Alojado en GitHub Pages</p>
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 mt-20 py-8 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="text-sm font-bold text-white">&copy; 2026 <span class="text-cyan-400">CX3DW</span>. Todos los derechos reservados.</p>
+            <p>Sitio web oficial de la estación <strong class="text-slate-300">CX3DW</strong> • Creado y administrado para GitHub Pages</p>
         </div>
     </footer>
 
-    <!-- Scripts de Reloj, Clima y Chat -->
+    <!-- Scripts en Vivo -->
     <script>
         // Relojes UTC y Local
         function updateClocks() {
@@ -230,10 +274,7 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // Clima en vivo (Uruguay)
-        document.getElementById('weather-info').textContent = "22°C | Soleado | Viento SE 14 km/h";
-
-        // Chat Directo
+        // Chat Local Interactivo
         const chatForm = document.getElementById('chat-form');
         const chatMessages = document.getElementById('chat-messages');
 
@@ -244,8 +285,14 @@
 
             if(callsign && text) {
                 const msgDiv = document.createElement('div');
-                msgDiv.classList.add('chat-msg');
-                msgDiv.innerHTML = `<strong class="text-cyan">[${callsign}]</strong>: ${text} <span class="msg-time">${new Date().toLocaleTimeString()}</span>`;
+                msgDiv.className = "bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/60";
+                msgDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <strong class="text-cyan-400 mono text-xs">[${callsign}]</strong>
+                        <span class="text-[10px] text-slate-500">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <p class="text-slate-200">${text}</p>
+                `;
                 chatMessages.appendChild(msgDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 document.getElementById('chat-text').value = '';
